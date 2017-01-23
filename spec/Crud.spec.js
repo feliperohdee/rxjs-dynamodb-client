@@ -1015,7 +1015,7 @@ describe('src/Crud', () => {
 		});
 	});
 
-	describe('appendList', () => {
+	describe('appendToList', () => {
 		let item;
 
 		beforeEach(done => {
@@ -1023,7 +1023,7 @@ describe('src/Crud', () => {
 					namespace: 'spec',
 					key: 'key-0'
 				})
-				.mergeMap(() => crud.appendList({
+				.mergeMap(() => crud.appendToList({
 					namespace,
 					key: 'key-0',
 					list: [{
@@ -1046,7 +1046,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should append', done => {
-			crud.appendList({
+			crud.appendToList({
 					namespace,
 					key: 'key-0',
 					list: [{
@@ -1075,7 +1075,7 @@ describe('src/Crud', () => {
 			beforeEach(() => {
 				callback = stub();
 
-				crud.appendList({
+				crud.appendToList({
 					namespace,
 					key: 'key-0',
 					list: [{
@@ -1108,7 +1108,7 @@ describe('src/Crud', () => {
 		});
 	});
 
-	describe('prependList', () => {
+	describe('prependToList', () => {
 		let item;
 
 		beforeEach(done => {
@@ -1116,7 +1116,7 @@ describe('src/Crud', () => {
 					namespace: 'spec',
 					key: 'key-0'
 				})
-				.mergeMap(() => crud.prependList({
+				.mergeMap(() => crud.prependToList({
 					namespace,
 					key: 'key-0',
 					list: [{
@@ -1139,7 +1139,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should prepend', done => {
-			crud.prependList({
+			crud.prependToList({
 					namespace,
 					key: 'key-0',
 					list: [{
@@ -1168,7 +1168,7 @@ describe('src/Crud', () => {
 			beforeEach(() => {
 				callback = stub();
 
-				crud.prependList({
+				crud.prependToList({
 					namespace,
 					key: 'key-0',
 					list: [{
@@ -1201,7 +1201,7 @@ describe('src/Crud', () => {
 		});
 	});
 
-	describe('pullList', () => {
+	describe('removeFromList', () => {
 		let item;
 
 		beforeEach(done => {
@@ -1209,24 +1209,35 @@ describe('src/Crud', () => {
 					namespace: 'spec',
 					key: 'key-0'
 				})
-				.mergeMap(() => crud.appendList({
+				.mergeMap(() => crud.appendToList({
 					namespace,
 					key: 'key-0',
-					list: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+					list: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 				}))
 				.subscribe(response => {
 					item = response;
 				}, null, done);
 		});
 
-		it('should pull', done => {
-			crud.pullList({
+		it('should pull with array', done => {
+			crud.removeFromList({
 					namespace,
 					key: 'key-0',
 					list: [0, 1]
 				})
 				.subscribe(response => {
-					expect(response.list).to.deep.equal([3, 4, 5, 6, 7, 8, 9]);
+					expect(response.list).to.deep.equal([2, 3, 4, 5, 6, 7, 8, 9]);
+				}, null, done);
+		});
+
+		it('should pull with single value', done => {
+			crud.removeFromList({
+					namespace,
+					key: 'key-0',
+					list: 0
+				})
+				.subscribe(response => {
+					expect(response.list).to.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 				}, null, done);
 		});
 
@@ -1237,7 +1248,7 @@ describe('src/Crud', () => {
 			beforeEach(() => {
 				callback = stub();
 
-				crud.pullList({
+				crud.removeFromList({
 					namespace,
 					key: 'key-0',
 					list: [2, 3]
@@ -1266,7 +1277,7 @@ describe('src/Crud', () => {
 		});
 	});
 
-	describe('updateList', () => {
+	describe('updateAtList', () => {
 		let item;
 
 		beforeEach(done => {
@@ -1274,7 +1285,7 @@ describe('src/Crud', () => {
 					namespace: 'spec',
 					key: 'key-0'
 				})
-				.mergeMap(() => crud.appendList({
+				.mergeMap(() => crud.appendToList({
 					namespace,
 					key: 'key-0',
 					list: [0, 1, 2, 3, 4, 5, 6, 7, {
@@ -1287,7 +1298,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should update with primaries', done => {
-			crud.updateList({
+			crud.updateAtList({
 					namespace,
 					key: 'key-0',
 					list: {
@@ -1303,7 +1314,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should update with object path', done => {
-			crud.updateList({
+			crud.updateAtList({
 					namespace,
 					key: 'key-0',
 					list: {
@@ -1326,7 +1337,7 @@ describe('src/Crud', () => {
 			beforeEach(() => {
 				callback = stub();
 
-				crud.updateList({
+				crud.updateAtList({
 					namespace,
 					key: 'key-0',
 					list: {
@@ -1357,7 +1368,7 @@ describe('src/Crud', () => {
 		});
 	});
 
-	describe('appendSet', () => {
+	describe('addToSet', () => {
 		let item;
 
 		beforeEach(done => {
@@ -1369,7 +1380,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should create a string set with array', done => {
-			crud.appendSet({
+			crud.addToSet({
 					namespace,
 					key: 'key-0',
 					set: ['a', 'b']
@@ -1380,7 +1391,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should create a number set with array', done => {
-			crud.appendSet({
+			crud.addToSet({
 					namespace,
 					key: 'key-0',
 					set: [1, 2]
@@ -1391,7 +1402,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should create a string set with single value', done => {
-			crud.appendSet({
+			crud.addToSet({
 					namespace,
 					key: 'key-0',
 					set: 'a'
@@ -1402,7 +1413,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should create a number set with single value', done => {
-			crud.appendSet({
+			crud.addToSet({
 					namespace,
 					key: 'key-0',
 					set: 1
@@ -1413,12 +1424,12 @@ describe('src/Crud', () => {
 		});
 
 		it('should not duplicate', done => {
-			crud.appendSet({
+			crud.addToSet({
 					namespace,
 					key: 'key-0',
 					set: ['a', 'b']
 				})
-				.mergeMap(() => crud.appendSet({
+				.mergeMap(() => crud.addToSet({
 					namespace,
 					key: 'key-0',
 					set: ['a', 'b']
@@ -1430,7 +1441,7 @@ describe('src/Crud', () => {
 
 
 		it('should not create a set', done => {
-			crud.appendSet({
+			crud.addToSet({
 					namespace,
 					key: 'key-0',
 					set: [1, 'b']
@@ -1449,7 +1460,7 @@ describe('src/Crud', () => {
 			beforeEach(() => {
 				callback = stub();
 
-				crud.appendSet({
+				crud.addToSet({
 					namespace,
 					key: 'key-0',
 					set: ['a', 'b']
@@ -1478,7 +1489,7 @@ describe('src/Crud', () => {
 		});
 	});
 
-	describe('pullSet', () => {
+	describe('removeFromSet', () => {
 		let item;
 
 		beforeEach(done => {
@@ -1486,7 +1497,7 @@ describe('src/Crud', () => {
 					namespace: 'spec',
 					key: 'key-0'
 				})
-				.mergeMap(() => crud.appendSet({
+				.mergeMap(() => crud.addToSet({
 					namespace,
 					key: 'key-0',
 					set: ['a', 'b', 'c', 'd']
@@ -1495,7 +1506,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should pull', done => {
-			crud.pullSet({
+			crud.removeFromSet({
 					namespace,
 					key: 'key-0',
 					set: ['a', 'b']
@@ -1506,7 +1517,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should remove attribute is set is empty', done => {
-			crud.pullSet({
+			crud.removeFromSet({
 					namespace,
 					key: 'key-0',
 					set: ['a', 'b', 'c', 'd']
@@ -1517,7 +1528,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should do nothing if inexistent', done => {
-			crud.pullSet({
+			crud.removeFromSet({
 					namespace,
 					key: 'key-0',
 					set: ['e', 'f']
@@ -1534,7 +1545,7 @@ describe('src/Crud', () => {
 			beforeEach(() => {
 				callback = stub();
 
-				crud.pullSet({
+				crud.removeFromSet({
 					namespace,
 					key: 'key-0',
 					set: ['a', 'b']

@@ -347,11 +347,11 @@ export class Crud {
 			}]);
 	}
 
-	prependList(args, hook = false) {
-		return this.appendList(args, true, hook);
+	prependToList(args, hook = false) {
+		return this.appendToList(args, true, hook);
 	}
 
-	appendList(args, prepend = false, hook = false) {
+	appendToList(args, prepend = false, hook = false) {
 		const partitionAttr = this.partitionAttr();
 		const sortAttr = this.sortAttr();
 		const partition = args[partitionAttr];
@@ -389,7 +389,7 @@ export class Crud {
 			}]);
 	}
 
-	pullList(args, hook = false) {
+	removeFromList(args, hook = false) {
 		const partitionAttr = this.partitionAttr();
 		const sortAttr = this.sortAttr();
 		const partition = args[partitionAttr];
@@ -437,7 +437,7 @@ export class Crud {
 			}]);
 	}
 
-	updateList(args, hook = false) {
+	updateAtList(args, hook = false) {
 		const partitionAttr = this.partitionAttr();
 		const sortAttr = this.sortAttr();
 		const partition = args[partitionAttr];
@@ -501,7 +501,7 @@ export class Crud {
 
 	}
 
-	appendSet(args, hook = false) {
+	addToSet(args, hook = false) {
 		const partitionAttr = this.partitionAttr();
 		const sortAttr = this.sortAttr();
 		const partition = args[partitionAttr];
@@ -568,7 +568,7 @@ export class Crud {
 			}]);
 	}
 
-	pullSet(args, hook = false) {
+	removeFromSet(args, hook = false) {
 		const partitionAttr = this.partitionAttr();
 		const sortAttr = this.sortAttr();
 		const partition = args[partitionAttr];

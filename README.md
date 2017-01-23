@@ -451,6 +451,127 @@ If you need to perform low level requests, like create a table, you can do it us
 					}, true)))
 				.subscribe(null, null, done);
 
+## CRUD
+
+This lib follows with a Crud class helper, at this way you can extend your models with Crud. In order to start with it:
+
+		import AWS from 'aws-sdk';
+		import {
+			Crud,
+			DynamoDB
+		} from 'smallorange-dynamodb-client';
+
+		AWS.config.update({
+			accessKeyId: 'yourAccessKeyId',
+			secretAccessKey: 'yourSecretAccessKey',
+			region: 'us-east-1'
+		});
+		
+		// instance the lib
+		const dynamoDb = new DynamoDB({
+			client: new AWS.DynamoDB()
+		});
+
+		const crud = new Crud(tableName: string, schema: object, {
+			dynamoDb	
+		});
+
+## Crud operations
+
+		fetch({
+			[partition | globalIndexPartition]: string (required);
+			[sort | localIndexAttribute | globalIndexSort]: string;
+			resume: base64<string>;
+			select: string (comma separated);
+			limit: number;
+			desc: boolean;
+			indexName: string;
+			consistent: boolean;
+		}, hook: function(request: Request, expression: string, partition: string, sort: string | number) : Array<args>) : Observable<{items: Array<object>, stats: {count: number, scannedCount: number, iterations: number, lastKey: base64<string>}}>
+
+		get({
+			[partition]: string (required);
+			[sort]: string;
+			select: string (comma separated);
+		}, hook: function(request: Request, partition: string, sort: string | number) : Array<args>) : Observable<object>
+
+		insert({
+			[partition]: string (required);
+			[sort]: string (required);
+			...args: any;
+		}, hook: function(request: Request, partition: string, sort: string | number, ...args: any) : Array<args>) : Observable<object>
+
+		insertOrReplace({
+			[partition]: string (required);
+			[sort]: string (required);
+			...args: any;
+		}, hook: function(request: Request, partition: string, sort: string | number, ...args: any) : Array<args>) : Observable<object>
+
+		insertOrUpdate({
+			[partition]: string (required);
+			[sort]: string (required);
+			...args: any;
+		}, hook: function(request: Request, partition: string, sort: string | number, ...args: any) : Array<args>) : Observable<object>
+
+		update({
+			[partition]: string (required);
+			[sort]: string (required);
+			...args: any;
+		}, hook: function(request: Request, partition: string, sort: string | number, ...args: any) : Array<args>) : Observable<object>
+
+		delete({
+			[partition]: string (required);
+			[sort]: string (required);
+		}, hook: function(request: Request, partition: string, sort: string | number) : Array<args>) : Observable<object>
+
+		prependToList({
+			[partition]: string (required);
+			[sort]: string (required);
+			...args: Array<any>
+		}, hook: function(request: Request, expression: string, partition: string, sort: string | number, attributes: Array<any>) : Array<args>) : Observable<object>
+
+		appendToList({
+			[partition]: string (required);
+			[sort]: string (required);
+			...args: Array<any>
+		}, prepend: boolean = false, hook: function(request: Request, expression: string, partition: string, sort: string | number, attributes: Array<any>) : Array<args>) : Observable<object>
+
+		removeFromList({
+			[partition]: string (required);
+			[sort]: string (required);
+			...args: number | Array<number>
+		}, hook: function(request: Request, expression: string, partition: string, sort: string | number, attributes: Array<number>) : Array<args>) : Observable<object>
+
+		updateAtList({
+			[partition]: string (required);
+			[sort]: string (required);
+			...args: {[index: number]: value: any}
+		} hook: function(request: Request, expression: string, partition: string, sort: string | number, attributes: Array<{[index: number]: value: any}>) : Array<args>) : Observable<object>
+
+		addToSet({
+			[partition]: string (required);
+			[sort]: string (required);
+			...args: Array<string> | string | Array<number> | number
+		}, hook: function(request: Request, expression: string, partition: string, sort: string | number, attributes: Array<string> | string | Array<number> | number) : Array<args>) : Observable<object>
+
+		removeFromSet({
+			[partition]: string (required);
+			[sort]: string (required);
+			...args: Array<string> | string | Array<number> | number
+		}, hook: function(request: Request, expression: string, partition: string, sort: string | number, attributes: Array<string> | string | Array<number> | number) : Array<args>) : Observable<object>
+
+		removeAttributes({
+			[partition]: string (required);
+			[sort]: string (required);
+			...args: any
+		}, hook: function(request: Request, expression: string, partition: string, sort: string | number, attributes: any) : Array<args>) : Observable<object>
+
+		clear({
+			[partition]: string (required);
+			[sort]: string;
+		}) : Observable<object>
+
+
 ## Final Words
 
 If you have any questions, contact me at felipe@smallorange.co.
