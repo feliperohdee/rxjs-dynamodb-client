@@ -79,7 +79,7 @@ export class Crud {
 		return null;
 	}
 
-	fetch(args, hook = false) {
+	fetch(args, hook = false, itemSelector = null, reducer = null) {
 		const {
 			resume,
 			select,
@@ -164,8 +164,16 @@ export class Crud {
 			hookArgs = hook.call(this, hookParams);
 		}
 
-		const items = request
+		let items = request
 			.query.apply(request, hookArgs || [expression]);
+
+		if(_.isFunction(itemSelector)){
+			items = itemSelector(items);
+		}
+
+		if(_.isFunction(reducer)){
+			return reducer(items);
+		}
 
 		return items
 			.toArray()

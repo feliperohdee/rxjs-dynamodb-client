@@ -196,11 +196,51 @@ describe('src/Crud', () => {
 
 		it('should fetch with just namespace', () => {
 			expect(items[0].key).to.equal('key-0');
-			expect(stats).to.deep.equal({
-				lastKey: null,
-				count: 10,
-				scannedCount: 10,
-				iteractions: 1
+			expect(stats.count).to.equal(10);
+		});
+
+		describe('with itemSelector', () => {
+			beforeEach(done => {
+				const itemSelector = items => items
+					.map(response => _.pick(response, [
+						'key'
+					]));
+
+				crud.fetch({
+						namespace: 'spec',
+						key: 'key-0'
+					}, null, itemSelector)
+					.subscribe(response => {
+						items = response.items;
+						stats = response.stats;
+					}, null, done);
+			});
+
+			it('should fetch and apply itemSelector', () => {
+				expect(items[0]).to.deep.equal({
+					key: 'key-0'
+				});
+
+				expect(stats.count).to.equal(1);
+			});
+		});
+
+		describe('with custom reducer', () => {
+			beforeEach(done => {
+				const reducer = items => items
+					.toArray();
+
+				crud.fetch({
+						namespace: 'spec',
+						key: 'key-0'
+					}, null, null, reducer)
+					.subscribe(response => {
+						items = response;
+					}, null, done);
+			});
+
+			it('should fetch and apply reducer', () => {
+				expect(items[0].key).to.equal('key-0');
 			});
 		});
 
@@ -218,12 +258,7 @@ describe('src/Crud', () => {
 
 			it('should fetch with namespace and key', () => {
 				expect(items[0].key).to.equal('key-3');
-				expect(stats).to.deep.equal({
-					lastKey: null,
-					count: 1,
-					scannedCount: 1,
-					iteractions: 1
-				});
+				expect(stats.count).to.equal(1);
 			});
 		});
 
@@ -242,12 +277,7 @@ describe('src/Crud', () => {
 
 			it('should fetch with namespace and local index', () => {
 				expect(items[0].localIndexedAttr).to.equal('local-indexed-3');
-				expect(stats).to.deep.equal({
-					lastKey: null,
-					count: 1,
-					scannedCount: 1,
-					iteractions: 1
-				});
+				expect(stats.count).to.equal(1);
 			});
 		});
 
@@ -407,12 +437,7 @@ describe('src/Crud', () => {
 
 			it('should fetch desc', () => {
 				expect(items[0].key).to.equal('key-9');
-				expect(stats).to.deep.equal({
-					lastKey: null,
-					count: 10,
-					scannedCount: 10,
-					iteractions: 1
-				});
+				expect(stats.count).to.equal(10);
 			});
 		});
 
@@ -434,12 +459,7 @@ describe('src/Crud', () => {
 					key: 'key-0'
 				});
 
-				expect(stats).to.deep.equal({
-					lastKey: null,
-					count: 10,
-					scannedCount: 10,
-					iteractions: 1
-				});
+				expect(stats.count).to.equal(10);
 			});
 		});
 
