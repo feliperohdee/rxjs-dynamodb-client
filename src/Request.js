@@ -67,7 +67,7 @@ export class Request {
 	get sortAttr() {
 		const {
 			partition = null,
-			sort = null
+				sort = null
 		} = this.primaryKeys;
 
 		if (this.indexes && this.indexName) {
@@ -408,8 +408,12 @@ export class Request {
 
 		// append timestamp
 		const now = _.now();
-		item.createdAt = now;
-		item.updatedAt = now;
+
+		item = {
+			...item,
+			createdAt: now,
+			updatedAt: now
+		};
 
 		return this.routeCall('putItem', {
 			ConditionExpression: this.conditionExpression,
@@ -546,8 +550,11 @@ export class Request {
 		if (toInsert) {
 			args = _.reduce(toInsert, (reduction, item) => {
 				// append timestamp
-				item.createdAt = now;
-				item.updatedAt = now;
+				item = {
+					...item,
+					createdAt: now,
+					updatedAt: now
+				};
 
 				reduction.push({
 					PutRequest: {

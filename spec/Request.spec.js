@@ -34,7 +34,7 @@ const tableSchema = {
 	}
 };
 
- describe('src/Request', () => {
+describe('src/Request', () => {
 	let now;
 	let request;
 	let client;
@@ -162,7 +162,7 @@ const tableSchema = {
 		it('should returns null when wrong globalIndex', () => {
 			request
 				.index('globalIndexedSpec_');
-				
+
 			expect(request.partitionAttr).to.be.null;
 		});
 	});
@@ -182,7 +182,7 @@ const tableSchema = {
 		it('should returns null when wrong globalIndex', () => {
 			request
 				.index('globalIndexedSpec_');
-				
+
 			expect(request.sortAttr).to.be.null;
 		});
 	});
@@ -198,7 +198,7 @@ const tableSchema = {
 		it('should returns null when wrong globalIndex', () => {
 			request
 				.index('globalIndexedSpec_');
-				
+
 			expect(request.localIndexAttr).to.be.null;
 		});
 	});
@@ -756,7 +756,7 @@ const tableSchema = {
 						namespace: 'spec',
 						localIndexedAttr: response[0].localIndexedAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
-      					globalIndexedSortAttr: response[0].globalIndexedSortAttr,
+						globalIndexedSortAttr: response[0].globalIndexedSortAttr,
 						key: 'key-3',
 						message: response[0].message,
 						createdAt: response[0].createdAt,
@@ -765,7 +765,7 @@ const tableSchema = {
 						namespace: 'spec',
 						localIndexedAttr: response[1].localIndexedAttr,
 						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
-      					globalIndexedSortAttr: response[1].globalIndexedSortAttr,
+						globalIndexedSortAttr: response[1].globalIndexedSortAttr,
 						key: 'key-4',
 						message: response[1].message,
 						createdAt: response[1].createdAt,

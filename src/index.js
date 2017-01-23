@@ -18,13 +18,16 @@ import {
 	ReturnValues,
 	ConsumedCapacity
 } from './constants';
+import {
+	Crud
+} from './Crud';
 
 export class DynamoDB {
 	constructor(deps = {}) {
 		if (!deps.client) {
 			throw new Error('no dynamoDb client provided.');
 		}
-		
+
 		this.client = deps.client;
 	}
 
@@ -89,5 +92,6 @@ export {
 	Util,
 	Select,
 	ReturnValues,
-	ConsumedCapacity
+	ConsumedCapacity,
+	Crud
 }
