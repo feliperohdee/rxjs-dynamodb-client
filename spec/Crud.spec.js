@@ -175,8 +175,12 @@ describe('src/Crud', () => {
 			expect(crud.localIndexAttr('localIndexedSpec')).to.equal('localIndexedAttr');
 		});
 
-		it('should returns null when wrong globalIndex', () => {
+		it('should returns null when wrong localIndex', () => {
 			expect(crud.localIndexAttr()).to.be.null;
+		});
+
+		it('should returns null when partition does not belongs to primary keys', () => {
+			expect(crud.localIndexAttr('globalIndexedSpec')).to.be.null;
 		});
 	});
 
@@ -225,21 +229,21 @@ describe('src/Crud', () => {
 			});
 		});
 
-		describe('with custom reducer', () => {
+		describe('with customReducer', () => {
 			beforeEach(done => {
-				const reducer = items => items
+				const customReducer = items => items
 					.toArray();
 
 				crud.fetch({
 						namespace: 'spec',
 						key: 'key-0'
-					}, null, null, reducer)
+					}, null, null, customReducer)
 					.subscribe(response => {
 						items = response;
 					}, null, done);
 			});
 
-			it('should fetch and apply reducer', () => {
+			it('should fetch and apply customReducer', () => {
 				expect(items[0].key).to.equal('key-0');
 			});
 		});

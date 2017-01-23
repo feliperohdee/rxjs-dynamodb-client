@@ -495,7 +495,7 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				partition: string, 
 				sort: string | number) : Array<args>,
 			itemSelector: function(Observable<object>): Observable<object>,
-			reducer: function(Observable<object>): Observable<any>,
+			customReducer: function(Observable<object>): Observable<any>,
 			) : Observable<{
 				items: Array<object>, 
 				stats: {

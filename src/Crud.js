@@ -71,7 +71,7 @@ export class Crud {
 			} = this.indexes[indexName] || {};
 
 			// is local index
-			if (partition === this.partitionAttr(indexName) && sort) {
+			if (partition === this.primaryKeys.partition && sort) {
 				return sort;
 			}
 		}
@@ -79,7 +79,7 @@ export class Crud {
 		return null;
 	}
 
-	fetch(args, hook = false, itemSelector = null, reducer = null) {
+	fetch(args, hook = false, itemSelector = null, customReducer = null) {
 		const {
 			resume,
 			select,
@@ -171,8 +171,8 @@ export class Crud {
 			items = itemSelector(items);
 		}
 
-		if(_.isFunction(reducer)){
-			return reducer(items);
+		if(_.isFunction(customReducer)){
+			return customReducer(items);
 		}
 
 		return items
