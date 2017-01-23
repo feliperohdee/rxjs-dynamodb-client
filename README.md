@@ -23,7 +23,7 @@ To create an instance, is simple, just pass a dynamodb client to lib's construct
 
 ## Methods
 	
-**dynamoDb.table(tableName: string, tableSchema: object)**
+**.table(tableName: string, tableSchema: object)**
 * Starts an operation chain
 * Returns a request instance which allow chain more operations
 
@@ -141,7 +141,9 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			.toArray() // Other way it will emit values by streaming, good if you are using real time responses, like webSocket [=.
 			.subscribe(nextFn, errFn, completeFn);
 
-		dynamoDb.table({...})
+		const request = dynamoDb.table({...});
+
+		request
 			.select(...)
 			.limit(10)
 			.addPlaceholderName({
@@ -154,7 +156,25 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			})
 			.query(`#partition = :partition AND begins_with(#sort, :sort)`)
 			.toArray() // Other way it will emit values by streaming, good if you are using real time responses, like webSocket [=.
+			.map(response => {
+				return {
+					response,
+					stats: request.queryStats // at the end, you can get queryStats which gives you lastKey, count, scannedCount and iteractions
+				}
+			})
 			.subscribe(nextFn, errFn, completeFn);
+
+			// this response will be
+			//
+			// {
+			//		response: Array<item>,
+			//		stats: {
+			//			lastKey: object;
+			//			count: number;
+			//			scannedCount: number;
+			//			iteractions: number;
+			//		}
+			// }
 
 Note: DynamoDb just fetch max 1MB, this lib handles this and perform many requests as needed to fetch all data. So, always look for use `.limit(value: number)` when querying.
 
