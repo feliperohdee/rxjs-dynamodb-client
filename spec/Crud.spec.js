@@ -137,7 +137,7 @@ describe('src/Crud', () => {
 	});
 
 	describe('constructor', () => {
-		it('should throw if not deps.dynamoDb', () => {			
+		it('should throw if not deps.dynamoDb', () => {
 			expect(() => new Crud()).to.throw('no dynamoDb client provided.');
 		});
 	});
@@ -258,15 +258,7 @@ describe('src/Crud', () => {
 						globalIndexedPartitionAttr: 'global-indexed-spec',
 						globalIndexedSortAttr: 'global-indexed-3'
 					})
-					.subscribe(response => {
-						expect(response.items[0].globalIndexedSortAttr).to.equal('global-indexed-3');
-						expect(response.stats).to.deep.equal({
-							lastKey: null,
-							count: 1,
-							scannedCount: 1,
-							iteractions: 1
-						});
-					}, null, done);
+					.subscribe(response => null, null, done);
 			});
 
 			it('should fetch with namespace and global index', done => {
@@ -277,12 +269,7 @@ describe('src/Crud', () => {
 					})
 					.subscribe(response => {
 						expect(response.items[0].globalIndexedSortAttr).to.equal('global-indexed-3');
-						expect(response.stats).to.deep.equal({
-							lastKey: null,
-							count: 1,
-							scannedCount: 1,
-							iteractions: 1
-						});
+						expect(response.stats.count).to.equal(1);
 					}, null, done);
 			});
 		});
@@ -304,14 +291,12 @@ describe('src/Crud', () => {
 
 			it('should get correct lastKey', () => {
 				expect(_.last(items).key).to.equal('key-4');
-				expect(crud.fromBase64(stats.lastKey)).to.equal('{"namespace":"spec","key":"key-4"}');
-
-				expect(stats).to.deep.equal({
-					lastKey: 'eyJuYW1lc3BhY2UiOiJzcGVjIiwia2V5Ijoia2V5LTQifQ==',
-					count: 5,
-					scannedCount: 5,
-					iteractions: 1
+				expect(JSON.parse(crud.fromBase64(stats.lastKey))).to.deep.equal({
+					namespace: 'spec',
+					key: 'key-4'
 				});
+
+				expect(stats.count).to.equal(5);
 			});
 
 			it('should resume based on lastKey', done => {
@@ -322,12 +307,7 @@ describe('src/Crud', () => {
 					})
 					.subscribe(response => {
 						expect(response.items[0].key).to.equal('key-5');
-						expect(response.stats).to.deep.equal({
-							lastKey: 'eyJuYW1lc3BhY2UiOiJzcGVjIiwia2V5Ijoia2V5LTkifQ==',
-							count: 5,
-							scannedCount: 5,
-							iteractions: 1
-						});
+						expect(stats.count).to.equal(5);
 					}, null, done);
 			});
 
@@ -347,14 +327,13 @@ describe('src/Crud', () => {
 
 				it('should get correct lastKey', () => {
 					expect(_.last(items).localIndexedAttr).to.equal('local-indexed-4');
-					expect(crud.fromBase64(stats.lastKey)).to.equal('{"namespace":"spec","localIndexedAttr":"local-indexed-4","key":"key-4"}');
-
-					expect(stats).to.deep.equal({
-						lastKey: 'eyJuYW1lc3BhY2UiOiJzcGVjIiwibG9jYWxJbmRleGVkQXR0ciI6ImxvY2FsLWluZGV4ZWQtNCIsImtleSI6ImtleS00In0=',
-						count: 5,
-						scannedCount: 5,
-						iteractions: 1
+					expect(JSON.parse(crud.fromBase64(stats.lastKey))).to.deep.equal({
+						namespace: 'spec',
+						key: 'key-4',
+						localIndexedAttr: 'local-indexed-4',
 					});
+
+					expect(stats.count).to.equal(5);
 				});
 
 				it('should resume based on lastKey', done => {
@@ -367,12 +346,7 @@ describe('src/Crud', () => {
 						})
 						.subscribe(response => {
 							expect(response.items[0].localIndexedAttr).to.equal('local-indexed-5');
-							expect(response.stats).to.deep.equal({
-								lastKey: 'eyJuYW1lc3BhY2UiOiJzcGVjIiwibG9jYWxJbmRleGVkQXR0ciI6ImxvY2FsLWluZGV4ZWQtOSIsImtleSI6ImtleS05In0=',
-								count: 5,
-								scannedCount: 5,
-								iteractions: 1
-							});
+							expect(stats.count).to.equal(5);
 						}, null, done);
 				});
 			});
@@ -393,14 +367,14 @@ describe('src/Crud', () => {
 
 				it('should get correct lastKey', () => {
 					expect(items[0].globalIndexedSortAttr).to.equal('global-indexed-0');
-					expect(crud.fromBase64(stats.lastKey)).to.equal('{"namespace":"spec","globalIndexedSortAttr":"global-indexed-4","globalIndexedPartitionAttr":"global-indexed-spec","key":"key-4"}');
-
-					expect(stats).to.deep.equal({
-						lastKey: 'eyJuYW1lc3BhY2UiOiJzcGVjIiwiZ2xvYmFsSW5kZXhlZFNvcnRBdHRyIjoiZ2xvYmFsLWluZGV4ZWQtNCIsImdsb2JhbEluZGV4ZWRQYXJ0aXRpb25BdHRyIjoiZ2xvYmFsLWluZGV4ZWQtc3BlYyIsImtleSI6ImtleS00In0=',
-						count: 5,
-						scannedCount: 5,
-						iteractions: 1
+					expect(JSON.parse(crud.fromBase64(stats.lastKey))).to.deep.equal({
+						namespace: 'spec',
+						key: 'key-4',
+						globalIndexedSortAttr: 'global-indexed-4',
+						globalIndexedPartitionAttr: 'global-indexed-spec',
 					});
+
+					expect(stats.count).to.equal(5);
 				});
 
 				it('should resume based on lastKey', done => {
@@ -413,12 +387,7 @@ describe('src/Crud', () => {
 						})
 						.subscribe(response => {
 							expect(response.items[0].globalIndexedSortAttr).to.equal('global-indexed-5');
-							expect(response.stats).to.deep.equal({
-								lastKey: 'eyJuYW1lc3BhY2UiOiJzcGVjIiwiZ2xvYmFsSW5kZXhlZFNvcnRBdHRyIjoiZ2xvYmFsLWluZGV4ZWQtOSIsImdsb2JhbEluZGV4ZWRQYXJ0aXRpb25BdHRyIjoiZ2xvYmFsLWluZGV4ZWQtc3BlYyIsImtleSI6ImtleS05In0=',
-								count: 5,
-								scannedCount: 5,
-								iteractions: 1
-							});
+							expect(stats.count).to.equal(5);
 						}, null, done);
 				});
 			});
@@ -487,12 +456,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should fetch one', () => {
-				expect(stats).to.deep.equal({
-					lastKey: 'eyJuYW1lc3BhY2UiOiJzcGVjIiwia2V5Ijoia2V5LTAifQ==',
-					count: 1,
-					scannedCount: 1,
-					iteractions: 1
-				});
+				expect(stats.count).to.equal(1);
 			});
 		});
 
@@ -1664,14 +1628,14 @@ describe('src/Crud', () => {
 	describe('clear', done => {
 		it('should clear table', () => {
 			crud.clear({
-				namespace: 'spec'
-			})
-			.mergeMap(() => crud.fetch({
-				namespace
-			}))
-			.subscribe(response => {
-				expect(_.size(response.items)).to.equal(0);
-			}, null, done);
+					namespace: 'spec'
+				})
+				.mergeMap(() => crud.fetch({
+					namespace
+				}))
+				.subscribe(response => {
+					expect(_.size(response.items)).to.equal(0);
+				}, null, done);
 		});
 	});
 

@@ -124,11 +124,12 @@ export class Util {
 		}
 
 		if (_.has(value, 'NS')) {
+
 			return _.reduce(value.NS, (result, value) => {
 				result.push(parseFloat(value));
 
 				return result;
-			}, []);
+			}, []).sort();
 		}
 
 		if (_.has(value, 'L')) {
