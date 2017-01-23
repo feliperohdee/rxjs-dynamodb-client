@@ -1,0 +1,10 @@
+machine:
+  node:
+    version: 7.3.0
+test:
+  override:
+    - npm run coverage
+general:
+  artifacts:
+    - 'coverage'
+

@@ -1,0 +1,15 @@
+{
+	"presets": [
+		"babel-preset-es2015",
+		"stage-0"
+	],
+	"plugins": [
+		["module-resolver", {
+			"alias": {
+				"src": "./src",
+				"testing": "./testing",
+				"testingEnv": "./testing/environment"
+			}
+		}]
+	]
+}

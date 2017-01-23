@@ -1,0 +1,8 @@
+instrumentation:
+    excludes: [
+      'testing/**/*'
+    ]
+reporting:
+    reports:
+        - json
+    dir: ./coverage
