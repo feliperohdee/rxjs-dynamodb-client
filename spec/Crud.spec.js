@@ -179,7 +179,7 @@ describe('src/Crud', () => {
 			expect(crud.localIndexAttr()).to.be.null;
 		});
 
-		it('should returns null when partition does not belongs to primary keys', () => {
+		it('should returns null when is global index', () => {
 			expect(crud.localIndexAttr('globalIndexedSpec')).to.be.null;
 		});
 	});

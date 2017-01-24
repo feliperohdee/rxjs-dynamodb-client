@@ -195,14 +195,14 @@ describe('src/Request', () => {
 			expect(request.localIndexAttr).to.equal('localIndexedAttr');
 		});
 
-		it('should returns null when wrong globalIndex', () => {
+		it('should returns null when wrong localIndex', () => {
 			request
 				.index('localIndexedSpec_');
 
 			expect(request.localIndexAttr).to.be.null;
 		});
 
-		it('should returns null when partition does not belongs to primary keys', () => {
+		it('should returns null when is global index', () => {
 			request
 				.index('globalIndexedSpec');
 
