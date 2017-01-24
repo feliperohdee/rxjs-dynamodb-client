@@ -93,7 +93,7 @@ export class Request {
 			} = this.indexes[this.indexName] || {};
 
 			// is local index
-			if (partition === this.partitionAttr && sort) {
+			if (partition === this.primaryKeys.partition && sort) {
 				return sort;
 			}
 		}

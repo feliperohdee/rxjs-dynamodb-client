@@ -197,7 +197,14 @@ describe('src/Request', () => {
 
 		it('should returns null when wrong globalIndex', () => {
 			request
-				.index('globalIndexedSpec_');
+				.index('localIndexedSpec_');
+
+			expect(request.localIndexAttr).to.be.null;
+		});
+
+		it('should returns null when partition does not belongs to primary keys', () => {
+			request
+				.index('globalIndexedSpec');
 
 			expect(request.localIndexAttr).to.be.null;
 		});
