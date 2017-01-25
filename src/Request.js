@@ -279,7 +279,7 @@ export class Request {
 					IndexName: this.indexName,
 					KeyConditionExpression: this.keyConditionExpression,
 					// when has filter expression, increase limit to compensate filter deviation
-					Limit: this.queryLimit && this.filterExpression ? null : this.queryLimit,
+					Limit: this.queryLimit && this.filterExpression ? this.queryLimit * 4 : this.queryLimit,
 					ProjectionExpression: this.projectionExpression,
 					ReturnConsumedCapacity: this.returnConsumedCapacity,
 					ScanIndexForward: this.scanIndexForward,

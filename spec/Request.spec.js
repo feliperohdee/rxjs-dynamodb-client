@@ -786,7 +786,7 @@ describe('src/Request', () => {
 		});
 
 		describe('with filterExpression', () => {
-			it('should routeCall with limit = null', () => {
+			it('should routeCall with limit * 4', () => {
 				request
 					.addPlaceholderName('message')
 					.addPlaceholderValue('message')
@@ -815,7 +815,7 @@ describe('src/Request', () => {
 					FilterExpression: 'begins_with(#message, :message)',
 					IndexName: null,
 					KeyConditionExpression: '#namespace = :namespace',
-					Limit: null,
+					Limit: 200,
 					ProjectionExpression: undefined,
 					ReturnConsumedCapacity: 'TOTAL',
 					ScanIndexForward: true,
