@@ -2,8 +2,8 @@ import AWS from 'aws-sdk';
 
 export default function() {
 	AWS.config.update({
-		accessKeyId: process.env.CIRCLECI ? 'AKIAIEMZIXLBHL4JQQVQ' : 'spec',
-		secretAccessKey: process.env.CIRCLECI ? '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' : 'spec',
+		accessKeyId: process.env.CIRCLECI ? process.env.accessKeyId : 'spec',
+		secretAccessKey: process.env.CIRCLECI ? process.env.secretAccessKey : 'spec',
 		region: 'us-east-1'
 	});
 
