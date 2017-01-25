@@ -5,7 +5,7 @@ import {
 } from 'src';
 
 import {
-	instance
+	dynamoDb
 } from 'testingEnv';
 
 const _global = {};
@@ -13,7 +13,7 @@ const tableName = 'tblSpec';
 const tableSchema = {
 	primaryKeys: {
 		partition: 'namespace',
-		sort: 'key'
+		sort: 'id'
 	}
 };
 
@@ -27,7 +27,7 @@ describe('src/ExpressionsHelper', () => {
 			return `{cuid_${cuidIndex++}}`
 		});
 
-		request = instance.table(tableName, tableSchema);
+		request = dynamoDb.table(tableName, tableSchema);
 		expressionsHelper = new ExpressionsHelper(request);
 	});
 

@@ -13,7 +13,7 @@ import {
 } from 'src';
 
 import {
-	instance
+	dynamoDb
 } from 'testingEnv';
 
 const namespace = 'spec';
@@ -21,7 +21,7 @@ const tableName = 'tblSpec';
 const tableSchema = {
 	primaryKeys: {
 		partition: 'namespace',
-		sort: 'key'
+		sort: 'id'
 	},
 	indexes: {
 		localIndexedSpec: {
@@ -42,10 +42,10 @@ describe('src/Crud', () => {
 	let crud;
 
 	before(done => {
-		client = instance.client;
-		request = instance.table(tableName, tableSchema);
+		client = dynamoDb.client;
+		request = dynamoDb.table(tableName, tableSchema);
 		crud = new Crud(tableName, tableSchema, {
-			dynamoDb: instance
+			dynamoDb
 		});
 
 		request.describe()
@@ -59,7 +59,7 @@ describe('src/Crud', () => {
 					AttributeName: 'namespace',
 					AttributeType: 'S'
 				}, {
-					AttributeName: 'key',
+					AttributeName: 'id',
 					AttributeType: 'S'
 				}, {
 					AttributeName: 'localIndexedAttr',
@@ -75,7 +75,7 @@ describe('src/Crud', () => {
 					AttributeName: 'namespace',
 					KeyType: 'HASH'
 				}, {
-					AttributeName: 'key',
+					AttributeName: 'id',
 					KeyType: 'RANGE'
 				}],
 				LocalSecondaryIndexes: [{
@@ -112,7 +112,7 @@ describe('src/Crud', () => {
 			.mergeMap(() => Observable.range(0, 10)
 				.mergeMap(n => request.insert({
 					namespace,
-					key: `key-${n}`,
+					id: `id-${n}`,
 					message: `message-${n}`,
 					localIndexedAttr: `local-indexed-${n}`,
 					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
@@ -122,7 +122,7 @@ describe('src/Crud', () => {
 	});
 
 	after(done => {
-		request = instance.table(tableName, tableSchema);
+		request = dynamoDb.table(tableName, tableSchema);
 		request.query({
 				namespace: 'spec'
 			})
@@ -133,7 +133,7 @@ describe('src/Crud', () => {
 
 	beforeEach(() => {
 		now = _.now();
-		request = instance.table(tableName, tableSchema);
+		request = dynamoDb.table(tableName, tableSchema);
 	});
 
 	describe('constructor', () => {
@@ -158,7 +158,7 @@ describe('src/Crud', () => {
 
 	describe('sortAttr', () => {
 		it('should returns primaryKeys.sort', () => {
-			expect(crud.sortAttr()).to.equal('key');
+			expect(crud.sortAttr()).to.equal('id');
 		});
 
 		it('should returns globalIndex.sort', () => {
@@ -199,7 +199,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should fetch with just namespace', () => {
-			expect(items[0].key).to.equal('key-0');
+			expect(items[0].id).to.equal('id-0');
 			expect(stats.count).to.equal(10);
 		});
 
@@ -207,12 +207,12 @@ describe('src/Crud', () => {
 			beforeEach(done => {
 				const itemSelector = items => items
 					.map(response => _.pick(response, [
-						'key'
+						'id'
 					]));
 
 				crud.fetch({
 						namespace: 'spec',
-						key: 'key-0'
+						id: 'id-0'
 					}, null, itemSelector)
 					.subscribe(response => {
 						items = response.items;
@@ -222,7 +222,7 @@ describe('src/Crud', () => {
 
 			it('should fetch and apply itemSelector', () => {
 				expect(items[0]).to.deep.equal({
-					key: 'key-0'
+					id: 'id-0'
 				});
 
 				expect(stats.count).to.equal(1);
@@ -236,7 +236,7 @@ describe('src/Crud', () => {
 
 				crud.fetch({
 						namespace: 'spec',
-						key: 'key-0'
+						id: 'id-0'
 					}, null, null, customReducer)
 					.subscribe(response => {
 						items = response;
@@ -244,7 +244,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should fetch and apply customReducer', () => {
-				expect(items[0].key).to.equal('key-0');
+				expect(items[0].id).to.equal('id-0');
 			});
 		});
 
@@ -252,7 +252,7 @@ describe('src/Crud', () => {
 			beforeEach(done => {
 				crud.fetch({
 						namespace: 'spec',
-						key: 'key-3'
+						id: 'id-3'
 					})
 					.subscribe(response => {
 						items = response.items;
@@ -260,8 +260,8 @@ describe('src/Crud', () => {
 					}, null, done);
 			});
 
-			it('should fetch with namespace and key', () => {
-				expect(items[0].key).to.equal('key-3');
+			it('should fetch with namespace and id', () => {
+				expect(items[0].id).to.equal('id-3');
 				expect(stats.count).to.equal(1);
 			});
 		});
@@ -324,10 +324,10 @@ describe('src/Crud', () => {
 			});
 
 			it('should get correct lastKey', () => {
-				expect(_.last(items).key).to.equal('key-4');
+				expect(_.last(items).id).to.equal('id-4');
 				expect(JSON.parse(crud.fromBase64(stats.lastKey))).to.deep.equal({
 					namespace: 'spec',
-					key: 'key-4'
+					id: 'id-4'
 				});
 
 				expect(stats.count).to.equal(5);
@@ -340,7 +340,7 @@ describe('src/Crud', () => {
 						resume: stats.lastKey
 					})
 					.subscribe(response => {
-						expect(response.items[0].key).to.equal('key-5');
+						expect(response.items[0].id).to.equal('id-5');
 						expect(stats.count).to.equal(5);
 					}, null, done);
 			});
@@ -363,7 +363,7 @@ describe('src/Crud', () => {
 					expect(_.last(items).localIndexedAttr).to.equal('local-indexed-4');
 					expect(JSON.parse(crud.fromBase64(stats.lastKey))).to.deep.equal({
 						namespace: 'spec',
-						key: 'key-4',
+						id: 'id-4',
 						localIndexedAttr: 'local-indexed-4',
 					});
 
@@ -403,7 +403,7 @@ describe('src/Crud', () => {
 					expect(items[0].globalIndexedSortAttr).to.equal('global-indexed-0');
 					expect(JSON.parse(crud.fromBase64(stats.lastKey))).to.deep.equal({
 						namespace: 'spec',
-						key: 'key-4',
+						id: 'id-4',
 						globalIndexedSortAttr: 'global-indexed-4',
 						globalIndexedPartitionAttr: 'global-indexed-spec',
 					});
@@ -440,7 +440,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should fetch desc', () => {
-				expect(items[0].key).to.equal('key-9');
+				expect(items[0].id).to.equal('id-9');
 				expect(stats.count).to.equal(10);
 			});
 		});
@@ -448,7 +448,7 @@ describe('src/Crud', () => {
 		describe('select', () => {
 			beforeEach(done => {
 				crud.fetch({
-						select: 'key',
+						select: 'id',
 						namespace: 'spec'
 					})
 					.subscribe(response => {
@@ -457,10 +457,10 @@ describe('src/Crud', () => {
 					}, null, done);
 			});
 
-			it('should fetch just namespace and key', () => {
+			it('should fetch just namespace and id', () => {
 				expect(items[0]).to.deep.equal({
 					namespace: 'spec',
-					key: 'key-0'
+					id: 'id-0'
 				});
 
 				expect(stats.count).to.equal(10);
@@ -547,7 +547,7 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.get({
 					namespace: 'spec',
-					key: 'key-3'
+					id: 'id-3'
 				})
 				.subscribe(response => {
 					item = response;
@@ -555,15 +555,15 @@ describe('src/Crud', () => {
 		});
 
 		it('should get', () => {
-			expect(item.key).to.equal('key-3');
+			expect(item.id).to.equal('id-3');
 		});
 
 		describe('select', () => {
 			beforeEach(done => {
 				crud.get({
-						select: 'key',
+						select: 'id',
 						namespace: 'spec',
-						key: 'key-0'
+						id: 'id-0'
 					})
 					.subscribe(response => {
 						item = response;
@@ -573,7 +573,7 @@ describe('src/Crud', () => {
 			it('should get', () => {
 				expect(item).to.deep.equal({
 					namespace: 'spec',
-					key: 'key-0'
+					id: 'id-0'
 				});
 			});
 		});
@@ -587,7 +587,7 @@ describe('src/Crud', () => {
 
 				crud.get({
 					namespace: 'spec',
-					key: 'key-3'
+					id: 'id-3'
 				}, ({
 					partition,
 					sort,
@@ -611,7 +611,7 @@ describe('src/Crud', () => {
 			it('should callback be called with hookArgs', () => {
 				expect(callback).to.have.been.calledWith({
 					partition: 'spec',
-					sort: 'key-3'
+					sort: 'id-3'
 				});
 			});
 
@@ -627,7 +627,7 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.insert({
 					namespace: 'spec',
-					key: 'key-10'
+					id: 'id-10'
 				})
 				.subscribe(response => {
 					item = response;
@@ -637,16 +637,16 @@ describe('src/Crud', () => {
 		afterEach(done => {
 			crud.delete({
 					namespace: 'spec',
-					key: 'key-10'
+					id: 'id-10'
 				})
 				.subscribe(null, null, done);
 		});
 
 		it('should return inserted item', () => {
-			expect(item.key).to.equal('key-10');
+			expect(item.id).to.equal('id-10');
 			expect(item).to.have.all.keys([
 				'namespace',
-				'key',
+				'id',
 				'createdAt',
 				'updatedAt',
 			]);
@@ -661,7 +661,7 @@ describe('src/Crud', () => {
 
 				crud.insert({
 					namespace: 'spec',
-					key: 'key-10',
+					id: 'id-10',
 					title: 'title'
 				}, ({
 					partition,
@@ -690,10 +690,10 @@ describe('src/Crud', () => {
 			it('should callback be called with hookArgs', () => {
 				expect(callback).to.have.been.calledWith({
 					partition: 'spec',
-					sort: 'key-10',
+					sort: 'id-10',
 					args: {
 						namespace: 'spec',
-						key: 'key-10',
+						id: 'id-10',
 						title: 'title'
 					}
 				});
@@ -713,7 +713,7 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.insertOrReplace({
 					namespace: 'spec',
-					key: 'key-0'
+					id: 'id-0'
 				})
 				.subscribe(response => {
 					item = response;
@@ -723,17 +723,17 @@ describe('src/Crud', () => {
 		afterEach(done => {
 			crud.delete({
 					namespace: 'spec',
-					key: 'key-10'
+					id: 'id-10'
 				})
 				.subscribe(null, null, done);
 		});
 
 		it('should return inserted or replaced item', () => {
-			expect(item.key).to.equal('key-0');
+			expect(item.id).to.equal('id-0');
 			expect(item.createdAt).to.equal(item.updatedAt);
 			expect(item).to.have.all.keys([
 				'namespace',
-				'key',
+				'id',
 				'createdAt',
 				'updatedAt'
 			]);
@@ -748,7 +748,7 @@ describe('src/Crud', () => {
 
 				crud.insertOrReplace({
 					namespace: 'spec',
-					key: 'key-0',
+					id: 'id-0',
 					title: 'title'
 				}, ({
 					partition,
@@ -777,10 +777,10 @@ describe('src/Crud', () => {
 			it('should callback be called with hookArgs', () => {
 				expect(callback).to.have.been.calledWith({
 					partition: 'spec',
-					sort: 'key-0',
+					sort: 'id-0',
 					args: {
 						namespace: 'spec',
-						key: 'key-0',
+						id: 'id-0',
 						title: 'title'
 					}
 				});
@@ -800,7 +800,7 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.insertOrUpdate({
 					namespace: 'spec',
-					key: 'key-1',
+					id: 'id-1',
 					title: 'title'
 				})
 				.subscribe(response => {
@@ -809,7 +809,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should return inserted or updated item', () => {
-			expect(item.key).to.equal('key-1');
+			expect(item.id).to.equal('id-1');
 			expect(item.createdAt).not.to.equal(item.updatedAt);
 			expect(item.createdAt).to.be.below(item.updatedAt);
 			expect(item).to.have.all.keys([
@@ -817,7 +817,7 @@ describe('src/Crud', () => {
 				'globalIndexedSortAttr',
 				'localIndexedAttr',
 				'namespace',
-				'key',
+				'id',
 				'title',
 				'message',
 				'createdAt',
@@ -834,7 +834,7 @@ describe('src/Crud', () => {
 
 				crud.insertOrUpdate({
 					namespace: 'spec',
-					key: 'key-1',
+					id: 'id-1',
 					title: 'title'
 				}, ({
 					partition,
@@ -863,10 +863,10 @@ describe('src/Crud', () => {
 			it('should callback be called with hookArgs', () => {
 				expect(callback).to.have.been.calledWith({
 					partition: 'spec',
-					sort: 'key-1',
+					sort: 'id-1',
 					args: {
 						namespace: 'spec',
-						key: 'key-1',
+						id: 'id-1',
 						title: 'title'
 					}
 				});
@@ -886,7 +886,7 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.update({
 					namespace: 'spec',
-					key: 'key-2',
+					id: 'id-2',
 					title: 'title'
 				})
 				.subscribe(response => {
@@ -895,7 +895,7 @@ describe('src/Crud', () => {
 		});
 
 		it('should return updated item', () => {
-			expect(item.key).to.equal('key-2');
+			expect(item.id).to.equal('id-2');
 			expect(item.createdAt).not.to.equal(item.updatedAt);
 			expect(item.createdAt).to.be.below(item.updatedAt);
 			expect(item).to.have.all.keys([
@@ -903,7 +903,7 @@ describe('src/Crud', () => {
 				'globalIndexedSortAttr',
 				'localIndexedAttr',
 				'namespace',
-				'key',
+				'id',
 				'title',
 				'message',
 				'createdAt',
@@ -920,7 +920,7 @@ describe('src/Crud', () => {
 
 				crud.update({
 					namespace: 'spec',
-					key: 'key-2',
+					id: 'id-2',
 					title: 'title'
 				}, ({
 					partition,
@@ -949,10 +949,10 @@ describe('src/Crud', () => {
 			it('should callback be called with hookArgs', () => {
 				expect(callback).to.have.been.calledWith({
 					partition: 'spec',
-					sort: 'key-2',
+					sort: 'id-2',
 					args: {
 						namespace: 'spec',
-						key: 'key-2',
+						id: 'id-2',
 						title: 'title'
 					}
 				});
@@ -972,10 +972,10 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.insertOrReplace({
 					namespace: 'spec',
-					key: 'key-3'
+					id: 'id-3'
 				}).mergeMap(() => crud.delete({
 					namespace: 'spec',
-					key: 'key-3'
+					id: 'id-3'
 				}))
 				.subscribe(response => {
 					item = response;
@@ -983,10 +983,10 @@ describe('src/Crud', () => {
 		});
 
 		it('should return deleted item', () => {
-			expect(item.key).to.equal('key-3');
+			expect(item.id).to.equal('id-3');
 			expect(item).to.have.all.keys([
 				'namespace',
-				'key',
+				'id',
 				'createdAt',
 				'updatedAt',
 			]);
@@ -1001,7 +1001,7 @@ describe('src/Crud', () => {
 
 				crud.delete({
 					namespace: 'spec',
-					key: 'key-3'
+					id: 'id-3'
 				}, ({
 					partition,
 					sort,
@@ -1027,7 +1027,7 @@ describe('src/Crud', () => {
 			it('should callback be called with hookArgs', () => {
 				expect(callback).to.have.been.calledWith({
 					partition: 'spec',
-					sort: 'key-3'
+					sort: 'id-3'
 				});
 			});
 
@@ -1045,11 +1045,11 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.insertOrReplace({
 					namespace: 'spec',
-					key: 'key-0'
+					id: 'id-0'
 				})
 				.mergeMap(() => crud.appendToList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: [{
 						a: 1
 					}, {
@@ -1072,7 +1072,7 @@ describe('src/Crud', () => {
 		it('should append', done => {
 			crud.appendToList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: [{
 						c: 3
 					}, {
@@ -1101,7 +1101,7 @@ describe('src/Crud', () => {
 
 				crud.appendToList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: [{
 						e: 5
 					}, {
@@ -1138,11 +1138,11 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.insertOrReplace({
 					namespace: 'spec',
-					key: 'key-0'
+					id: 'id-0'
 				})
 				.mergeMap(() => crud.prependToList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: [{
 						a: 1
 					}, {
@@ -1165,7 +1165,7 @@ describe('src/Crud', () => {
 		it('should prepend', done => {
 			crud.prependToList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: [{
 						c: 3
 					}, {
@@ -1194,7 +1194,7 @@ describe('src/Crud', () => {
 
 				crud.prependToList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: [{
 						e: 5
 					}, {
@@ -1231,11 +1231,11 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.insertOrReplace({
 					namespace: 'spec',
-					key: 'key-0'
+					id: 'id-0'
 				})
 				.mergeMap(() => crud.appendToList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
 				}))
 				.subscribe(response => {
@@ -1246,7 +1246,7 @@ describe('src/Crud', () => {
 		it('should pull with array', done => {
 			crud.removeFromList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: [0, 1]
 				})
 				.subscribe(response => {
@@ -1257,7 +1257,7 @@ describe('src/Crud', () => {
 		it('should pull with single value', done => {
 			crud.removeFromList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: 0
 				})
 				.subscribe(response => {
@@ -1274,7 +1274,7 @@ describe('src/Crud', () => {
 
 				crud.removeFromList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: [2, 3]
 				}, ({
 					request,
@@ -1307,11 +1307,11 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.insertOrReplace({
 					namespace: 'spec',
-					key: 'key-0'
+					id: 'id-0'
 				})
 				.mergeMap(() => crud.appendToList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: [0, 1, 2, 3, 4, 5, 6, 7, {
 						a: 1
 					}]
@@ -1324,7 +1324,7 @@ describe('src/Crud', () => {
 		it('should update with primaries', done => {
 			crud.updateAtList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: {
 						0: 'updated 0',
 						2: 'updated 2'
@@ -1340,7 +1340,7 @@ describe('src/Crud', () => {
 		it('should update with object path', done => {
 			crud.updateAtList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: {
 						8: {
 							a: 2
@@ -1363,7 +1363,7 @@ describe('src/Crud', () => {
 
 				crud.updateAtList({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					list: {
 						5: 'updated 6'
 					}
@@ -1398,7 +1398,7 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.insertOrReplace({
 					namespace: 'spec',
-					key: 'key-0'
+					id: 'id-0'
 				})
 				.subscribe(null, null, done);
 		});
@@ -1406,7 +1406,7 @@ describe('src/Crud', () => {
 		it('should create a string set with array', done => {
 			crud.addToSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: ['a', 'b']
 				})
 				.subscribe(response => {
@@ -1417,7 +1417,7 @@ describe('src/Crud', () => {
 		it('should create a number set with array', done => {
 			crud.addToSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: [1, 2]
 				})
 				.subscribe(response => {
@@ -1428,7 +1428,7 @@ describe('src/Crud', () => {
 		it('should create a string set with single value', done => {
 			crud.addToSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: 'a'
 				})
 				.subscribe(response => {
@@ -1439,7 +1439,7 @@ describe('src/Crud', () => {
 		it('should create a number set with single value', done => {
 			crud.addToSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: 1
 				})
 				.subscribe(response => {
@@ -1450,12 +1450,12 @@ describe('src/Crud', () => {
 		it('should not duplicate', done => {
 			crud.addToSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: ['a', 'b']
 				})
 				.mergeMap(() => crud.addToSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: ['a', 'b']
 				}))
 				.subscribe(response => {
@@ -1467,7 +1467,7 @@ describe('src/Crud', () => {
 		it('should not create a set', done => {
 			crud.addToSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: [1, 'b']
 				})
 				.subscribe(null, err => {
@@ -1486,7 +1486,7 @@ describe('src/Crud', () => {
 
 				crud.addToSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: ['a', 'b']
 				}, ({
 					request,
@@ -1519,11 +1519,11 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.insertOrReplace({
 					namespace: 'spec',
-					key: 'key-0'
+					id: 'id-0'
 				})
 				.mergeMap(() => crud.addToSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: ['a', 'b', 'c', 'd']
 				}))
 				.subscribe(null, null, done);
@@ -1532,7 +1532,7 @@ describe('src/Crud', () => {
 		it('should pull', done => {
 			crud.removeFromSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: ['a', 'b']
 				})
 				.subscribe(response => {
@@ -1543,7 +1543,7 @@ describe('src/Crud', () => {
 		it('should remove attribute is set is empty', done => {
 			crud.removeFromSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: ['a', 'b', 'c', 'd']
 				})
 				.subscribe(response => {
@@ -1554,7 +1554,7 @@ describe('src/Crud', () => {
 		it('should do nothing if inexistent', done => {
 			crud.removeFromSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: ['e', 'f']
 				})
 				.subscribe(response => {
@@ -1571,7 +1571,7 @@ describe('src/Crud', () => {
 
 				crud.removeFromSet({
 					namespace,
-					key: 'key-0',
+					id: 'id-0',
 					set: ['a', 'b']
 				}, ({
 					request,
@@ -1602,7 +1602,7 @@ describe('src/Crud', () => {
 		beforeEach(done => {
 			crud.insertOrReplace({
 					namespace: 'spec',
-					key: 'key-0',
+					id: 'id-0',
 					title: 'title'
 				})
 				.subscribe(null, null, done);
@@ -1611,13 +1611,13 @@ describe('src/Crud', () => {
 		it('should remove attribute', done => {
 			crud.removeAttributes({
 					namespace: 'spec',
-					key: 'key-0',
+					id: 'id-0',
 					title: 'title'
 				})
 				.subscribe(response => {
 					expect(response).to.deep.equal({
 						namespace: 'spec',
-						key: 'key-0',
+						id: 'id-0',
 						updatedAt: response.updatedAt,
 						createdAt: response.createdAt
 					});
@@ -1633,7 +1633,7 @@ describe('src/Crud', () => {
 
 				crud.removeAttributes({
 					namespace: 'spec',
-					key: 'key-0',
+					id: 'id-0',
 					title: 'title'
 				}, ({
 					request,

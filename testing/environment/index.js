@@ -8,10 +8,10 @@ const {
 	dynamoDbClient
 } = AWS();
 
-const instance = new DynamoDB({
+const dynamoDb = new DynamoDB({
 	client: dynamoDbClient
 });
 
 export {
-	instance
+	dynamoDb
 };
