@@ -151,39 +151,43 @@ describe('src/Request', () => {
 		it('should returns primaryKeys.partition', () => {
 			expect(request.partitionAttr).to.equal('namespace');
 		});
-
-		it('should returns globalIndex.partition', () => {
-			request
-				.index('globalIndexedSpec');
-
-			expect(request.partitionAttr).to.equal('globalIndexedPartitionAttr');
-		});
-
-		it('should returns null when wrong globalIndex', () => {
-			request
-				.index('globalIndexedSpec_');
-
-			expect(request.partitionAttr).to.be.null;
-		});
 	});
 
 	describe('sortAttr', () => {
 		it('should returns primaryKeys.sort', () => {
 			expect(request.sortAttr).to.equal('id');
 		});
+	});
 
-		it('should returns globalIndex.sort', () => {
+	describe('globalIndexPartitionAttr', () => {
+		it('should returns globalIndex.partition', () => {
 			request
 				.index('globalIndexedSpec');
 
-			expect(request.sortAttr).to.equal('globalIndexedSortAttr');
+			expect(request.globalIndexPartitionAttr).to.equal('globalIndexedPartitionAttr');
 		});
 
 		it('should returns null when wrong globalIndex', () => {
 			request
 				.index('globalIndexedSpec_');
 
-			expect(request.sortAttr).to.be.null;
+			expect(request.globalIndexPartitionAttr).to.be.null;
+		});
+	});
+
+	describe('globalIndexSortAttr', () => {
+		it('should returns globalIndex.sort', () => {
+			request
+				.index('globalIndexedSpec');
+
+			expect(request.globalIndexSortAttr).to.equal('globalIndexedSortAttr');
+		});
+
+		it('should returns null when wrong globalIndex', () => {
+			request
+				.index('globalIndexedSpec_');
+
+			expect(request.globalIndexSortAttr).to.be.null;
 		});
 	});
 
@@ -572,7 +576,7 @@ describe('src/Request', () => {
 			});
 		});
 
-		it('should include localIndexAttr', () => {
+		it('should include also primaryKeys and localIndexAttr', () => {
 			request
 				.index('localIndexedSpec')
 				.select('id, name, age');
@@ -588,19 +592,20 @@ describe('src/Request', () => {
 			});
 		});
 
-		it('should include globalIndex attrs', () => {
+		it('should include also primaryKeys and globalIndex attrs', () => {
 			request
 				.index('globalIndexedSpec')
-				.select('id, name, age');
+				.select('name, age');
 
 			expect(request.projectionSelect).to.equal('SPECIFIC_ATTRIBUTES');
-			expect(request.projectionExpression).to.equal('#id_0,#name_1,#age_2,#globalIndexedPartitionAttr_3,#globalIndexedSortAttr_4');
+			expect(request.projectionExpression).to.equal('#name_0,#age_1,#namespace_2,#id_3,#globalIndexedPartitionAttr_4,#globalIndexedSortAttr_5');
 			expect(request.expressionAttributeNames).to.deep.equal({
-				'#id_0': 'id',
-				'#name_1': 'name',
-				'#age_2': 'age',
-				'#globalIndexedPartitionAttr_3': 'globalIndexedPartitionAttr',
-				'#globalIndexedSortAttr_4': 'globalIndexedSortAttr'
+				'#name_0': 'name',
+				'#age_1': 'age',
+				'#namespace_2': 'namespace',
+				'#id_3': 'id',
+				'#globalIndexedPartitionAttr_4': 'globalIndexedPartitionAttr',
+				'#globalIndexedSortAttr_5': 'globalIndexedSortAttr'
 			});
 		});
 
@@ -747,17 +752,25 @@ describe('src/Request', () => {
 		});
 
 		it('should responds with resumed data', done => {
-			request
-				.limit(2)
-				.resume({
-					namespace,
-					id: 'id-2'
-				})
+			const query = request
+				.limit(3)
 				.query({
 					namespace,
-					ignoredignoredAttr: 'this attr should be ignored'
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.last();
+
+			const resumedQuery = lastKey => request
+				.limit(2)
+				.resume(request.queryStats.lastKey)
+				.query({
+					namespace,
+					ignoredAttr: 'this attr should be ignored'
 				})
 				.toArray()
+
+			query
+				.mergeMap(() => resumedQuery(request.queryStats.lastKey))
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
 						namespace: 'spec',
@@ -778,6 +791,173 @@ describe('src/Request', () => {
 						createdAt: response[1].createdAt,
 						updatedAt: response[1].updatedAt
 					}]);
+				}, null, done);
+		});
+
+		it('should responds with resumed data using localIndex', done => {
+			const query = request
+				.limit(3)
+				.index('localIndexedSpec')
+				.query({
+					namespace,
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.last();
+
+			const resumedQuery = lastKey => request
+				.limit(2)
+				.resume(request.queryStats.lastKey)
+				.query({
+					namespace,
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.toArray()
+
+			query
+				.mergeMap(() => resumedQuery(request.queryStats.lastKey))
+				.subscribe(response => {
+					expect(response).to.deep.equal([{
+						namespace: 'spec',
+						localIndexedAttr: response[0].localIndexedAttr,
+						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
+						globalIndexedSortAttr: response[0].globalIndexedSortAttr,
+						id: 'id-3',
+						message: response[0].message,
+						createdAt: response[0].createdAt,
+						updatedAt: response[0].updatedAt
+					}, {
+						namespace: 'spec',
+						localIndexedAttr: response[1].localIndexedAttr,
+						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
+						globalIndexedSortAttr: response[1].globalIndexedSortAttr,
+						id: 'id-4',
+						message: response[1].message,
+						createdAt: response[1].createdAt,
+						updatedAt: response[1].updatedAt
+					}]);
+				}, null, done);
+		});
+
+		it('should responds with resumed data using globalIndex', done => {
+			const query = request
+				.limit(3)
+				.index('globalIndexedSpec')
+				.query({
+					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.last();
+
+			const resumedQuery = lastKey => request
+				.limit(2)
+				.resume(request.queryStats.lastKey)
+				.query({
+					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.toArray()
+
+			query
+				.mergeMap(() => resumedQuery(request.queryStats.lastKey))
+				.subscribe(response => {
+					expect(response).to.deep.equal([{
+						namespace: 'spec',
+						localIndexedAttr: response[0].localIndexedAttr,
+						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
+						globalIndexedSortAttr: response[0].globalIndexedSortAttr,
+						id: 'id-3',
+						message: response[0].message,
+						createdAt: response[0].createdAt,
+						updatedAt: response[0].updatedAt
+					}, {
+						namespace: 'spec',
+						localIndexedAttr: response[1].localIndexedAttr,
+						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
+						globalIndexedSortAttr: response[1].globalIndexedSortAttr,
+						id: 'id-4',
+						message: response[1].message,
+						createdAt: response[1].createdAt,
+						updatedAt: response[1].updatedAt
+					}]);
+				}, null, done);
+		});
+
+		it('shuld feed queryStats', done => {
+			request
+				.limit(2)
+				.resume({
+					namespace,
+					id: 'id-2'
+				})
+				.query({
+					namespace,
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.toArray()
+				.subscribe(response => {
+					expect(request.queryStats).to.deep.equal({
+						firstKey: {
+							namespace: 'spec',
+							id: 'id-3'
+						},
+						lastKey: {
+							namespace: 'spec',
+							id: 'id-4'
+						},
+						count: 2,
+						scannedCount: 2,
+						iteractions: 1
+					});
+				}, null, done);
+		});
+
+		it('should not feed queryStats.firstKey when not resumed', done => {
+			request
+				.limit(2)
+				.query({
+					namespace,
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.toArray()
+				.subscribe(response => {
+					expect(request.queryStats.firstKey).to.be.null;
+				}, null, done);
+		});
+
+		it('should not feed queryStats.firstKey when inexistent items', done => {
+			request
+				.limit(10)
+				.resume({
+					namespace,
+					id: 'id-9'
+				})
+				.query({
+					namespace,
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.toArray()
+				.subscribe(response => {
+					expect(request.queryStats.firstKey).to.be.null;
+				}, null, done);
+		});
+
+		it('should feed queryStats.firstKey when resumed', done => {
+			request
+				.limit(2)
+				.resume({
+					namespace,
+					id: 'id-2'
+				})
+				.query({
+					namespace,
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.toArray()
+				.subscribe(response => {
+					expect(request.queryStats.firstKey).to.deep.equal({
+						namespace: 'spec',
+						id: 'id-3'
+					});
 				}, null, done);
 		});
 
@@ -881,6 +1061,8 @@ describe('src/Request', () => {
 					.subscribe(() => {
 						expect(request.queryStats.count).to.equal(5);
 						expect(request.queryStats.lastKey).to.deep.equal({
+							id: 'id-4',
+							namespace: 'spec',
 							globalIndexedPartitionAttr: 'global-indexed-spec',
 							globalIndexedSortAttr: 'global-indexed-4'
 						});
@@ -890,47 +1072,50 @@ describe('src/Request', () => {
 
 		describe('multiple operations', () => {
 			beforeEach(() => {
+				let index = 0;
+
 				routeCall.restore();
 				routeCall = stub(request, 'routeCall')
 					.callsFake(() => Observable.of({
-						Items: [{
-							id: {
-								'S': 'id-0'
-							},
-							createdAt: {
-								'N': '1462910456975'
-							},
-							namespace: {
-								'S': 'spec'
-							},
-							updatedAt: {
-								'N': '1462910456975'
+							Items: [{
+								id: {
+									'S': `id-${++index}`
+								},
+								createdAt: {
+									'N': '1462910456975'
+								},
+								namespace: {
+									'S': 'spec'
+								},
+								updatedAt: {
+									'N': '1462910456975'
+								}
+							}, {
+								id: {
+									'S': `id-${++index}`
+								},
+								createdAt: {
+									'N': '1462910456979'
+								},
+								namespace: {
+									'S': 'spec'
+								},
+								updatedAt: {
+									'N': '1462910456979'
+								}
+							}],
+							Count: 2,
+							ScannedCount: 2,
+							LastEvaluatedKey: {
+								id: {
+									'S': `id-${index}`
+								},
+								namespace: {
+									'S': 'spec'
+								}
 							}
-						}, {
-							id: {
-								'S': 'id-1'
-							},
-							createdAt: {
-								'N': '1462910456979'
-							},
-							namespace: {
-								'S': 'spec'
-							},
-							updatedAt: {
-								'N': '1462910456979'
-							}
-						}],
-						Count: 2,
-						ScannedCount: 2,
-						LastEvaluatedKey: {
-							id: {
-								'S': 'id-1'
-							},
-							namespace: {
-								'S': 'spec'
-							}
-						}
-					}).observeOn(Scheduler.asap));
+						})
+						.observeOn(Scheduler.asap));
 			});
 
 			it('should run queryOperation 25 times until reach default limit or lastKey be null', done => {
@@ -975,6 +1160,36 @@ describe('src/Request', () => {
 						expect(request.queryStats.count).to.equal(10);
 						expect(request.queryStats.iteractions).to.equal(5);
 						expect(_.size(response)).to.equal(9);
+					}, null, done);
+			});
+
+			it('should not feed queryStats.firstKey when no resumed', done => {
+				request
+					.limit(10)
+					.query({
+						namespace,
+						ignoredAttr: 'this attr should be ignored'
+					})
+					.toArray()
+					.subscribe(response => {
+						expect(request.queryStats.firstKey).to.be.null;
+					}, null, done);
+			});
+
+			it('should feed queryStats.firstKey when resumed', done => {
+				request
+					.limit(10)
+					.resume({})
+					.query({
+						namespace,
+						ignoredAttr: 'this attr should be ignored'
+					})
+					.toArray()
+					.subscribe(response => {
+						expect(request.queryStats.firstKey).to.deep.equal({
+							namespace: 'spec',
+							id: 'id-1'
+						});
 					}, null, done);
 			});
 		});
@@ -1122,12 +1337,13 @@ describe('src/Request', () => {
 	});
 
 	describe('resume', () => {
-		it('should set exclusiveStartKey', () => {
+		it('should set exclusiveStartKey and isResumed', () => {
 			request.resume({
 				namespace,
 				id: 'id-0'
 			});
 
+			expect(request.isResumed).to.be.true;
 			expect(request.exclusiveStartKey).to.deep.equal({
 				namespace: {
 					S: namespace

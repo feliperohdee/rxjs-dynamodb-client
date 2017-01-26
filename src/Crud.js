@@ -23,12 +23,28 @@ export class Crud {
 		return this.dynamoDb.table(this.tableName, this.tableSchema);
 	}
 
-	partitionAttr(indexName) {
+	get partitionAttr() {
 		const {
 			partition = null
 		} = this.primaryKeys;
 
+		return partition;
+	}
+
+	sortAttr(indexName) {
+		const {
+			sort = null
+		} = this.primaryKeys;
+
+		return sort;
+	}
+
+	globalIndexPartitionAttr(indexName) {
 		if (this.indexes && indexName) {
+			const {
+				partition = null
+			} = this.primaryKeys;
+
 			const {
 				partition: indexPartition = null
 			} = this.indexes[indexName] || {};
@@ -39,16 +55,15 @@ export class Crud {
 			}
 		}
 
-		return partition;
+		return null;
 	}
 
-	sortAttr(indexName) {
-		const {
-			partition = null,
-			sort = null
-		} = this.primaryKeys;
-
+	globalIndexSortAttr(indexName) {
 		if (this.indexes && indexName) {
+			const {
+				partition = null
+			} = this.primaryKeys;
+
 			const {
 				partition: indexPartition = null,
 				sort: indexSort = null
@@ -60,19 +75,23 @@ export class Crud {
 			}
 		}
 
-		return sort;
+		return null;
 	}
 
 	localIndexAttr(indexName) {
 		if (this.indexes && indexName) {
 			const {
-				partition,
-				sort
+				partition = null
+			} = this.primaryKeys;
+
+			const {
+				partition: indexPartition,
+				sort: indexSort
 			} = this.indexes[indexName] || {};
 
 			// is local index
-			if (partition === this.primaryKeys.partition && sort) {
-				return sort;
+			if (partition === this.primaryKeys.partition && indexSort) {
+				return indexSort;
 			}
 		}
 
@@ -89,8 +108,8 @@ export class Crud {
 			consistent
 		} = args;
 
-		const partitionAttr = this.partitionAttr(indexName);
-		const sortAttr = this.sortAttr(indexName);
+		const partitionAttr = this.globalIndexPartitionAttr(indexName) || this.partitionAttr;
+		const sortAttr = this.globalIndexSortAttr(indexName) || this.sortAttr;
 		const localIndexAttr = this.localIndexAttr(indexName);
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
@@ -167,11 +186,11 @@ export class Crud {
 		let items = request
 			.query.apply(request, hookArgs || [expression]);
 
-		if(_.isFunction(itemSelector)){
+		if (_.isFunction(itemSelector)) {
 			items = itemSelector(items);
 		}
 
-		if(_.isFunction(customReducer)){
+		if (_.isFunction(customReducer)) {
 			return customReducer(items);
 		}
 
@@ -197,8 +216,8 @@ export class Crud {
 			select
 		} = args;
 
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
 
@@ -227,8 +246,8 @@ export class Crud {
 	}
 
 	insert(args, hook = false) {
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr] || cuid();
 
@@ -254,8 +273,8 @@ export class Crud {
 	}
 
 	insertOrReplace(args, hook = false) {
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
 
@@ -279,8 +298,8 @@ export class Crud {
 	}
 
 	insertOrUpdate(args, hook = false) {
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
 
@@ -304,8 +323,8 @@ export class Crud {
 	}
 
 	update(args, hook = false) {
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
 
@@ -329,8 +348,8 @@ export class Crud {
 	}
 
 	delete(args, hook = false) {
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
 
@@ -360,8 +379,8 @@ export class Crud {
 	}
 
 	appendToList(args, prepend = false, hook = false) {
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
 
@@ -398,8 +417,8 @@ export class Crud {
 	}
 
 	removeFromList(args, hook = false) {
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
 
@@ -446,8 +465,8 @@ export class Crud {
 	}
 
 	updateAtList(args, hook = false) {
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
 
@@ -510,8 +529,8 @@ export class Crud {
 	}
 
 	addToSet(args, hook = false) {
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
 
@@ -577,8 +596,8 @@ export class Crud {
 	}
 
 	removeFromSet(args, hook = false) {
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
 
@@ -644,8 +663,8 @@ export class Crud {
 	}
 
 	removeAttributes(args, hook = false) {
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
 
@@ -686,8 +705,8 @@ export class Crud {
 	}
 
 	clear(args) {
-		const partitionAttr = this.partitionAttr();
-		const sortAttr = this.sortAttr();
+		const partitionAttr = this.partitionAttr;
+		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
 

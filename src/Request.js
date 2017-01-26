@@ -50,7 +50,23 @@ export class Request {
 			partition = null
 		} = this.primaryKeys;
 
+		return partition;
+	}
+
+	get sortAttr() {
+		const {
+			sort = null
+		} = this.primaryKeys;
+
+		return sort;
+	}
+
+	get globalIndexPartitionAttr() {
 		if (this.indexes && this.indexName) {
+			const {
+				partition = null
+			} = this.primaryKeys;
+
 			const {
 				partition: indexPartition = null
 			} = this.indexes[this.indexName] || {};
@@ -61,16 +77,15 @@ export class Request {
 			}
 		}
 
-		return partition;
+		return null;
 	}
 
-	get sortAttr() {
-		const {
-			partition = null,
-				sort = null
-		} = this.primaryKeys;
-
+	get globalIndexSortAttr() {
 		if (this.indexes && this.indexName) {
+			const {
+				partition = null
+			} = this.primaryKeys;
+
 			const {
 				partition: indexPartition = null,
 				sort: indexSort = null
@@ -82,19 +97,23 @@ export class Request {
 			}
 		}
 
-		return sort;
+		return null;
 	}
 
 	get localIndexAttr() {
 		if (this.indexes && this.indexName) {
 			const {
-				partition,
-				sort
+				partition = null
+			} = this.primaryKeys;
+
+			const {
+				partition: indexPartition,
+				sort: indexSort
 			} = this.indexes[this.indexName] || {};
 
 			// is local index
-			if (partition === this.primaryKeys.partition && sort) {
-				return sort;
+			if (indexPartition === this.primaryKeys.partition && indexSort) {
+				return indexSort;
 			}
 		}
 
@@ -213,6 +232,14 @@ export class Request {
 			select += `,${this.sortAttr}`;
 		}
 
+		if (this.globalIndexPartitionAttr) {
+			select += `,${this.globalIndexPartitionAttr}`;
+		}
+
+		if (this.globalIndexSortAttr) {
+			select += `,${this.globalIndexSortAttr}`;
+		}
+
 		if (this.localIndexAttr) {
 			select += `,${this.localIndexAttr}`;
 		}
@@ -247,7 +274,11 @@ export class Request {
 		if (_.isString(queryData)) {
 			this.keyConditionExpression = queryData;
 		} else {
-			const primaryAttrs = _.pick(queryData, [this.partitionAttr, this.sortAttr, this.localIndexAttr]);
+			const primaryAttrs = _.pick(queryData, [
+				this.globalIndexPartitionAttr || this.partitionAttr,
+				this.globalIndexSortAttr || this.sortAttr,
+				this.localIndexAttr
+			]);
 
 			this.keyConditionExpression = _.reduce(primaryAttrs, (reduction, value, key) => {
 				this.addPlaceholderName(key);
@@ -320,18 +351,38 @@ export class Request {
 				} = response;
 
 				this.queryStats = {
+					firstKey: this.queryStats.firstKey || null,
 					lastKey: lastKey ? this.util.normalizeItem(lastKey) : null,
 					count: (this.queryStats.count || 0) + count,
 					scannedCount: (this.queryStats.scannedCount || 0) + scannedCount,
 					iteractions: (this.queryStats.iteractions || 0) + iteractions
 				};
 
+				// if already paginated, we store first item to allow do "before" queries as lastItem is for "after" queries
+				if (this.isResumed && this.queryStats.count && !this.queryStats.firstKey) {
+					const firstItem = this.util.normalizeItem(_.first(items));
+
+					this.queryStats.firstKey = _.pick(firstItem, [
+						this.partitionAttr,
+						this.sortAttr,
+						this.globalIndexPartitionAttr,
+						this.globalIndexSortAttr,
+						this.localIndexAttr
+					]);
+				}
+
 				// when filterExpression we have no limits
 				// if filteres response's length is greater than query limit we need emulate an optimistic lastKey and count
 				if (this.filterExpression && this.queryStats.count > this.queryLimit) {
 					const lastItem = this.util.normalizeItem(_.nth(items, this.queryLimit - 1));
 
-					this.queryStats.lastKey = _.pick(lastItem, [this.partitionAttr, this.sortAttr, this.localIndexAttr]);
+					this.queryStats.lastKey = _.pick(lastItem, [
+						this.partitionAttr,
+						this.sortAttr,
+						this.globalIndexPartitionAttr,
+						this.globalIndexSortAttr,
+						this.localIndexAttr
+					]);
 					this.queryStats.count = this.queryLimit;
 				}
 
@@ -342,7 +393,10 @@ export class Request {
 	}
 
 	get(item) {
-		const primaryAttrs = _.pick(item, [this.partitionAttr, this.sortAttr]);
+		const primaryAttrs = _.pick(item, [
+			this.partitionAttr,
+			this.sortAttr
+		]);
 
 		return this.routeCall('getItem', {
 				ExpressionAttributeNames: this.expressionAttributeNames,
@@ -385,6 +439,7 @@ export class Request {
 	}
 
 	resume(args) {
+		this.isResumed = true;
 		this.exclusiveStartKey = this.util.anormalizeItem(args);
 
 		return this;
@@ -442,7 +497,10 @@ export class Request {
 			return Observable.throw(new Error('Where statement might be provided'));
 		}
 
-		const primaryKeys = [this.partitionAttr, this.sortAttr];
+		const primaryKeys = [
+			this.partitionAttr,
+			this.sortAttr
+		];
 		const primaryAttrs = _.pick(where, primaryKeys);
 
 		// build expression
@@ -488,7 +546,10 @@ export class Request {
 	}
 
 	delete(item) {
-		const primaryAttrs = _.pick(item, [this.partitionAttr, this.sortAttr]);
+		const primaryAttrs = _.pick(item, [
+			this.partitionAttr,
+			this.sortAttr
+		]);
 
 		return this.routeCall('deleteItem', {
 				ConditionExpression: this.conditionExpression,
@@ -535,7 +596,10 @@ export class Request {
 
 		if (toDelete) {
 			args = _.reduce(toDelete, (reduction, item) => {
-				const primaryAttrs = _.pick(item, [this.partitionAttr, this.sortAttr]);
+				const primaryAttrs = _.pick(item, [
+					this.partitionAttr,
+					this.sortAttr
+				]);
 
 				reduction.push({
 					DeleteRequest: {

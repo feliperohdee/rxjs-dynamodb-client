@@ -144,29 +144,33 @@ describe('src/Crud', () => {
 
 	describe('partitionAttr', () => {
 		it('should returns primaryKeys.partition', () => {
-			expect(crud.partitionAttr()).to.equal('namespace');
-		});
-
-		it('should returns globalIndex.partition', () => {
-			expect(crud.partitionAttr('globalIndexedSpec')).to.equal('globalIndexedPartitionAttr');
-		});
-
-		it('should returns null when wrong globalIndex', () => {
-			expect(crud.partitionAttr('globalIndexedSpec_')).to.be.null;
+			expect(crud.partitionAttr).to.equal('namespace');
 		});
 	});
 
 	describe('sortAttr', () => {
 		it('should returns primaryKeys.sort', () => {
-			expect(crud.sortAttr()).to.equal('id');
+			expect(crud.sortAttr).to.equal('id');
 		});
+	});
 
-		it('should returns globalIndex.sort', () => {
-			expect(crud.sortAttr('globalIndexedSpec')).to.equal('globalIndexedSortAttr');
+	describe('globalIndexPartitionAttr', () => {
+		it('should returns globalIndex.partition', () => {
+			expect(crud.globalIndexPartitionAttr('globalIndexedSpec')).to.equal('globalIndexedPartitionAttr');
 		});
 
 		it('should returns null when wrong globalIndex', () => {
-			expect(crud.sortAttr('globalIndexedSpec_')).to.be.null;
+			expect(crud.globalIndexPartitionAttr('globalIndexedSpec_')).to.be.null;
+		});
+	});
+
+	describe('globalIndexSortAttr', () => {
+		it('should returns globalIndex.sort', () => {
+			expect(crud.globalIndexSortAttr('globalIndexedSpec')).to.equal('globalIndexedSortAttr');
+		});
+
+		it('should returns null when wrong globalIndex', () => {
+			expect(crud.globalIndexSortAttr('globalIndexedSpec_')).to.be.null;
 		});
 	});
 
