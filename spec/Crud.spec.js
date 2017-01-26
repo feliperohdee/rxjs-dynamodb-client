@@ -320,7 +320,7 @@ describe('src/Crud', () => {
 				crud.fetch({
 						limit: 2,
 						namespace: 'spec',
-						after: crud.toBase64(JSON.stringify({
+						resume: crud.toBase64(JSON.stringify({
 							namespace,
 							id: 'id-6'
 						}))
@@ -414,7 +414,11 @@ describe('src/Crud', () => {
 			beforeEach(done => {
 				crud.fetch({
 						limit: 2,
-						namespace: 'spec'
+						namespace: 'spec',
+						resume: crud.toBase64(JSON.stringify({
+							namespace,
+							id: 'id-2'
+						}))
 					})
 					.subscribe(response => {
 						items = response.items;
@@ -429,33 +433,26 @@ describe('src/Crud', () => {
 					after: lastKey
 				});
 
-				expect(items[0].id).to.equal('id-0');
-				expect(items[1].id).to.equal('id-1');
+				expect(items[0].id).to.equal('id-3');
+				expect(items[1].id).to.equal('id-4');
 
 				query(stats.lastKey)
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-2');
-						expect(response.items[1].id).to.equal('id-3');
+						expect(response.items[0].id).to.equal('id-5');
+						expect(response.items[1].id).to.equal('id-6');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.lastKey))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-4');
-						expect(response.items[1].id).to.equal('id-5');
+						expect(response.items[0].id).to.equal('id-7');
+						expect(response.items[1].id).to.equal('id-8');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.lastKey))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-6');
-						expect(response.items[1].id).to.equal('id-7');
-						expect(response.stats.count).to.equal(2);
-					})
-					.mergeMap(response => query(response.stats.lastKey))
-					.do(response => {
-						expect(response.items[0].id).to.equal('id-8');
-						expect(response.items[1].id).to.equal('id-9');
+						expect(response.items[0].id).to.equal('id-9');
 						expect(response.stats.lastKey).to.be.null;
-						expect(response.stats.count).to.equal(2);
+						expect(response.stats.count).to.equal(1);
 					})
 					.subscribe(response => {}, null, done);
 			});
@@ -468,33 +465,26 @@ describe('src/Crud', () => {
 					desc: true
 				});
 
-				expect(items[0].id).to.equal('id-0');
-				expect(items[1].id).to.equal('id-1');
+				expect(items[0].id).to.equal('id-3');
+				expect(items[1].id).to.equal('id-4');
 
 				query(stats.lastKey)
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-3');
-						expect(response.items[1].id).to.equal('id-2');
+						expect(response.items[0].id).to.equal('id-6');
+						expect(response.items[1].id).to.equal('id-5');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.lastKey))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-5');
-						expect(response.items[1].id).to.equal('id-4');
-						expect(response.stats.count).to.equal(2);
-					})
-					.mergeMap(response => query(response.stats.lastKey))
-					.do(response => {
-						expect(response.items[0].id).to.equal('id-7');
-						expect(response.items[1].id).to.equal('id-6');
+						expect(response.items[0].id).to.equal('id-8');
+						expect(response.items[1].id).to.equal('id-7');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.lastKey))
 					.do(response => {
 						expect(response.items[0].id).to.equal('id-9');
-						expect(response.items[1].id).to.equal('id-8');
 						expect(response.stats.lastKey).to.be.null;
-						expect(response.stats.count).to.equal(2);
+						expect(response.stats.count).to.equal(1);
 					})
 					.subscribe(response => {}, null, done);
 			});
