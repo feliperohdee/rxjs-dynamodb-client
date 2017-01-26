@@ -101,6 +101,7 @@ export class Crud {
 	fetch(args, hook = false, itemSelector = null, customReducer = null) {
 		const {
 			resume,
+			before,
 			after,
 			select,
 			limit,
@@ -153,15 +154,16 @@ export class Crud {
 				.index(indexName);
 		}
 
-		if (resume) {
-			request.resume(JSON.parse(this.fromBase64(resume)));
+		if(before){
+			request.resume(JSON.parse(this.fromBase64(before)))
+				.desc();
 		}
 
-		if (after) {
-			request.resume(JSON.parse(this.fromBase64(after)));
+		if (resume || after) {
+			request.resume(JSON.parse(this.fromBase64(resume || after)));
 		}
 
-		if (desc === true) {
+		if (!before && !after && desc === true) {
 			request.desc();
 		}
 
@@ -205,6 +207,15 @@ export class Crud {
 				const {
 					queryStats
 				} = request;
+
+				if(before){
+					items = desc ? items : _.reverse(items);
+					[queryStats.firstKey, queryStats.lastKey] = [queryStats.lastKey, queryStats.firstKey];
+				}
+
+				if(after){
+					items = !desc ? items : _.reverse(items);
+				}
 
 				return {
 					items,

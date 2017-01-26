@@ -484,6 +484,8 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				[partition | globalIndexPartition]: string (required);
 				[sort | localIndexAttribute | globalIndexSort]: string;
 				resume: base64<string>;
+				before: base64<string>;
+				after: base64<string>;
 				select: string (comma separated);
 				limit: number;
 				desc: boolean;

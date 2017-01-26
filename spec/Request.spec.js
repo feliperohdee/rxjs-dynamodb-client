@@ -1175,7 +1175,7 @@ describe('src/Request', () => {
 					}, null, done);
 			});
 
-			it('should not feed queryStats.firstKey when no resumed', done => {
+			it('should not feed queryStats.firstKey when not resumed', done => {
 				request
 					.limit(10)
 					.query({
