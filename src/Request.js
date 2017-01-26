@@ -92,7 +92,7 @@ export class Request {
 			} = this.indexes[this.indexName] || {};
 
 			// is global index
-			if (indexPartition !== partition) {
+			if (indexPartition !== partition && indexSort) {
 				return indexSort;
 			}
 		}
@@ -100,19 +100,19 @@ export class Request {
 		return null;
 	}
 
-	get localIndexAttr() {
+	get localIndexSortAttr() {
 		if (this.indexes && this.indexName) {
 			const {
 				partition = null
 			} = this.primaryKeys;
 
 			const {
-				partition: indexPartition,
-				sort: indexSort
+				partition: indexPartition = null,
+				sort: indexSort = null
 			} = this.indexes[this.indexName] || {};
 
 			// is local index
-			if (indexPartition === this.primaryKeys.partition && indexSort) {
+			if (indexPartition === partition && indexSort) {
 				return indexSort;
 			}
 		}
@@ -240,8 +240,8 @@ export class Request {
 			select += `,${this.globalIndexSortAttr}`;
 		}
 
-		if (this.localIndexAttr) {
-			select += `,${this.localIndexAttr}`;
+		if (this.localIndexSortAttr) {
+			select += `,${this.localIndexSortAttr}`;
 		}
 
 		// replace select tokens by placeholder attributes
@@ -277,7 +277,7 @@ export class Request {
 			const primaryAttrs = _.pick(queryData, [
 				this.globalIndexPartitionAttr || this.partitionAttr,
 				this.globalIndexSortAttr || this.sortAttr,
-				this.localIndexAttr
+				this.localIndexSortAttr
 			]);
 
 			this.keyConditionExpression = _.reduce(primaryAttrs, (reduction, value, key) => {
@@ -367,7 +367,7 @@ export class Request {
 						this.sortAttr,
 						this.globalIndexPartitionAttr,
 						this.globalIndexSortAttr,
-						this.localIndexAttr
+						this.localIndexSortAttr
 					]);
 				}
 
@@ -381,7 +381,7 @@ export class Request {
 						this.sortAttr,
 						this.globalIndexPartitionAttr,
 						this.globalIndexSortAttr,
-						this.localIndexAttr
+						this.localIndexSortAttr
 					]);
 					this.queryStats.count = this.queryLimit;
 				}

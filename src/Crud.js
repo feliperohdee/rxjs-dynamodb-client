@@ -70,7 +70,7 @@ export class Crud {
 			} = this.indexes[indexName] || {};
 
 			// is global index
-			if (indexPartition !== partition) {
+			if (indexPartition !== partition && indexSort) {
 				return indexSort;
 			}
 		}
@@ -78,15 +78,15 @@ export class Crud {
 		return null;
 	}
 
-	localIndexAttr(indexName) {
+	localIndexSortAttr(indexName) {
 		if (this.indexes && indexName) {
 			const {
 				partition = null
 			} = this.primaryKeys;
 
 			const {
-				partition: indexPartition,
-				sort: indexSort
+				partition: indexPartition = null,
+				sort: indexSort = null
 			} = this.indexes[indexName] || {};
 
 			// is local index
@@ -110,10 +110,10 @@ export class Crud {
 
 		const partitionAttr = this.globalIndexPartitionAttr(indexName) || this.partitionAttr;
 		const sortAttr = this.globalIndexSortAttr(indexName) || this.sortAttr;
-		const localIndexAttr = this.localIndexAttr(indexName);
+		const localIndexSortAttr = this.localIndexSortAttr(indexName);
 		const partition = args[partitionAttr];
 		const sort = args[sortAttr];
-		const localIndex = args[localIndexAttr];
+		const localIndex = args[localIndexSortAttr];
 
 		let request = this.request;
 		let expression = `#partition = :partition`;
@@ -126,10 +126,10 @@ export class Crud {
 				partition
 			});
 
-		if (localIndexAttr && localIndex) {
+		if (localIndexSortAttr && localIndex) {
 			request
 				.addPlaceholderName({
-					index: localIndexAttr
+					index: localIndexSortAttr
 				})
 				.addPlaceholderValue({
 					index: localIndex

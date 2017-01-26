@@ -25,7 +25,7 @@ const tableSchema = {
 	indexes: {
 		localIndexedSpec: {
 			partition: 'namespace',
-			sort: 'localIndexedAttr'
+			sort: 'localIndexedSortAttr'
 		},
 		globalIndexedSpec: {
 			partition: 'globalIndexedPartitionAttr',
@@ -58,7 +58,7 @@ describe('src/Request', () => {
 					AttributeName: 'id',
 					AttributeType: 'S'
 				}, {
-					AttributeName: 'localIndexedAttr',
+					AttributeName: 'localIndexedSortAttr',
 					AttributeType: 'S'
 				}, {
 					AttributeName: 'globalIndexedPartitionAttr',
@@ -80,7 +80,7 @@ describe('src/Request', () => {
 						AttributeName: 'namespace',
 						KeyType: 'HASH'
 					}, {
-						AttributeName: 'localIndexedAttr',
+						AttributeName: 'localIndexedSortAttr',
 						KeyType: 'RANGE'
 					}],
 					Projection: {
@@ -110,7 +110,7 @@ describe('src/Request', () => {
 					namespace,
 					id: `id-${n}`,
 					message: `message-${n}`,
-					localIndexedAttr: `local-indexed-${n}`,
+					localIndexedSortAttr: `local-indexed-${n}`,
 					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
 					globalIndexedSortAttr: `global-indexed-${n}`,
 				}, true)))
@@ -191,26 +191,26 @@ describe('src/Request', () => {
 		});
 	});
 
-	describe('localIndexAttr', () => {
+	describe('localIndexSortAttr', () => {
 		it('should returns localIndex.sort', () => {
 			request
 				.index('localIndexedSpec');
 
-			expect(request.localIndexAttr).to.equal('localIndexedAttr');
+			expect(request.localIndexSortAttr).to.equal('localIndexedSortAttr');
 		});
 
 		it('should returns null when wrong localIndex', () => {
 			request
 				.index('localIndexedSpec_');
 
-			expect(request.localIndexAttr).to.be.null;
+			expect(request.localIndexSortAttr).to.be.null;
 		});
 
 		it('should returns null when is global index', () => {
 			request
 				.index('globalIndexedSpec');
 
-			expect(request.localIndexAttr).to.be.null;
+			expect(request.localIndexSortAttr).to.be.null;
 		});
 	});
 
@@ -576,23 +576,23 @@ describe('src/Request', () => {
 			});
 		});
 
-		it('should include also primaryKeys and localIndexAttr', () => {
+		it('should include also primaryKeys and localIndexSortAttr', () => {
 			request
 				.index('localIndexedSpec')
 				.select('id, name, age');
 
 			expect(request.projectionSelect).to.equal('SPECIFIC_ATTRIBUTES');
-			expect(request.projectionExpression).to.equal('#id_0,#name_1,#age_2,#namespace_3,#localIndexedAttr_4');
+			expect(request.projectionExpression).to.equal('#id_0,#name_1,#age_2,#namespace_3,#localIndexedSortAttr_4');
 			expect(request.expressionAttributeNames).to.deep.equal({
 				'#id_0': 'id',
 				'#name_1': 'name',
 				'#age_2': 'age',
 				'#namespace_3': 'namespace',
-				'#localIndexedAttr_4': 'localIndexedAttr'
+				'#localIndexedSortAttr_4': 'localIndexedSortAttr'
 			});
 		});
 
-		it('should include also primaryKeys and globalIndex attrs', () => {
+		it('should include also primaryKeys, globalIndexPartitionAttr and globalIndexSortAttr', () => {
 			request
 				.index('globalIndexedSpec')
 				.select('name, age');
@@ -683,7 +683,7 @@ describe('src/Request', () => {
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
 						namespace: 'spec',
-						localIndexedAttr: response[0].localIndexedAttr,
+						localIndexedSortAttr: response[0].localIndexedSortAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
 						globalIndexedSortAttr: response[0].globalIndexedSortAttr,
 						id: 'id-0',
@@ -692,7 +692,7 @@ describe('src/Request', () => {
 						updatedAt: response[0].updatedAt
 					}, {
 						namespace: 'spec',
-						localIndexedAttr: response[1].localIndexedAttr,
+						localIndexedSortAttr: response[1].localIndexedSortAttr,
 						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
 						globalIndexedSortAttr: response[1].globalIndexedSortAttr,
 						id: 'id-1',
@@ -709,14 +709,14 @@ describe('src/Request', () => {
 				.index('localIndexedSpec')
 				.query({
 					namespace,
-					localIndexedAttr: 'local-indexed-3',
+					localIndexedSortAttr: 'local-indexed-3',
 					ignoredAttr: 'this attr should be ignored'
 				})
 				.toArray()
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
 						namespace: 'spec',
-						localIndexedAttr: response[0].localIndexedAttr,
+						localIndexedSortAttr: response[0].localIndexedSortAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
 						globalIndexedSortAttr: response[0].globalIndexedSortAttr,
 						id: 'id-3',
@@ -740,7 +740,7 @@ describe('src/Request', () => {
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
 						namespace: 'spec',
-						localIndexedAttr: response[0].localIndexedAttr,
+						localIndexedSortAttr: response[0].localIndexedSortAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
 						globalIndexedSortAttr: response[0].globalIndexedSortAttr,
 						id: 'id-3',
@@ -774,7 +774,7 @@ describe('src/Request', () => {
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
 						namespace: 'spec',
-						localIndexedAttr: response[0].localIndexedAttr,
+						localIndexedSortAttr: response[0].localIndexedSortAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
 						globalIndexedSortAttr: response[0].globalIndexedSortAttr,
 						id: 'id-3',
@@ -783,7 +783,7 @@ describe('src/Request', () => {
 						updatedAt: response[0].updatedAt
 					}, {
 						namespace: 'spec',
-						localIndexedAttr: response[1].localIndexedAttr,
+						localIndexedSortAttr: response[1].localIndexedSortAttr,
 						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
 						globalIndexedSortAttr: response[1].globalIndexedSortAttr,
 						id: 'id-4',
@@ -818,7 +818,7 @@ describe('src/Request', () => {
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
 						namespace: 'spec',
-						localIndexedAttr: response[0].localIndexedAttr,
+						localIndexedSortAttr: response[0].localIndexedSortAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
 						globalIndexedSortAttr: response[0].globalIndexedSortAttr,
 						id: 'id-3',
@@ -827,7 +827,7 @@ describe('src/Request', () => {
 						updatedAt: response[0].updatedAt
 					}, {
 						namespace: 'spec',
-						localIndexedAttr: response[1].localIndexedAttr,
+						localIndexedSortAttr: response[1].localIndexedSortAttr,
 						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
 						globalIndexedSortAttr: response[1].globalIndexedSortAttr,
 						id: 'id-4',
@@ -862,7 +862,7 @@ describe('src/Request', () => {
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
 						namespace: 'spec',
-						localIndexedAttr: response[0].localIndexedAttr,
+						localIndexedSortAttr: response[0].localIndexedSortAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
 						globalIndexedSortAttr: response[0].globalIndexedSortAttr,
 						id: 'id-3',
@@ -871,7 +871,7 @@ describe('src/Request', () => {
 						updatedAt: response[0].updatedAt
 					}, {
 						namespace: 'spec',
-						localIndexedAttr: response[1].localIndexedAttr,
+						localIndexedSortAttr: response[1].localIndexedSortAttr,
 						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
 						globalIndexedSortAttr: response[1].globalIndexedSortAttr,
 						id: 'id-4',
@@ -1039,7 +1039,7 @@ describe('src/Request', () => {
 					.subscribe(() => {
 						expect(request.queryStats.count).to.equal(5);
 						expect(request.queryStats.lastKey).to.deep.equal({
-							localIndexedAttr: 'local-indexed-4',
+							localIndexedSortAttr: 'local-indexed-4',
 							namespace: 'spec',
 							id: 'id-4'
 						});
@@ -1231,7 +1231,7 @@ describe('src/Request', () => {
 				.subscribe(response => {
 					expect(response).to.deep.equal({
 						namespace: 'spec',
-						localIndexedAttr: 'local-indexed-0',
+						localIndexedSortAttr: 'local-indexed-0',
 						globalIndexedPartitionAttr: 'global-indexed-spec',
 						globalIndexedSortAttr: 'global-indexed-0',
 						id: 'id-0',
@@ -2012,7 +2012,7 @@ describe('src/Request', () => {
 					namespace,
 					id: `id-${n}`,
 					message: `message-${n}`,
-					localIndexedAttr: `local-indexed-${n}`
+					localIndexedSortAttr: `local-indexed-${n}`
 				}, true))
 				.subscribe(null, null, done);
 
@@ -2076,14 +2076,14 @@ describe('src/Request', () => {
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
 						namespace: 'spec',
-						localIndexedAttr: response[0].localIndexedAttr,
+						localIndexedSortAttr: response[0].localIndexedSortAttr,
 						createdAt: response[0].createdAt,
 						message: response[0].message,
 						id: response[0].id,
 						updatedAt: response[0].updatedAt
 					}, {
 						namespace: 'spec',
-						localIndexedAttr: response[1].localIndexedAttr,
+						localIndexedSortAttr: response[1].localIndexedSortAttr,
 						createdAt: response[1].createdAt,
 						message: response[1].message,
 						id: response[1].id,

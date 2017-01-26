@@ -26,7 +26,7 @@ const tableSchema = {
 	indexes: {
 		localIndexedSpec: {
 			partition: 'namespace',
-			sort: 'localIndexedAttr'
+			sort: 'localIndexedSortAttr'
 		},
 		globalIndexedSpec: {
 			partition: 'globalIndexedPartitionAttr',
@@ -62,7 +62,7 @@ describe('src/Crud', () => {
 					AttributeName: 'id',
 					AttributeType: 'S'
 				}, {
-					AttributeName: 'localIndexedAttr',
+					AttributeName: 'localIndexedSortAttr',
 					AttributeType: 'S'
 				}, {
 					AttributeName: 'globalIndexedPartitionAttr',
@@ -84,7 +84,7 @@ describe('src/Crud', () => {
 						AttributeName: 'namespace',
 						KeyType: 'HASH'
 					}, {
-						AttributeName: 'localIndexedAttr',
+						AttributeName: 'localIndexedSortAttr',
 						KeyType: 'RANGE'
 					}],
 					Projection: {
@@ -114,7 +114,7 @@ describe('src/Crud', () => {
 					namespace,
 					id: `id-${n}`,
 					message: `message-${n}`,
-					localIndexedAttr: `local-indexed-${n}`,
+					localIndexedSortAttr: `local-indexed-${n}`,
 					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
 					globalIndexedSortAttr: `global-indexed-${n}`,
 				}, true)))
@@ -174,17 +174,17 @@ describe('src/Crud', () => {
 		});
 	});
 
-	describe('localIndexAttr', () => {
+	describe('localIndexSortAttr', () => {
 		it('should returns localIndex.sort', () => {
-			expect(crud.localIndexAttr('localIndexedSpec')).to.equal('localIndexedAttr');
+			expect(crud.localIndexSortAttr('localIndexedSpec')).to.equal('localIndexedSortAttr');
 		});
 
 		it('should returns null when wrong localIndex', () => {
-			expect(crud.localIndexAttr()).to.be.null;
+			expect(crud.localIndexSortAttr()).to.be.null;
 		});
 
 		it('should returns null when is global index', () => {
-			expect(crud.localIndexAttr('globalIndexedSpec')).to.be.null;
+			expect(crud.localIndexSortAttr('globalIndexedSpec')).to.be.null;
 		});
 	});
 
@@ -275,7 +275,7 @@ describe('src/Crud', () => {
 				crud.fetch({
 						indexName: 'localIndexedSpec',
 						namespace: 'spec',
-						localIndexedAttr: 'local-indexed-3'
+						localIndexedSortAttr: 'local-indexed-3'
 					})
 					.subscribe(response => {
 						items = response.items;
@@ -284,7 +284,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should fetch with namespace and local index', () => {
-				expect(items[0].localIndexedAttr).to.equal('local-indexed-3');
+				expect(items[0].localIndexedSortAttr).to.equal('local-indexed-3');
 				expect(stats.count).to.equal(1);
 			});
 		});
@@ -355,7 +355,7 @@ describe('src/Crud', () => {
 							limit: 5,
 							indexName: 'localIndexedSpec',
 							namespace: 'spec',
-							select: 'localIndexedAttr'
+							select: 'localIndexedSortAttr'
 						})
 						.subscribe(response => {
 							items = response.items;
@@ -364,11 +364,11 @@ describe('src/Crud', () => {
 				});
 
 				it('should get correct lastKey', () => {
-					expect(_.last(items).localIndexedAttr).to.equal('local-indexed-4');
+					expect(_.last(items).localIndexedSortAttr).to.equal('local-indexed-4');
 					expect(JSON.parse(crud.fromBase64(stats.lastKey))).to.deep.equal({
 						namespace: 'spec',
 						id: 'id-4',
-						localIndexedAttr: 'local-indexed-4',
+						localIndexedSortAttr: 'local-indexed-4',
 					});
 
 					expect(stats.count).to.equal(5);
@@ -379,11 +379,11 @@ describe('src/Crud', () => {
 							limit: 5,
 							indexName: 'localIndexedSpec',
 							namespace: 'spec',
-							select: 'localIndexedAttr',
+							select: 'localIndexedSortAttr',
 							resume: stats.lastKey
 						})
 						.subscribe(response => {
-							expect(response.items[0].localIndexedAttr).to.equal('local-indexed-5');
+							expect(response.items[0].localIndexedSortAttr).to.equal('local-indexed-5');
 							expect(stats.count).to.equal(5);
 						}, null, done);
 				});
@@ -819,7 +819,7 @@ describe('src/Crud', () => {
 			expect(item).to.have.all.keys([
 				'globalIndexedPartitionAttr',
 				'globalIndexedSortAttr',
-				'localIndexedAttr',
+				'localIndexedSortAttr',
 				'namespace',
 				'id',
 				'title',
@@ -905,7 +905,7 @@ describe('src/Crud', () => {
 			expect(item).to.have.all.keys([
 				'globalIndexedPartitionAttr',
 				'globalIndexedSortAttr',
-				'localIndexedAttr',
+				'localIndexedSortAttr',
 				'namespace',
 				'id',
 				'title',
