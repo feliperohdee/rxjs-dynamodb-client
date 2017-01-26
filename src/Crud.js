@@ -31,7 +31,7 @@ export class Crud {
 		return partition;
 	}
 
-	sortAttr(indexName) {
+	get sortAttr() {
 		const {
 			sort = null
 		} = this.primaryKeys;
@@ -90,7 +90,7 @@ export class Crud {
 			} = this.indexes[indexName] || {};
 
 			// is local index
-			if (partition === this.primaryKeys.partition && indexSort) {
+			if (indexPartition === partition && indexSort) {
 				return indexSort;
 			}
 		}
