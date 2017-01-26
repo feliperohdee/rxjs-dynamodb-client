@@ -159,7 +159,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			.map(response => {
 				return {
 					response,
-					stats: request.queryStats // at the end, you can get queryStats which gives you lastKey, count, scannedCount and iteractions
+					stats: request.queryStats // at the end, you can get queryStats which gives you firstKey, lastKey, count, scannedCount and iteractions
 				}
 			})
 			.subscribe(nextFn, errFn, completeFn);
@@ -169,6 +169,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			// {
 			//		response: Array<item>,
 			//		stats: {
+			//			firstKey: object;
 			//			lastKey: object;
 			//			count: number;
 			//			scannedCount: number;
@@ -502,6 +503,7 @@ This lib follows with a Crud class helper, at this way you can extend your model
 					count: number, 
 					scannedCount: number, 
 					iterations: number, 
+					firstKey: base64<string>,
 					lastKey: base64<string>
 				}}>
 

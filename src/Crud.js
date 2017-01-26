@@ -101,6 +101,7 @@ export class Crud {
 	fetch(args, hook = false, itemSelector = null, customReducer = null) {
 		const {
 			resume,
+			after,
 			select,
 			limit,
 			desc,
@@ -156,6 +157,10 @@ export class Crud {
 			request.resume(JSON.parse(this.fromBase64(resume)));
 		}
 
+		if (after) {
+			request.resume(JSON.parse(this.fromBase64(after)));
+		}
+
 		if (desc === true) {
 			request.desc();
 		}
@@ -205,6 +210,7 @@ export class Crud {
 					items,
 					stats: {
 						...queryStats,
+						firstKey: queryStats.firstKey ? this.toBase64(JSON.stringify(queryStats.firstKey)) : null,
 						lastKey: queryStats.lastKey ? this.toBase64(JSON.stringify(queryStats.lastKey)) : null
 					}
 				}

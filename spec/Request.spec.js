@@ -642,7 +642,7 @@ describe('src/Request', () => {
 			expect(request.keyConditionExpression).to.equal('#namespace = :namespace');
 		});
 
-		it('should routeCall with query and relative params', () => {
+		it('should routeCall with query and relative params and queryLimit + 1', () => {
 			request.query({
 				namespace,
 				ignoredAttr: 'this attr should be ignored'
@@ -663,7 +663,7 @@ describe('src/Request', () => {
 				FilterExpression: null,
 				IndexName: null,
 				KeyConditionExpression: '#namespace = :namespace',
-				Limit: 50,
+				Limit: 51,
 				ProjectionExpression: undefined,
 				ReturnConsumedCapacity: 'TOTAL',
 				ScanIndexForward: true,
@@ -911,6 +911,105 @@ describe('src/Request', () => {
 				}, null, done);
 		});
 
+		it('should feed queryStats with localIndex', done => {
+			request
+				.index('localIndexedSpec')
+				.limit(2)
+				.resume({
+					id: 'id-2',
+					namespace: 'spec',
+					localIndexedSortAttr: 'local-indexed-2'
+				})
+				.query({
+					namespace,
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.toArray()
+				.subscribe(() => {
+					expect(request.queryStats).to.deep.equal({
+						firstKey: {
+							localIndexedSortAttr: 'local-indexed-3',
+							namespace: 'spec',
+							id: 'id-3'
+						},
+						lastKey: {
+							localIndexedSortAttr: 'local-indexed-4',
+							namespace: 'spec',
+							id: 'id-4'
+						},
+						count: 2,
+						scannedCount: 2,
+						iteractions: 1
+					});
+				}, null, done);
+		});
+
+		it('should feed queryStats with globalIndex', done => {
+			request
+				.index('globalIndexedSpec')
+				.limit(2)
+				.resume({
+					id: 'id-2',
+					namespace: 'spec',
+					globalIndexedPartitionAttr: 'global-indexed-spec',
+					globalIndexedSortAttr: 'global-indexed-2'
+				})
+				.query({
+					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.toArray()
+				.subscribe(() => {
+					expect(request.queryStats).to.deep.equal({
+						firstKey: {
+							id: 'id-3',
+							namespace: 'spec',
+							globalIndexedPartitionAttr: 'global-indexed-spec',
+							globalIndexedSortAttr: 'global-indexed-3'
+						},
+						lastKey: {
+							id: 'id-4',
+							namespace: 'spec',
+							globalIndexedPartitionAttr: 'global-indexed-spec',
+							globalIndexedSortAttr: 'global-indexed-4'
+						},
+						count: 2,
+						scannedCount: 2,
+						iteractions: 1
+					});
+				}, null, done);
+		});
+
+		it('should not feed queryStats.lastKey when query fetches all', done => {
+			request
+				.limit(10)
+				.query({
+					namespace,
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.toArray()
+				.subscribe(() => {
+					expect(request.queryStats.lastKey).to.be.null;
+				}, null, done);
+		});
+
+		it('should not feed queryStats.lastKey when resume fetches all', done => {
+			request
+				.limit(5)
+				.resume({
+					namespace,
+					id: 'id-4'
+				})
+				.query({
+					namespace,
+					ignoredAttr: 'this attr should be ignored'
+				})
+				.toArray()
+				.subscribe(() => {
+					expect(request.queryStats.lastKey).to.be.null;
+				}, null, done);
+		});
+
 		it('should not feed queryStats.firstKey when not resumed', done => {
 			request
 				.limit(2)
@@ -941,133 +1040,46 @@ describe('src/Request', () => {
 				}, null, done);
 		});
 
-		it('should feed queryStats.firstKey when resumed', done => {
+		it('should routeCall with queryLimit * 4 when filterExpression', () => {
 			request
-				.limit(2)
-				.resume({
-					namespace,
-					id: 'id-2'
-				})
+				.addPlaceholderName('message')
+				.addPlaceholderValue('message')
+				.filter('begins_with(#message, :message)')
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
-				.subscribe(response => {
-					expect(request.queryStats.firstKey).to.deep.equal({
-						namespace: 'spec',
-						id: 'id-3'
-					});
-				}, null, done);
+				});
+
+			expect(routeCall).to.have.been.calledOnce;
+			expect(routeCall).to.have.been.calledWithExactly('query', {
+				ConsistentRead: false,
+				ExclusiveStartKey: null,
+				ExpressionAttributeNames: {
+					'#message': 'message',
+					'#namespace': 'namespace'
+				},
+				ExpressionAttributeValues: {
+					':message': {
+						S: 'message'
+					},
+					':namespace': {
+						S: 'spec'
+					}
+				},
+				FilterExpression: 'begins_with(#message, :message)',
+				IndexName: null,
+				KeyConditionExpression: '#namespace = :namespace',
+				Limit: 200,
+				ProjectionExpression: undefined,
+				ReturnConsumedCapacity: 'TOTAL',
+				ScanIndexForward: true,
+				Select: 'ALL_ATTRIBUTES',
+				TableName: 'tblSpec'
+			});
 		});
 
 		it('should return an Observable', () => {
 			expect(request.query({})).to.be.instanceOf(Observable);
-		});
-
-		describe('with filterExpression', () => {
-			it('should routeCall with limit * 4', () => {
-				request
-					.addPlaceholderName('message')
-					.addPlaceholderValue('message')
-					.filter('begins_with(#message, :message)')
-					.query({
-						namespace,
-						ignoredAttr: 'this attr should be ignored'
-					});
-
-				expect(routeCall).to.have.been.calledOnce;
-				expect(routeCall).to.have.been.calledWithExactly('query', {
-					ConsistentRead: false,
-					ExclusiveStartKey: null,
-					ExpressionAttributeNames: {
-						'#message': 'message',
-						'#namespace': 'namespace'
-					},
-					ExpressionAttributeValues: {
-						':message': {
-							S: 'message'
-						},
-						':namespace': {
-							S: 'spec'
-						}
-					},
-					FilterExpression: 'begins_with(#message, :message)',
-					IndexName: null,
-					KeyConditionExpression: '#namespace = :namespace',
-					Limit: 200,
-					ProjectionExpression: undefined,
-					ReturnConsumedCapacity: 'TOTAL',
-					ScanIndexForward: true,
-					Select: 'ALL_ATTRIBUTES',
-					TableName: 'tblSpec'
-				});
-			});
-
-			it('should emulate lastKey when limit', done => {
-				request
-					.addPlaceholderName('message')
-					.addPlaceholderValue('message')
-					.filter('begins_with(#message, :message)')
-					.limit(5)
-					.query({
-						namespace,
-						ignoredAttr: 'this attr should be ignored'
-					})
-					.toArray()
-					.subscribe(() => {
-						expect(request.queryStats.count).to.equal(5);
-						expect(request.queryStats.lastKey).to.deep.equal({
-							namespace: 'spec',
-							id: 'id-4'
-						});
-					}, null, done);
-			});
-
-			it('should emulate lastKey when limit and localIndex', done => {
-				request
-					.addPlaceholderName('message')
-					.addPlaceholderValue('message')
-					.filter('begins_with(#message, :message)')
-					.index('localIndexedSpec')
-					.limit(5)
-					.query({
-						namespace,
-						ignoredAttr: 'this attr should be ignored'
-					})
-					.toArray()
-					.subscribe(() => {
-						expect(request.queryStats.count).to.equal(5);
-						expect(request.queryStats.lastKey).to.deep.equal({
-							localIndexedSortAttr: 'local-indexed-4',
-							namespace: 'spec',
-							id: 'id-4'
-						});
-					}, null, done);
-			});
-
-			it('should emulate lastKey when limit and globalIndex', done => {
-				request
-					.addPlaceholderName('message')
-					.addPlaceholderValue('message')
-					.filter('begins_with(#message, :message)')
-					.index('globalIndexedSpec')
-					.limit(5)
-					.query({
-						globalIndexedPartitionAttr: `global-indexed-${namespace}`,
-						ignoredAttr: 'this attr should be ignored'
-					})
-					.toArray()
-					.subscribe(() => {
-						expect(request.queryStats.count).to.equal(5);
-						expect(request.queryStats.lastKey).to.deep.equal({
-							id: 'id-4',
-							namespace: 'spec',
-							globalIndexedPartitionAttr: 'global-indexed-spec',
-							globalIndexedSortAttr: 'global-indexed-4'
-						});
-					}, null, done);
-			});
 		});
 
 		describe('multiple operations', () => {

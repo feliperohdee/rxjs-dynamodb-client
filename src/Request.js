@@ -310,19 +310,53 @@ export class Request {
 					IndexName: this.indexName,
 					KeyConditionExpression: this.keyConditionExpression,
 					// when has filter expression, increase limit to compensate filter deviation
-					Limit: this.queryLimit && this.filterExpression ? this.queryLimit * 4 : this.queryLimit,
+					Limit: this.queryLimit && this.filterExpression ? this.queryLimit * 4 : this.queryLimit + 1,
 					ProjectionExpression: this.projectionExpression,
 					ReturnConsumedCapacity: this.returnConsumedCapacity,
 					ScanIndexForward: this.scanIndexForward,
 					Select: this.projectionSelect,
 					TableName: this.tableName
 				})
-				.map(response => ({
-					items: response.Items,
-					lastKey: response.LastEvaluatedKey,
-					count: response.Count,
-					scannedCount: response.ScannedCount
-				}));
+				.map(response => {
+					const result = {
+						items: response.Items,
+						firstKey: this._queryFirstKey,
+						lastKey: response.LastEvaluatedKey,
+						count: response.Count,
+						scannedCount: response.ScannedCount
+					};
+
+					// when received more items than queryLimit has lastKey
+					if (response.Count > this.queryLimit) {
+						const lastItem = _.nth(response.Items, this.queryLimit - 1);
+
+						result.items = _.slice(response.Items, 0, this.queryLimit);
+						result.lastKey = lastItem ? _.pick(lastItem, [
+							this.partitionAttr,
+							this.sortAttr,
+							this.globalIndexPartitionAttr,
+							this.globalIndexSortAttr,
+							this.localIndexSortAttr
+						]) : null;
+						result.count = this.queryLimit;
+						result.scannedCount = this.queryLimit;
+					}
+
+					// if already paginated, we store first item to allow do "before" queries as lastkey is for "after" queries
+					if (!result.firstKey && this.isResumed && result.count) {
+						const firstItem = _.first(result.items);
+
+						result.firstKey = this._queryFirstKey = _.pick(firstItem, [
+							this.partitionAttr,
+							this.sortAttr,
+							this.globalIndexPartitionAttr,
+							this.globalIndexSortAttr,
+							this.localIndexSortAttr
+						]);
+					}
+
+					return result;
+				});
 		};
 
 		return queryOperation()
@@ -346,45 +380,18 @@ export class Request {
 					items,
 					count = 0,
 					scannedCount = 0,
+					firstKey = null,
 					lastKey = null,
 					iteractions = 1
 				} = response;
 
 				this.queryStats = {
-					firstKey: this.queryStats.firstKey || null,
+					firstKey: this.queryStats.firstKey || (firstKey ? this.util.normalizeItem(firstKey) : null),
 					lastKey: lastKey ? this.util.normalizeItem(lastKey) : null,
 					count: (this.queryStats.count || 0) + count,
 					scannedCount: (this.queryStats.scannedCount || 0) + scannedCount,
 					iteractions: (this.queryStats.iteractions || 0) + iteractions
 				};
-
-				// if already paginated, we store first item to allow do "before" queries as lastItem is for "after" queries
-				if (this.isResumed && this.queryStats.count && !this.queryStats.firstKey) {
-					const firstItem = this.util.normalizeItem(_.first(items));
-
-					this.queryStats.firstKey = _.pick(firstItem, [
-						this.partitionAttr,
-						this.sortAttr,
-						this.globalIndexPartitionAttr,
-						this.globalIndexSortAttr,
-						this.localIndexSortAttr
-					]);
-				}
-
-				// when filterExpression we have no limits
-				// if filteres response's length is greater than query limit we need emulate an optimistic lastKey and count
-				if (this.filterExpression && this.queryStats.count > this.queryLimit) {
-					const lastItem = this.util.normalizeItem(_.nth(items, this.queryLimit - 1));
-
-					this.queryStats.lastKey = _.pick(lastItem, [
-						this.partitionAttr,
-						this.sortAttr,
-						this.globalIndexPartitionAttr,
-						this.globalIndexSortAttr,
-						this.localIndexSortAttr
-					]);
-					this.queryStats.count = this.queryLimit;
-				}
 
 				return Observable.from(items);
 			})

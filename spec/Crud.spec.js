@@ -312,6 +312,34 @@ describe('src/Crud', () => {
 			});
 		});
 
+		describe('after', () => {
+			let items;
+			let stats;
+
+			beforeEach(done => {
+				crud.fetch({
+						limit: 2,
+						namespace: 'spec'
+					})
+					.subscribe(response => {
+						items = response.items;
+						stats = response.stats;
+					}, null, done);
+			});
+
+			it('should resume based on lastKey', done => {
+				crud.fetch({
+						limit: 2,
+						namespace: 'spec',
+						after: stats.lastKey
+					})
+					.subscribe(response => {
+						expect(response.items[0].id).to.equal('id-2');
+						expect(stats.count).to.equal(2);
+					}, null, done);
+			});
+		});
+
 		describe('resume', () => {
 			let items;
 			let stats;
@@ -327,8 +355,10 @@ describe('src/Crud', () => {
 					}, null, done);
 			});
 
-			it('should get correct lastKey', () => {
+			it('should get correct firstKey and lastKey', () => {
 				expect(_.last(items).id).to.equal('id-4');
+
+				expect(JSON.parse(crud.fromBase64(stats.firstKey))).to.be.null;
 				expect(JSON.parse(crud.fromBase64(stats.lastKey))).to.deep.equal({
 					namespace: 'spec',
 					id: 'id-4'
@@ -337,7 +367,7 @@ describe('src/Crud', () => {
 				expect(stats.count).to.equal(5);
 			});
 
-			it('should resume based on lastKey', done => {
+			it('should resume based on lastKey and feed firstKey', done => {
 				crud.fetch({
 						limit: 5,
 						namespace: 'spec',
@@ -345,7 +375,14 @@ describe('src/Crud', () => {
 					})
 					.subscribe(response => {
 						expect(response.items[0].id).to.equal('id-5');
-						expect(stats.count).to.equal(5);
+
+						expect(JSON.parse(crud.fromBase64(response.stats.firstKey))).to.deep.equal({
+							namespace: 'spec',
+							id: 'id-5'
+						});
+						expect(JSON.parse(crud.fromBase64(response.stats.lastKey))).to.be.null;
+
+						expect(response.stats.count).to.equal(5);
 					}, null, done);
 			});
 
@@ -365,6 +402,8 @@ describe('src/Crud', () => {
 
 				it('should get correct lastKey', () => {
 					expect(_.last(items).localIndexedSortAttr).to.equal('local-indexed-4');
+
+					expect(JSON.parse(crud.fromBase64(stats.firstKey))).to.be.null;
 					expect(JSON.parse(crud.fromBase64(stats.lastKey))).to.deep.equal({
 						namespace: 'spec',
 						id: 'id-4',
@@ -384,7 +423,15 @@ describe('src/Crud', () => {
 						})
 						.subscribe(response => {
 							expect(response.items[0].localIndexedSortAttr).to.equal('local-indexed-5');
-							expect(stats.count).to.equal(5);
+
+							expect(JSON.parse(crud.fromBase64(response.stats.firstKey))).to.deep.equal({
+								namespace: 'spec',
+								id: 'id-5',
+								localIndexedSortAttr: 'local-indexed-5',
+							});
+							expect(JSON.parse(crud.fromBase64(response.stats.lastKey))).to.be.null;;
+
+							expect(response.stats.count).to.equal(5);
 						}, null, done);
 				});
 			});
@@ -405,6 +452,8 @@ describe('src/Crud', () => {
 
 				it('should get correct lastKey', () => {
 					expect(items[0].globalIndexedSortAttr).to.equal('global-indexed-0');
+
+					expect(JSON.parse(crud.fromBase64(stats.firstKey))).to.be.null;
 					expect(JSON.parse(crud.fromBase64(stats.lastKey))).to.deep.equal({
 						namespace: 'spec',
 						id: 'id-4',
@@ -425,7 +474,16 @@ describe('src/Crud', () => {
 						})
 						.subscribe(response => {
 							expect(response.items[0].globalIndexedSortAttr).to.equal('global-indexed-5');
-							expect(stats.count).to.equal(5);
+
+							expect(JSON.parse(crud.fromBase64(response.stats.firstKey))).to.deep.equal({
+								namespace: 'spec',
+								id: 'id-5',
+								globalIndexedSortAttr: 'global-indexed-5',
+								globalIndexedPartitionAttr: 'global-indexed-spec',
+							});
+							expect(JSON.parse(crud.fromBase64(response.stats.lastKey))).to.be.null;
+
+							expect(response.stats.count).to.equal(5);
 						}, null, done);
 				});
 			});
