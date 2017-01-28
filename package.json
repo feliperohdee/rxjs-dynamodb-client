@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "rm -rf __build__; node_modules/.bin/nodemon ./__build__/bin/server.js",
     "build": "rm -rf __build__; node_modules/.bin/babel src --out-dir __build__ --copy-files",
-    "deploy": "npm run build && npm version patch -m 'Bump %s' && git push origin master && npm publish",
+    "deploy": "npm run build && git add --all; git commit -m 'build' && npm version patch -m 'Bump %s' && git push origin master && npm publish",
     "test": "NODE_ENV=test ./node_modules/.bin/_mocha spec --recursive --compilers js:babel-core/register --watch --timeout 5000 --require ./testing/helpers/suite.js --ui ui",
     "coverage": "rm -rf ./coverage ./__coverage__ && node_modules/.bin/babel src --out-dir __coverage__/src --source-maps --copy-files && node_modules/.bin/babel testing --out-dir __coverage__/testing --copy-files && node_modules/.bin/babel spec --out-dir __coverage__/spec && NODE_ENV=test ./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha -- './__coverage__/spec' --recursive --timeout 5000 --require ./testing/helpers/suite.js --ui ui && ./node_modules/.bin/remap-istanbul -i ./coverage/coverage-final.json -o ./coverage/html-report -t html -e /__coverage__/spec,/__coverage__/testing; rm -rf __coverage__"
   },
