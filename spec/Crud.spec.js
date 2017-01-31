@@ -405,6 +405,75 @@ describe('src/Crud', () => {
 					})
 					.subscribe(response => {}, null, done);
 			});
+
+			it('should query before "last"', done => {
+				const query = firstKey => crud.fetch({
+					limit: 2,
+					namespace: 'spec',
+					before: firstKey || 'last'
+				});
+
+				query()
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-8');
+						expect(response.items[1].id).to.equal('id-9');
+						expect(response.stats.count).to.equal(2);
+					})
+					.mergeMap(response => query(response.stats.firstKey))
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-6');
+						expect(response.items[1].id).to.equal('id-7');
+						expect(response.stats.count).to.equal(2);
+					})
+					.mergeMap(response => query(response.stats.firstKey))
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-4');
+						expect(response.items[1].id).to.equal('id-5');
+						expect(response.stats.count).to.equal(2);
+					})
+					.mergeMap(response => query(response.stats.firstKey))
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-2');
+						expect(response.items[1].id).to.equal('id-3');
+						expect(response.stats.count).to.equal(2);
+					})
+					.subscribe(response => {}, null, done);
+			});
+
+			it('should query desc before "last"', done => {
+				const query = firstKey => crud.fetch({
+					limit: 2,
+					namespace: 'spec',
+					desc: true,
+					before: firstKey || 'last'
+				});
+
+				query()
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-9');
+						expect(response.items[1].id).to.equal('id-8');
+						expect(response.stats.count).to.equal(2);
+					})
+					.mergeMap(response => query(response.stats.firstKey))
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-7');
+						expect(response.items[1].id).to.equal('id-6');
+						expect(response.stats.count).to.equal(2);
+					})
+					.mergeMap(response => query(response.stats.firstKey))
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-5');
+						expect(response.items[1].id).to.equal('id-4');
+						expect(response.stats.count).to.equal(2);
+					})
+					.mergeMap(response => query(response.stats.firstKey))
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-3');
+						expect(response.items[1].id).to.equal('id-2');
+						expect(response.stats.count).to.equal(2);
+					})
+					.subscribe(response => {}, null, done);
+			});
 		});
 
 		describe('after', () => {
@@ -485,6 +554,63 @@ describe('src/Crud', () => {
 						expect(response.items[0].id).to.equal('id-9');
 						expect(response.stats.lastKey).to.be.null;
 						expect(response.stats.count).to.equal(1);
+					})
+					.subscribe(response => {}, null, done);
+			});
+
+			it('should query after "first"', done => {
+				const query = lastKey => crud.fetch({
+					limit: 2,
+					namespace: 'spec',
+					after: lastKey || 'first'
+				});
+
+				query()
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-0');
+						expect(response.items[1].id).to.equal('id-1');
+						expect(response.stats.count).to.equal(2);
+					})
+					.mergeMap(response => query(response.stats.lastKey))
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-2');
+						expect(response.items[1].id).to.equal('id-3');
+						expect(response.stats.count).to.equal(2);
+					})
+					.mergeMap(response => query(response.stats.lastKey))
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-4');
+						expect(response.items[1].id).to.equal('id-5');
+						expect(response.stats.count).to.equal(2);
+					})
+					.subscribe(response => {}, null, done);
+			});
+
+			it('should query desc after "first"', done => {
+				const query = lastKey => crud.fetch({
+					limit: 2,
+					namespace: 'spec',
+					desc: true,
+					after: lastKey || 'first'
+				});
+
+				query()
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-1');
+						expect(response.items[1].id).to.equal('id-0');
+						expect(response.stats.count).to.equal(2);
+					})
+					.mergeMap(response => query(response.stats.lastKey))
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-3');
+						expect(response.items[1].id).to.equal('id-2');
+						expect(response.stats.count).to.equal(2);
+					})
+					.mergeMap(response => query(response.stats.lastKey))
+					.do(response => {
+						expect(response.items[0].id).to.equal('id-5');
+						expect(response.items[1].id).to.equal('id-4');
+						expect(response.stats.count).to.equal(2);
 					})
 					.subscribe(response => {}, null, done);
 			});

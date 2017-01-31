@@ -154,12 +154,15 @@ export class Crud {
 				.index(indexName);
 		}
 
-		if(before){
-			request.resume(JSON.parse(this.fromBase64(before)))
-				.desc();
+		if (before) {
+			if(before !== 'last'){
+				request.resume(JSON.parse(this.fromBase64(before)))
+			}
+			
+			request.desc();
 		}
 
-		if (resume || after) {
+		if ((resume || after) && after !== 'first') {
 			request.resume(JSON.parse(this.fromBase64(resume || after)));
 		}
 
@@ -208,12 +211,12 @@ export class Crud {
 					queryStats
 				} = request;
 
-				if(before){
+				if (before) {
 					items = desc ? items : _.reverse(items);
 					[queryStats.firstKey, queryStats.lastKey] = [queryStats.lastKey, queryStats.firstKey];
 				}
 
-				if(after){
+				if (after) {
 					items = !desc ? items : _.reverse(items);
 				}
 
