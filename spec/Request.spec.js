@@ -137,6 +137,27 @@ describe('src/Request', () => {
 		routeCall.restore();
 	});
 
+	it.skip('a', done => {
+		const id = 'id-4';
+
+		request
+			.return('ALL_NEW')
+			.addPlaceholderName({
+				// title: 'title',
+				message: 'message'
+			})
+			.addPlaceholderValue({
+				message: '#message'
+			})
+			.update(`ADD #message = #message`, {
+				namespace,
+				id
+			})
+			.toArray()
+			.do(null, done, done)
+			.subscribe(console.log);
+	});
+
 	describe('util', () => {
 		it('should return new util dynamoDb', () => {
 			const util1 = request.util;
