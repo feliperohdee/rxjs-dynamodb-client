@@ -1,6 +1,6 @@
 {
   "name": "smallorange-dynamodb-client",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Lightweight dynamoDb client built on top of RxJS",
   "main": "__build__/index.js",
   "scripts": {
