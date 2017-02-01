@@ -485,9 +485,8 @@ export class Request {
 			ReturnConsumedCapacity: this.returnConsumedCapacity,
 			TableName: this.tableName
 		}).map(() => {
-
 			return _.reduce(item, (reduction, value, key) => {
-				if (value.data) {
+				if (value && value.data) {
 					value = this.util.normalizeValue(value.data);
 				}
 
@@ -495,7 +494,6 @@ export class Request {
 
 				return reduction;
 			}, {});
-			this.util.normalizeItem(item);
 		});
 	}
 

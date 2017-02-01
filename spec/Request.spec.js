@@ -1472,6 +1472,10 @@ describe('src/Request', () => {
 					namespace,
 					id: `id-${now}`,
 					message: `message-${now}`,
+					undefined: undefined,
+					null: null,
+					number: 1,
+					boolean: true,
 					ss: request.util.raw({
 						SS: ['a']
 					}),
@@ -1485,6 +1489,10 @@ describe('src/Request', () => {
 						namespace: 'spec',
 						id: `id-${now}`,
 						message: response.message,
+						undefined: undefined,
+						null: null,
+						number: 1,
+						boolean: true,
 						ss: ['a'],
 						ns: [1],
 						createdAt: response.createdAt,
