@@ -549,7 +549,8 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				[partition]: string (required);
 				[sort]: string (required);
 				...args: any;
-			}, 
+			},
+			returns: string = 'ALL_NEW',
 			hook: function(
 				request: Request, 
 				partition: string, 
@@ -562,6 +563,7 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				[sort]: string (required);
 				...args: any;
 			}, 
+			returns: string = 'ALL_NEW',
 			hook: function(
 				request: Request, 
 				partition: string, 
@@ -584,6 +586,7 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				[sort]: string (required);
 				...args: Array<any>
 			}, 
+			returns: string = 'ALL_NEW',
 			hook: function(
 				request: Request, 
 				expression: string, 
@@ -596,7 +599,8 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				[partition]: string (required);
 				[sort]: string (required);
 				...args: Array<any>
-			}, prepend: boolean = false, 
+			}, 
+			returns: string = 'ALL_NEW',
 			hook: function(
 				request: Request, 
 				expression: string, 
@@ -610,6 +614,7 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				[sort]: string (required);
 				...args: number | Array<number>
 			}, 
+			returns: string = 'ALL_NEW',
 			hook: function(
 				request: Request, 
 				expression: string, 
@@ -623,6 +628,7 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				[sort]: string (required);
 				...args: {[index: number]: value: any}
 			} 
+			returns: string = 'ALL_NEW',
 			hook: function(
 				request: Request, 
 				expression: string, 
@@ -636,6 +642,7 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				[sort]: string (required);
 				...args: Array<string> | string | Array<number> | number
 			}, 
+			returns: string = 'ALL_NEW',
 			hook: function(
 				request: Request, 
 				expression: string, 
@@ -649,6 +656,7 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				[sort]: string (required);
 				...args: Array<string> | string | Array<number> | number
 			}, 
+			returns: string = 'ALL_NEW',
 			hook: function(
 				request: Request, 
 				expression: string, 
@@ -662,6 +670,7 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				[sort]: string (required);
 				...args: any
 			}, 
+			returns: string = 'ALL_NEW',
 			hook: function(
 				request: Request, 
 				expression: string, 

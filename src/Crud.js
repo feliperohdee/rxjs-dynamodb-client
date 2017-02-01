@@ -317,7 +317,7 @@ export class Crud {
 
 	}
 
-	insertOrUpdate(args, hook = false) {
+	insertOrUpdate(args, returns = 'ALL_NEW', hook = false) {
 		const partitionAttr = this.partitionAttr;
 		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
@@ -338,11 +338,11 @@ export class Crud {
 		}
 
 		return request
-			.return('ALL_NEW')
+			.return(returns)
 			.insertOrUpdate.apply(request, hookArgs || [args]);
 	}
 
-	update(args, hook = false) {
+	update(args, returns = 'ALL_NEW', hook = false) {
 		const partitionAttr = this.partitionAttr;
 		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
@@ -363,7 +363,7 @@ export class Crud {
 		}
 
 		return request
-			.return('ALL_NEW')
+			.return(returns)
 			.update.apply(request, hookArgs || [args]);
 	}
 
@@ -394,11 +394,15 @@ export class Crud {
 			}]);
 	}
 
-	prependToList(args, hook = false) {
-		return this.appendToList(args, true, hook);
+	prependToList(args, returns = 'ALL_NEW', hook = false) {
+		return this.addToList(args, true, returns, hook);
 	}
 
-	appendToList(args, prepend = false, hook = false) {
+	appendToList(args, returns = 'ALL_NEW', hook = false) {
+		return this.addToList(args, false, returns, hook);
+	}
+
+	addToList(args, prepend = false, returns = 'ALL_NEW', hook = false){
 		const partitionAttr = this.partitionAttr;
 		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
@@ -429,14 +433,14 @@ export class Crud {
 		}
 
 		return request
-			.return('ALL_NEW')
+			.return(returns)
 			.update.apply(request, hookArgs || [expression, {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
 			}]);
 	}
 
-	removeFromList(args, hook = false) {
+	removeFromList(args, returns = 'ALL_NEW', hook = false) {
 		const partitionAttr = this.partitionAttr;
 		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
@@ -477,14 +481,14 @@ export class Crud {
 		}
 
 		return request
-			.return('ALL_NEW')
+			.return(returns)
 			.update.apply(request, hookArgs || [expression, {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
 			}]);
 	}
 
-	updateAtList(args, hook = false) {
+	updateAtList(args, returns = 'ALL_NEW', hook = false) {
 		const partitionAttr = this.partitionAttr;
 		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
@@ -540,7 +544,7 @@ export class Crud {
 		}
 
 		return request
-			.return('ALL_NEW')
+			.return(returns)
 			.update.apply(request, hookArgs || [expression, {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
@@ -548,7 +552,7 @@ export class Crud {
 
 	}
 
-	addToSet(args, hook = false) {
+	addToSet(args, returns = 'ALL_NEW', hook = false) {
 		const partitionAttr = this.partitionAttr;
 		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
@@ -608,14 +612,14 @@ export class Crud {
 		}
 
 		return request
-			.return('ALL_NEW')
+			.return(returns)
 			.update.apply(request, hookArgs || [expression, {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
 			}]);
 	}
 
-	removeFromSet(args, hook = false) {
+	removeFromSet(args, returns = 'ALL_NEW', hook = false) {
 		const partitionAttr = this.partitionAttr;
 		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
@@ -675,14 +679,14 @@ export class Crud {
 		}
 
 		return request
-			.return('ALL_NEW')
+			.return(returns)
 			.update.apply(request, hookArgs || [expression, {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
 			}]);
 	}
 
-	removeAttributes(args, hook = false) {
+	removeAttributes(args, returns = 'ALL_NEW', hook = false) {
 		const partitionAttr = this.partitionAttr;
 		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
@@ -717,7 +721,7 @@ export class Crud {
 		}
 
 		return request
-			.return('ALL_NEW')
+			.return(returns)
 			.update.apply(request, hookArgs || [expression, {
 				[partitionAttr]: partition,
 				[sortAttr]: sort

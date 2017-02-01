@@ -1163,6 +1163,18 @@ describe('src/Crud', () => {
 			]);
 		});
 
+		it('should return old item', done => {
+			crud.insertOrUpdate({
+					namespace: 'spec',
+					id: 'id-1',
+					title: 'title-1'
+				}, 'ALL_OLD')
+				.subscribe(response => {
+					expect(response.id).to.equal('id-1');
+					expect(response.title).to.equal('title');
+				}, null, done);
+		});
+
 		describe('hook', () => {
 			let callback;
 			let _request;
@@ -1174,7 +1186,7 @@ describe('src/Crud', () => {
 					namespace: 'spec',
 					id: 'id-1',
 					title: 'title'
-				}, ({
+				}, 'ALL_NEW', ({
 					partition,
 					sort,
 					args,
@@ -1249,6 +1261,18 @@ describe('src/Crud', () => {
 			]);
 		});
 
+		it('should return old item', done => {
+			crud.update({
+					namespace: 'spec',
+					id: 'id-2',
+					title: 'title-1'
+				}, 'ALL_OLD')
+				.subscribe(response => {
+					expect(response.id).to.equal('id-2');
+					expect(response.title).to.equal('title');
+				}, null, done);
+		});
+
 		describe('hook', () => {
 			let callback;
 			let _request;
@@ -1260,7 +1284,7 @@ describe('src/Crud', () => {
 					namespace: 'spec',
 					id: 'id-2',
 					title: 'title'
-				}, ({
+				}, 'ALL_NEW', ({
 					partition,
 					sort,
 					args,
@@ -1430,6 +1454,25 @@ describe('src/Crud', () => {
 				}, null, done);
 		});
 
+		it('should return old item', done => {
+			crud.appendToList({
+					namespace,
+					id: 'id-0',
+					list: [{
+						c: 3
+					}, {
+						d: 4
+					}]
+				}, 'ALL_OLD')
+				.subscribe(response => {
+					expect(response.list).to.deep.equal([{
+						a: 1
+					}, {
+						b: 2
+					}]);
+				}, null, done);
+		});
+
 		describe('hook', () => {
 			let callback;
 			let _request;
@@ -1445,7 +1488,7 @@ describe('src/Crud', () => {
 					}, {
 						f: 6
 					}]
-				}, null, ({
+				}, 'ALL_NEW', ({
 					request,
 					expression
 				}) => {
@@ -1523,6 +1566,25 @@ describe('src/Crud', () => {
 				}, null, done);
 		});
 
+		it('should return old item', done => {
+			crud.prependToList({
+					namespace,
+					id: 'id-0',
+					list: [{
+						c: 3
+					}, {
+						d: 4
+					}]
+				}, 'ALL_OLD')
+				.subscribe(response => {
+					expect(response.list).to.deep.equal([{
+						a: 1
+					}, {
+						b: 2
+					}]);
+				}, null, done);
+		});
+
 		describe('hook', () => {
 			let callback;
 			let _request;
@@ -1538,7 +1600,7 @@ describe('src/Crud', () => {
 					}, {
 						f: 6
 					}]
-				}, ({
+				}, 'ALL_NEW', ({
 					request,
 					expression
 				}) => {
@@ -1603,6 +1665,17 @@ describe('src/Crud', () => {
 				}, null, done);
 		});
 
+		it('should return old item', done => {
+			crud.removeFromList({
+					namespace,
+					id: 'id-0',
+					list: 0
+				}, 'ALL_OLD')
+				.subscribe(response => {
+					expect(response.list).to.deep.equal([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+				}, null, done);
+		});
+
 		describe('hook', () => {
 			let callback;
 			let _request;
@@ -1614,7 +1687,7 @@ describe('src/Crud', () => {
 					namespace,
 					id: 'id-0',
 					list: [2, 3]
-				}, ({
+				}, 'ALL_NEW', ({
 					request,
 					expression
 				}) => {
@@ -1692,6 +1765,23 @@ describe('src/Crud', () => {
 				}, null, done);
 		});
 
+		it('should return old item', done => {
+			crud.updateAtList({
+					namespace,
+					id: 'id-0',
+					list: {
+						8: {
+							a: 2
+						}
+					}
+				}, 'ALL_OLD')
+				.subscribe(response => {
+					expect(response.list).to.deep.equal([0, 1, 2, 3, 4, 5, 6, 7, {
+						a: 1
+					}]);
+				}, null, done);
+		});
+
 		describe('hook', () => {
 			let callback;
 			let _request;
@@ -1705,7 +1795,7 @@ describe('src/Crud', () => {
 					list: {
 						5: 'updated 6'
 					}
-				}, ({
+				}, 'ALL_NEW', ({
 					request,
 					expression
 				}) => {
@@ -1815,6 +1905,22 @@ describe('src/Crud', () => {
 				});
 		});
 
+		it('should return old item', done => {
+			crud.addToSet({
+					namespace,
+					id: 'id-0',
+					set: ['a', 'b']
+				})
+				.mergeMap(() => crud.addToSet({
+					namespace,
+					id: 'id-0',
+					set: 'c'
+				}, 'ALL_OLD'))
+				.subscribe(response => {
+					expect(response.set).to.deep.equal(['a', 'b']);
+				}, null, done);
+		});
+
 		describe('hook', () => {
 			let callback;
 			let _request;
@@ -1826,7 +1932,7 @@ describe('src/Crud', () => {
 					namespace,
 					id: 'id-0',
 					set: ['a', 'b']
-				}, ({
+				}, 'ALL_NEW', ({
 					request,
 					expression
 				}) => {
@@ -1900,6 +2006,17 @@ describe('src/Crud', () => {
 				}, null, done);
 		});
 
+		it('should return old item', done => {
+			crud.removeFromSet({
+					namespace,
+					id: 'id-0',
+					set: 'd'
+				}, 'ALL_OLD')
+				.subscribe(response => {
+					expect(response.set).to.deep.equal(['a', 'b', 'c', 'd']);
+				}, null, done);
+		});
+
 		describe('hook', () => {
 			let callback;
 			let _request;
@@ -1911,7 +2028,7 @@ describe('src/Crud', () => {
 					namespace,
 					id: 'id-0',
 					set: ['a', 'b']
-				}, ({
+				}, 'ALL_NEW', ({
 					request,
 					expression
 				}) => {
@@ -1962,6 +2079,23 @@ describe('src/Crud', () => {
 				}, null, done);
 		});
 
+		it('should return old item', done => {
+			crud.removeAttributes({
+					namespace: 'spec',
+					id: 'id-0',
+					title: 'title'
+				}, 'ALL_OLD')
+				.subscribe(response => {
+					expect(response).to.deep.equal({
+						namespace: 'spec',
+						id: 'id-0',
+						title: 'title',
+						updatedAt: response.updatedAt,
+						createdAt: response.createdAt
+					});
+				}, null, done);
+		});
+
 		describe('hook', () => {
 			let callback;
 			let _request;
@@ -1973,7 +2107,7 @@ describe('src/Crud', () => {
 					namespace: 'spec',
 					id: 'id-0',
 					title: 'title'
-				}, ({
+				}, 'ALL_NEW', ({
 					request,
 					expression
 				}) => {
