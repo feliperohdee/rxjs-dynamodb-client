@@ -1431,7 +1431,7 @@ describe('src/Crud', () => {
 			}]);
 		});
 
-		it('should append', done => {
+		it('should append array', done => {
 			crud.appendToList({
 					namespace,
 					id: 'id-0',
@@ -1450,6 +1450,25 @@ describe('src/Crud', () => {
 						c: 3
 					}, {
 						d: 4
+					}]);
+				}, null, done);
+		});
+
+		it('should append non array', done => {
+			crud.appendToList({
+					namespace,
+					id: 'id-0',
+					list: {
+						c: 3
+					}
+				})
+				.subscribe(response => {
+					expect(response.list).to.deep.equal([{
+						a: 1
+					}, {
+						b: 2
+					}, {
+						c: 3
 					}]);
 				}, null, done);
 		});
@@ -1543,7 +1562,7 @@ describe('src/Crud', () => {
 			}]);
 		});
 
-		it('should prepend', done => {
+		it('should prepend array', done => {
 			crud.prependToList({
 					namespace,
 					id: 'id-0',
@@ -1558,6 +1577,25 @@ describe('src/Crud', () => {
 						c: 3
 					}, {
 						d: 4
+					}, {
+						a: 1
+					}, {
+						b: 2
+					}]);
+				}, null, done);
+		});
+
+		it('should prepend non array', done => {
+			crud.prependToList({
+					namespace,
+					id: 'id-0',
+					list: {
+						c: 3
+					}
+				})
+				.subscribe(response => {
+					expect(response.list).to.deep.equal([{
+						c: 3
 					}, {
 						a: 1
 					}, {

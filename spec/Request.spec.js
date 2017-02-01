@@ -1471,7 +1471,13 @@ describe('src/Request', () => {
 				.insert({
 					namespace,
 					id: `id-${now}`,
-					message: `message-${now}`
+					message: `message-${now}`,
+					ss: request.util.raw({
+						SS: ['a']
+					}),
+					ns: request.util.raw({
+						NS: ['1']
+					})
 				})
 				.subscribe(response => {
 					expect(response.createdAt === response.updatedAt).to.be.true;
@@ -1479,6 +1485,8 @@ describe('src/Request', () => {
 						namespace: 'spec',
 						id: `id-${now}`,
 						message: response.message,
+						ss: ['a'],
+						ns: [1],
 						createdAt: response.createdAt,
 						updatedAt: response.updatedAt
 					});

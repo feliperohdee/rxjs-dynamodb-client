@@ -394,12 +394,12 @@ export class Crud {
 			}]);
 	}
 
-	prependToList(args, returns = 'ALL_NEW', hook = false) {
-		return this.addToList(args, true, returns, hook);
-	}
-
 	appendToList(args, returns = 'ALL_NEW', hook = false) {
 		return this.addToList(args, false, returns, hook);
+	}
+
+	prependToList(args, returns = 'ALL_NEW', hook = false) {
+		return this.addToList(args, true, returns, hook);
 	}
 
 	addToList(args, prepend = false, returns = 'ALL_NEW', hook = false){

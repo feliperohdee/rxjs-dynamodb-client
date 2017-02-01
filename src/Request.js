@@ -484,7 +484,19 @@ export class Request {
 			Item: this.util.anormalizeItem(item),
 			ReturnConsumedCapacity: this.returnConsumedCapacity,
 			TableName: this.tableName
-		}).mapTo(item);
+		}).map(() => {
+
+			return _.reduce(item, (reduction, value, key) => {
+				if (value.data) {
+					value = this.util.normalizeValue(value.data);
+				}
+
+				reduction[key] = value;
+
+				return reduction;
+			}, {});
+			this.util.normalizeItem(item);
+		});
 	}
 
 	insertOrReplace(item) {
