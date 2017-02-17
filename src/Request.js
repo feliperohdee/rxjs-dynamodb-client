@@ -486,7 +486,7 @@ export class Request {
 			TableName: this.tableName
 		}).map(() => {
 			return _.reduce(item, (reduction, value, key) => {
-				if (value && value.data) {
+				if (value && value instanceof Util) {
 					value = this.util.normalizeValue(value.data);
 				}
 
