@@ -467,7 +467,7 @@ class Request {
 			TableName: this.tableName
 		}).map(() => {
 			return _lodash2.default.reduce(item, (reduction, value, key) => {
-				if (value && value.data) {
+				if (value && value instanceof _Util.Util) {
 					value = this.util.normalizeValue(value.data);
 				}
 
