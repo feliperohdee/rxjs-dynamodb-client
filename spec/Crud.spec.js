@@ -252,7 +252,7 @@ describe('src/Crud', () => {
 			});
 		});
 
-		describe('with local index', () => {
+		describe('without local index', () => {
 			beforeEach(done => {
 				crud.fetch({
 						namespace: 'spec',

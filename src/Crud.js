@@ -137,7 +137,7 @@ export class Crud {
 					index: localIndex
 				});
 
-			expression += _.isNumber(localIndex) ? ` AND #index = :index` : ` AND begins_with(#index, :index)`;
+			expression += _.isString(localIndex) ? ` AND begins_with(#index, :index)` : ` AND #index = :index`;
 		} else if (sort) {
 			request.addPlaceholderName({
 					sort: sortAttr
@@ -146,7 +146,7 @@ export class Crud {
 					sort
 				});
 
-			expression += _.isNumber(sort) ? ` AND #sort = :sort` : ` AND begins_with(#sort, :sort)`;
+			expression += _.isString(sort) ? ` AND begins_with(#sort, :sort)` : ` AND #sort = :sort`;
 		}
 
 		if (indexName) {
