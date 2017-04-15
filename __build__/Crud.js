@@ -150,7 +150,7 @@ class Crud {
 				index: localIndex
 			});
 
-			expression += _lodash2.default.isNumber(localIndex) ? ` AND #index = :index` : ` AND begins_with(#index, :index)`;
+			expression += _lodash2.default.isString(localIndex) ? ` AND begins_with(#index, :index)` : ` AND #index = :index`;
 		} else if (sort) {
 			request.addPlaceholderName({
 				sort: sortAttr
@@ -158,7 +158,7 @@ class Crud {
 				sort
 			});
 
-			expression += _lodash2.default.isNumber(sort) ? ` AND #sort = :sort` : ` AND begins_with(#sort, :sort)`;
+			expression += _lodash2.default.isString(sort) ? ` AND begins_with(#sort, :sort)` : ` AND #sort = :sort`;
 		}
 
 		if (indexName) {
