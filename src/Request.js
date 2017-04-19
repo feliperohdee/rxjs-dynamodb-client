@@ -281,15 +281,16 @@ export class Request {
 			]);
 
 			this.keyConditionExpression = _.reduce(primaryAttrs, (reduction, value, key) => {
-				this.addPlaceholderName(key);
-				this.addPlaceholderValue({
-					[key]: value
-				});
+					this.addPlaceholderName(key);
+					this.addPlaceholderValue({
+						[key]: value
+					});
 
-				reduction.push(`#${key} = :${key}`);
+					reduction.push(`#${key} = :${key}`);
 
-				return reduction;
-			}, []).join(' AND ');
+					return reduction;
+				}, [])
+				.join(' AND ');
 		}
 
 		const queryOperation = (response = {}) => {
@@ -331,13 +332,7 @@ export class Request {
 						const lastItem = _.nth(response.Items, this.queryLimit - 1);
 
 						result.items = _.slice(response.Items, 0, this.queryLimit);
-						result.after = lastItem ? _.pick(lastItem, [
-							this.partitionAttr,
-							this.sortAttr,
-							this.globalIndexPartitionAttr,
-							this.globalIndexSortAttr,
-							this.localIndexSortAttr
-						]) : null;
+						result.after = lastItem ? this.getIndexedAttributes(lastItem) : null;
 						result.count = this.queryLimit;
 						result.scannedCount = this.queryLimit;
 					}
@@ -346,13 +341,7 @@ export class Request {
 					if (!result.before && this.isResumed && result.count) {
 						const firstItem = _.first(result.items);
 
-						result.before = this._queryBeforeKey = _.pick(firstItem, [
-							this.partitionAttr,
-							this.sortAttr,
-							this.globalIndexPartitionAttr,
-							this.globalIndexSortAttr,
-							this.localIndexSortAttr
-						]);
+						result.before = this._queryBeforeKey = this.getIndexedAttributes(firstItem);
 					}
 
 					return result;
@@ -397,6 +386,16 @@ export class Request {
 			})
 			.map(::this.util.normalizeItem)
 			.take(this.queryLimit);
+	}
+
+	getIndexedAttributes(item) {
+		return _.pick(item, [
+			this.partitionAttr,
+			this.sortAttr,
+			this.globalIndexPartitionAttr,
+			this.globalIndexSortAttr,
+			this.localIndexSortAttr
+		]);
 	}
 
 	get(item) {
@@ -478,23 +477,24 @@ export class Request {
 		};
 
 		return this.routeCall('putItem', {
-			ConditionExpression: this.conditionExpression,
-			ExpressionAttributeNames: this.expressionAttributeNames,
-			ExpressionAttributeValues: this.expressionAttributeValues,
-			Item: this.util.anormalizeItem(item),
-			ReturnConsumedCapacity: this.returnConsumedCapacity,
-			TableName: this.tableName
-		}).map(() => {
-			return _.reduce(item, (reduction, value, key) => {
-				if (value && value instanceof Util) {
-					value = this.util.normalizeValue(value.data);
-				}
+				ConditionExpression: this.conditionExpression,
+				ExpressionAttributeNames: this.expressionAttributeNames,
+				ExpressionAttributeValues: this.expressionAttributeValues,
+				Item: this.util.anormalizeItem(item),
+				ReturnConsumedCapacity: this.returnConsumedCapacity,
+				TableName: this.tableName
+			})
+			.map(() => {
+				return _.reduce(item, (reduction, value, key) => {
+					if (value && value instanceof Util) {
+						value = this.util.normalizeValue(value.data);
+					}
 
-				reduction[key] = value;
+					reduction[key] = value;
 
-				return reduction;
-			}, {});
-		});
+					return reduction;
+				}, {});
+			});
 	}
 
 	insertOrReplace(item) {

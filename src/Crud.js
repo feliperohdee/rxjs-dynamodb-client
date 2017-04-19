@@ -107,7 +107,8 @@ export class Crud {
 			limit,
 			desc,
 			indexName,
-			consistent
+			consistent,
+			withCursor = false
 		} = args;
 
 		const partitionAttr = this.globalIndexPartitionAttr(indexName) || this.partitionAttr;
@@ -155,10 +156,10 @@ export class Crud {
 		}
 
 		if (before) {
-			if(before !== 'last'){
+			if (before !== 'last') {
 				request.resume(JSON.parse(this.fromBase64(before)))
 			}
-			
+
 			request.desc();
 		}
 
@@ -197,7 +198,7 @@ export class Crud {
 			.query.apply(request, hookArgs || [expression]);
 
 		if (_.isFunction(itemSelector)) {
-			items = itemSelector(items);
+			items = itemSelector(items, request);
 		}
 
 		if (_.isFunction(customReducer)) {
@@ -218,6 +219,14 @@ export class Crud {
 
 				if (after) {
 					items = !desc ? items : _.reverse(items);
+				}
+
+				if (withCursor) {
+					items = _.map(items, item => {
+						item._cursor = this.toBase64(JSON.stringify(request.getIndexedAttributes(item)));
+
+						return item;
+					});
 				}
 
 				return {
@@ -402,7 +411,7 @@ export class Crud {
 		return this.addToList(args, true, returns, hook);
 	}
 
-	addToList(args, prepend = false, returns = 'ALL_NEW', hook = false){
+	addToList(args, prepend = false, returns = 'ALL_NEW', hook = false) {
 		const partitionAttr = this.partitionAttr;
 		const sortAttr = this.sortAttr;
 		const partition = args[partitionAttr];
@@ -453,18 +462,19 @@ export class Crud {
 		const attributes = _.omit(args, [partitionAttr, sortAttr]);
 
 		expression += _.reduce(attributes, (reduction, values, key) => {
-			if (!_.isArray(values)) {
-				values = [values];
-			}
+				if (!_.isArray(values)) {
+					values = [values];
+				}
 
-			request.addPlaceholderName({
-				[key]: key
-			});
+				request.addPlaceholderName({
+					[key]: key
+				});
 
-			return _.reduce(values, (reduction, value) => {
-				return reduction += `#${key}[${value}], `;
-			}, '');
-		}, '').slice(0, -2);
+				return _.reduce(values, (reduction, value) => {
+					return reduction += `#${key}[${value}], `;
+				}, '');
+			}, '')
+			.slice(0, -2);
 
 		expression += ` SET ${request.expHelper.timestamp()}`;
 
@@ -565,37 +575,38 @@ export class Crud {
 		const attributes = _.omit(args, [partitionAttr, sortAttr]);
 
 		expression += _.reduce(attributes, (reduction, value, key) => {
-			if (!_.isArray(value)) {
-				value = [value];
-			}
+				if (!_.isArray(value)) {
+					value = [value];
+				}
 
-			const isStringSet = _.every(value, _.isString);
-			const isNumberSet = _.every(value, _.isNumber);
+				const isStringSet = _.every(value, _.isString);
+				const isNumberSet = _.every(value, _.isNumber);
 
-			if (isStringSet) {
-				value = request.util.raw({
-					SS: value
-				});
-			} else if (isNumberSet) {
-				value = request.util.raw({
-					NS: value.map(_.toString)
-				});
-			} else {
+				if (isStringSet) {
+					value = request.util.raw({
+						SS: value
+					});
+				} else if (isNumberSet) {
+					value = request.util.raw({
+						NS: value.map(_.toString)
+					});
+				} else {
+					return reduction;
+				}
+
+				request
+					.addPlaceholderName({
+						[key]: key
+					})
+					.addPlaceholderValue({
+						[key]: value
+					});
+
+				reduction.push(`#${key} :${key}`);
+
 				return reduction;
-			}
-
-			request
-				.addPlaceholderName({
-					[key]: key
-				})
-				.addPlaceholderValue({
-					[key]: value
-				});
-
-			reduction.push(`#${key} :${key}`);
-
-			return reduction;
-		}, []).join();
+			}, [])
+			.join();
 
 		expression += ` SET ${request.expHelper.timestamp()}`;
 
@@ -632,37 +643,38 @@ export class Crud {
 		const attributes = _.omit(args, [partitionAttr, sortAttr]);
 
 		expression += _.reduce(attributes, (reduction, value, key) => {
-			if (!_.isArray(value)) {
-				value = [value];
-			}
+				if (!_.isArray(value)) {
+					value = [value];
+				}
 
-			const isStringSet = _.every(value, _.isString);
-			const isNumberSet = _.every(value, _.isNumber);
+				const isStringSet = _.every(value, _.isString);
+				const isNumberSet = _.every(value, _.isNumber);
 
-			if (isStringSet) {
-				value = request.util.raw({
-					SS: value
-				});
-			} else if (isNumberSet) {
-				value = request.util.raw({
-					NS: value.map(_.toString)
-				});
-			} else {
+				if (isStringSet) {
+					value = request.util.raw({
+						SS: value
+					});
+				} else if (isNumberSet) {
+					value = request.util.raw({
+						NS: value.map(_.toString)
+					});
+				} else {
+					return reduction;
+				}
+
+				request
+					.addPlaceholderName({
+						[key]: key
+					})
+					.addPlaceholderValue({
+						[key]: value
+					});
+
+				reduction.push(`#${key} :${key}`);
+
 				return reduction;
-			}
-
-			request
-				.addPlaceholderName({
-					[key]: key
-				})
-				.addPlaceholderValue({
-					[key]: value
-				});
-
-			reduction.push(`#${key} :${key}`);
-
-			return reduction;
-		}, []).join();
+			}, [])
+			.join();
 
 		expression += ` SET ${request.expHelper.timestamp()}`;
 
@@ -699,12 +711,13 @@ export class Crud {
 		const attributes = _.omit(args, [partitionAttr, sortAttr]);
 
 		expression += _.reduce(attributes, (reduction, value, key) => {
-			request.addPlaceholderName({
-				[key]: key
-			});
+				request.addPlaceholderName({
+					[key]: key
+				});
 
-			return reduction += `#${key}, `;
-		}, '').slice(0, -2);
+				return reduction += `#${key}, `;
+			}, '')
+			.slice(0, -2);
 
 		expression += ` SET ${request.expHelper.timestamp()}`;
 
@@ -771,7 +784,8 @@ export class Crud {
 			return null;
 		}
 
-		return new Buffer(value).toString('base64');
+		return new Buffer(value)
+			.toString('base64');
 	}
 
 	fromBase64(value) {
@@ -779,6 +793,7 @@ export class Crud {
 			return null;
 		}
 
-		return new Buffer(value, 'base64').toString('ascii');
+		return new Buffer(value, 'base64')
+			.toString('ascii');
 	}
 }

@@ -1369,6 +1369,71 @@ describe('src/Request', () => {
 		});
 	});
 
+	describe('getIndexedAttributes', () => {
+		let getIndexedAttributes;
+
+		beforeEach(() => {
+			getIndexedAttributes = () => request.getIndexedAttributes({
+				namespace: 'namespace',
+				id: 'id',
+				localStringIndexedSortAttr: 'localStringIndexedSortAttr',
+				localNumberIndexedSortAttr: 'localNumberIndexedSortAttr',
+				globalIndexedPartitionAttr: 'globalIndexedPartitionAttr',
+				globalStringIndexedSortAttr: 'globalStringIndexedSortAttr',
+				globalNumberIndexedSortAttr: 'globalNumberIndexedSortAttr'
+			});
+		});
+
+		it('should pick partitionAttr and sortAttr', () => {
+			expect(getIndexedAttributes()).to.deep.equal({
+				namespace: 'namespace',
+				id: 'id'
+			});
+		});
+
+		it('should pick partitionAttr, sortAttr and localStringIndexedSortAttr', () => {
+			request.index('localStringIndex');
+
+			expect(getIndexedAttributes()).to.deep.equal({
+				namespace: 'namespace',
+				id: 'id',
+				localStringIndexedSortAttr: 'localStringIndexedSortAttr'
+			});
+		});
+
+		it('should pick partitionAttr, sortAttr and localNumberIndexedSortAttr', () => {
+			request.index('localNumberIndex');
+
+			expect(getIndexedAttributes()).to.deep.equal({
+				namespace: 'namespace',
+				id: 'id',
+				localNumberIndexedSortAttr: 'localNumberIndexedSortAttr'
+			});
+		});
+
+		it('should pick partitionAttr, sortAttr, globalIndexedPartitionAttr, and globalStringIndexedSortAttr', () => {
+			request.index('globalStringIndex');
+
+			expect(getIndexedAttributes()).to.deep.equal({
+				namespace: 'namespace',
+				id: 'id',
+				globalIndexedPartitionAttr: 'globalIndexedPartitionAttr',
+				globalStringIndexedSortAttr: 'globalStringIndexedSortAttr'
+			});
+		});
+
+		it('should pick partitionAttr, sortAttr, globalIndexedPartitionAttr, and globalNumberIndexedSortAttr', () => {
+			request.index('globalNumberIndex');
+
+			expect(getIndexedAttributes()).to.deep.equal({
+				namespace: 'namespace',
+				id: 'id',
+				globalIndexedPartitionAttr: 'globalIndexedPartitionAttr',
+				globalNumberIndexedSortAttr: 'globalNumberIndexedSortAttr'
+			});
+		});
+	});
+
 	describe('get', () => {
 		it('should routeCall with get and relative params', () => {
 			request

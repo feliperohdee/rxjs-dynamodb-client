@@ -55,7 +55,7 @@ describe('src/Crud', () => {
 		crud = new Crud(tableName, tableSchema, {
 			dynamoDb
 		});
-		
+
 		request.describe()
 			.catch(() => request.routeCall('createTable', {
 				TableName: 'tblSpec',
@@ -393,6 +393,26 @@ describe('src/Crud', () => {
 							.to.equal(3);
 						expect(response.stats.count)
 							.to.equal(1);
+					}, null, done);
+			});
+		});
+
+		describe('with cursor', () => {
+			it('should return items with _cursor', done => {
+				crud.fetch({
+						indexName: 'globalStringIndex',
+						globalIndexedPartitionAttr: 'global-indexed-spec',
+						globalStringIndexedSortAttr: 'global-indexed-3',
+						withCursor: true
+					})
+					.subscribe(response => {
+						expect(JSON.parse(crud.fromBase64(response.items[0]._cursor)))
+							.to.deep.equal({
+								namespace: 'spec',
+								id: 'id-3',
+								globalIndexedPartitionAttr: 'global-indexed-spec',
+								globalStringIndexedSortAttr: 'global-indexed-3'
+							});
 					}, null, done);
 			});
 		});
