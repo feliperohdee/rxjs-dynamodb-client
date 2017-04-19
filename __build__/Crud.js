@@ -123,7 +123,8 @@ class Crud {
 			limit,
 			desc,
 			indexName,
-			consistent
+			consistent,
+			withCursor = false
 		} = args;
 
 		const partitionAttr = this.globalIndexPartitionAttr(indexName) || this.partitionAttr;
@@ -207,7 +208,7 @@ class Crud {
 		let items = request.query.apply(request, hookArgs || [expression]);
 
 		if (_lodash2.default.isFunction(itemSelector)) {
-			items = itemSelector(items);
+			items = itemSelector(items, request);
 		}
 
 		if (_lodash2.default.isFunction(customReducer)) {
@@ -226,6 +227,14 @@ class Crud {
 
 			if (after) {
 				items = !desc ? items : _lodash2.default.reverse(items);
+			}
+
+			if (withCursor) {
+				items = _lodash2.default.map(items, item => {
+					item._cursor = this.toBase64(JSON.stringify(request.getIndexedAttributes(item)));
+
+					return item;
+				});
 			}
 
 			return {

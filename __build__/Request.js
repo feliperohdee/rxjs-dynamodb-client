@@ -333,7 +333,7 @@ class Request {
 					const lastItem = _lodash2.default.nth(response.Items, this.queryLimit - 1);
 
 					result.items = _lodash2.default.slice(response.Items, 0, this.queryLimit);
-					result.after = lastItem ? _lodash2.default.pick(lastItem, [this.partitionAttr, this.sortAttr, this.globalIndexPartitionAttr, this.globalIndexSortAttr, this.localIndexSortAttr]) : null;
+					result.after = lastItem ? this.getIndexedAttributes(lastItem) : null;
 					result.count = this.queryLimit;
 					result.scannedCount = this.queryLimit;
 				}
@@ -342,7 +342,7 @@ class Request {
 				if (!result.before && this.isResumed && result.count) {
 					const firstItem = _lodash2.default.first(result.items);
 
-					result.before = this._queryBeforeKey = _lodash2.default.pick(firstItem, [this.partitionAttr, this.sortAttr, this.globalIndexPartitionAttr, this.globalIndexSortAttr, this.localIndexSortAttr]);
+					result.before = this._queryBeforeKey = this.getIndexedAttributes(firstItem);
 				}
 
 				return result;
@@ -383,6 +383,10 @@ class Request {
 
 			return _rxjs.Observable.from(items);
 		}).map((_context = this.util).normalizeItem.bind(_context)).take(this.queryLimit);
+	}
+
+	getIndexedAttributes(item) {
+		return _lodash2.default.pick(item, [this.partitionAttr, this.sortAttr, this.globalIndexPartitionAttr, this.globalIndexSortAttr, this.localIndexSortAttr]);
 	}
 
 	get(item) {
