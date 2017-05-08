@@ -258,19 +258,24 @@ export class Crud {
 		}
 
 		if (hook) {
-			const hookParams = {
+			const hookParams = sortAttr ? {
 				request,
 				partition,
 				sort
+			} : {
+				request,
+				partition
 			};
 
 			hookArgs = hook.call(this, hookParams);
 		}
 
 		return request
-			.get.apply(request, hookArgs || [{
+			.get.apply(request, hookArgs || [sortAttr ? {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
+			} : {
+				[partitionAttr]: partition
 			}]);
 	}
 
@@ -283,13 +288,19 @@ export class Crud {
 		let request = this.request;
 		let hookArgs;
 
-		args[sortAttr] = sort;
+		if (sortAttr) {
+			args[sortAttr] = sort;
+		}
 
 		if (hook) {
-			const hookParams = {
+			const hookParams = sortAttr ? {
 				request,
 				partition,
 				sort,
+				args
+			} : {
+				request,
+				partition,
 				args
 			};
 
@@ -311,10 +322,14 @@ export class Crud {
 		let hookArgs;
 
 		if (hook) {
-			const hookParams = {
+			const hookParams = sortAttr ? {
 				request,
 				partition,
 				sort,
+				args
+			} : {
+				request,
+				partition,
 				args
 			};
 
@@ -336,10 +351,14 @@ export class Crud {
 		let hookArgs;
 
 		if (hook) {
-			const hookParams = {
+			const hookParams = sortAttr ? {
 				request,
 				partition,
 				sort,
+				args
+			} : {
+				request,
+				partition,
 				args
 			};
 
@@ -361,10 +380,14 @@ export class Crud {
 		let hookArgs;
 
 		if (hook) {
-			const hookParams = {
+			const hookParams = sortAttr ? {
 				request,
 				partition,
 				sort,
+				args
+			} : {
+				request,
+				partition,
 				args
 			};
 
@@ -386,10 +409,13 @@ export class Crud {
 		let hookArgs;
 
 		if (hook) {
-			const hookParams = {
+			const hookParams = sortAttr ? {
 				request,
 				partition,
 				sort
+			} : {
+				request,
+				partition
 			};
 
 			hookArgs = hook.call(this, hookParams);
@@ -397,9 +423,11 @@ export class Crud {
 
 		return request
 			.return('ALL_OLD')
-			.delete.apply(request, hookArgs || [{
+			.delete.apply(request, hookArgs || [sortAttr ? {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
+			} : {
+				[partitionAttr]: partition
 			}]);
 	}
 
@@ -430,11 +458,16 @@ export class Crud {
 		expression += request.expHelper.timestamp();
 
 		if (hook) {
-			const hookParams = {
+			const hookParams = sortAttr ? {
 				request,
 				expression,
 				partition,
 				sort,
+				attributes
+			} : {
+				request,
+				expression,
+				partition,
 				attributes
 			};
 
@@ -443,9 +476,11 @@ export class Crud {
 
 		return request
 			.return(returns)
-			.update.apply(request, hookArgs || [expression, {
+			.update.apply(request, hookArgs || [expression, sortAttr ? {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
+			} : {
+				[partitionAttr]: partition
 			}]);
 	}
 
@@ -479,11 +514,16 @@ export class Crud {
 		expression += ` SET ${request.expHelper.timestamp()}`;
 
 		if (hook) {
-			const hookParams = {
+			const hookParams = sortAttr ? {
 				request,
 				expression,
 				partition,
 				sort,
+				attributes
+			} : {
+				request,
+				expression,
+				partition,
 				attributes
 			};
 
@@ -492,9 +532,11 @@ export class Crud {
 
 		return request
 			.return(returns)
-			.update.apply(request, hookArgs || [expression, {
+			.update.apply(request, hookArgs || [expression, sortAttr ? {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
+			} : {
+				[partitionAttr]: partition
 			}]);
 	}
 
@@ -542,11 +584,16 @@ export class Crud {
 		expression += request.expHelper.timestamp();
 
 		if (hook) {
-			const hookParams = {
+			const hookParams = sortAttr ? {
 				request,
 				expression,
 				partition,
 				sort,
+				attributes
+			} : {
+				request,
+				expression,
+				partition,
 				attributes
 			};
 
@@ -555,9 +602,11 @@ export class Crud {
 
 		return request
 			.return(returns)
-			.update.apply(request, hookArgs || [expression, {
+			.update.apply(request, hookArgs || [expression, sortAttr ? {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
+			} : {
+				[partitionAttr]: partition
 			}]);
 
 	}
@@ -611,11 +660,16 @@ export class Crud {
 		expression += ` SET ${request.expHelper.timestamp()}`;
 
 		if (hook) {
-			const hookParams = {
+			const hookParams = sortAttr ? {
 				request,
 				expression,
 				partition,
 				sort,
+				attributes
+			} : {
+				request,
+				expression,
+				partition,
 				attributes
 			};
 
@@ -624,9 +678,11 @@ export class Crud {
 
 		return request
 			.return(returns)
-			.update.apply(request, hookArgs || [expression, {
+			.update.apply(request, hookArgs || [expression, sortAttr ? {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
+			} : {
+				[partitionAttr]: partition
 			}]);
 	}
 
@@ -679,11 +735,16 @@ export class Crud {
 		expression += ` SET ${request.expHelper.timestamp()}`;
 
 		if (hook) {
-			const hookParams = {
+			const hookParams = sortAttr ? {
 				request,
 				expression,
 				partition,
 				sort,
+				attributes
+			} : {
+				request,
+				expression,
+				partition,
 				attributes
 			};
 
@@ -692,9 +753,11 @@ export class Crud {
 
 		return request
 			.return(returns)
-			.update.apply(request, hookArgs || [expression, {
+			.update.apply(request, hookArgs || [expression, sortAttr ? {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
+			} : {
+				[partitionAttr]: partition
 			}]);
 	}
 
@@ -722,11 +785,16 @@ export class Crud {
 		expression += ` SET ${request.expHelper.timestamp()}`;
 
 		if (hook) {
-			const hookParams = {
+			const hookParams = sortAttr ? {
 				request,
 				expression,
 				partition,
 				sort,
+				attributes
+			} : {
+				request,
+				expression,
+				partition,
 				attributes
 			};
 
@@ -735,9 +803,11 @@ export class Crud {
 
 		return request
 			.return(returns)
-			.update.apply(request, hookArgs || [expression, {
+			.update.apply(request, hookArgs || [expression, sortAttr ? {
 				[partitionAttr]: partition,
 				[sortAttr]: sort
+			} : {
+				[partitionAttr]: partition
 			}]);
 	}
 
@@ -748,7 +818,7 @@ export class Crud {
 		const sort = args[sortAttr];
 
 		let expression = '#partition = :partition';
-		const request = this.request;
+		let request = this.request;
 
 		if (partition) {
 			request
