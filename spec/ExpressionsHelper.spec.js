@@ -408,6 +408,39 @@ describe('src/ExpressionsHelper', () => {
 				updatedAt: 1
 			}, false)).to.equal('#age = :age, #name = :name');
 		});
+
+		it('should ignore undefined', () => {
+			expect(expressionsHelper.update({
+				namespace: 'namespace',
+				id: 'id',
+				name: 'name',
+				undefined: undefined,
+				undefined2: {
+					value: undefined
+				},
+				age: 'age',
+				createdAt: 1,
+				updatedAt: 1
+			}, false)).to.equal('#age = :age, #name = :name');
+		});
+
+		it('should make expression with ifNotExists option', () => {
+			expect(expressionsHelper.update({
+				namespace: 'namespace',
+				id: 'id',
+				name: {
+					value: 'name',
+					ifNotExists: true
+				},
+				undefined: undefined,
+				undefined2: {
+					value: undefined
+				},
+				age: 'age',
+				createdAt: 1,
+				updatedAt: 1
+			}, false)).to.equal('#age = :age, #name = if_not_exists(#name, :name)');
+		});
 	});
 
 	describe('timestamp', () => {

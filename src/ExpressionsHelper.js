@@ -131,13 +131,27 @@ export class ExpressionsHelper {
 		]);
 
 		return _.reduce(updateAttributes, (reduction, value, key) => {
+			if(!_.isObject(value)){
+				value = {
+					value
+				}
+			}
+
+			if(_.isUndefined(value.value)){
+				return reduction;
+			}
+
 			this.request
 				.addPlaceholderName(key)
 				.addPlaceholderValue({
-					[key]: value
+					[key]: value.value
 				});
-
-			reduction.unshift(`#${key} = :${key}`);
+			
+			if(value.ifNotExists){
+				reduction.unshift(`#${key} = if_not_exists(#${key}, :${key})`);
+			}else{
+				reduction.unshift(`#${key} = :${key}`);
+			}
 
 			return reduction;
 		}, timestamp ? [
