@@ -387,59 +387,128 @@ describe('src/ExpressionsHelper', () => {
 			});
 		});
 
-		it('should make expression', () => {
+		it('should make expression ignoring undefined and empty string', () => {
 			expect(expressionsHelper.update({
-				namespace: 'namespace',
-				id: 'id',
-				name: 'name',
-				age: 'age',
 				createdAt: 1,
-				updatedAt: 1
-			})).to.equal('#age = :age, #name = :name, #createdAt = if_not_exists(#createdAt, :now), #updatedAt = :now');
+				updatedAt: 1,
+				string: 'string',
+				string2: {
+					value: 'string'
+				},
+				emptyString: '',
+				emptyString2: {
+					value: ''
+				},
+				undefined: undefined,
+				undefined2: {
+					value: undefined
+				},
+				nulled: null,
+				nulled2: {
+					value: null
+				},
+				zero: 0,
+				zero2: {
+					value: 0
+				},
+				one: 1,
+				one2: {
+					value: 1
+				},
+				truthy: true,
+				truthy2: {
+					value: true
+				},
+				falsy: false,
+				falsy2: {
+					value: false
+				}
+			})).to.equal('#falsy2 = :falsy2, #falsy = :falsy, #truthy2 = :truthy2, #truthy = :truthy, #one2 = :one2, #one = :one, #zero2 = :zero2, #zero = :zero, #nulled2 = :nulled2, #nulled = :nulled, #string2 = :string2, #string = :string, #createdAt = if_not_exists(#createdAt, :now), #updatedAt = :now');
 		});
 
 		it('should make expression without timestamp', () => {
 			expect(expressionsHelper.update({
-				namespace: 'namespace',
-				id: 'id',
-				name: 'name',
-				age: 'age',
 				createdAt: 1,
-				updatedAt: 1
-			}, false)).to.equal('#age = :age, #name = :name');
-		});
-
-		it('should ignore undefined', () => {
-			expect(expressionsHelper.update({
-				namespace: 'namespace',
-				id: 'id',
-				name: 'name',
+				updatedAt: 1,
+				string: 'string',
+				string2: {
+					value: 'string'
+				},
+				emptyString: '',
+				emptyString2: {
+					value: ''
+				},
 				undefined: undefined,
 				undefined2: {
 					value: undefined
 				},
-				age: 'age',
-				createdAt: 1,
-				updatedAt: 1
-			}, false)).to.equal('#age = :age, #name = :name');
+				nulled: null,
+				nulled2: {
+					value: null
+				},
+				zero: 0,
+				zero2: {
+					value: 0
+				},
+				one: 1,
+				one2: {
+					value: 1
+				},
+				truthy: true,
+				truthy2: {
+					value: true
+				},
+				falsy: false,
+				falsy2: {
+					value: false
+				}
+			}, false)).to.equal('#falsy2 = :falsy2, #falsy = :falsy, #truthy2 = :truthy2, #truthy = :truthy, #one2 = :one2, #one = :one, #zero2 = :zero2, #zero = :zero, #nulled2 = :nulled2, #nulled = :nulled, #string2 = :string2, #string = :string');
 		});
 
 		it('should make expression with ifNotExists option', () => {
 			expect(expressionsHelper.update({
-				namespace: 'namespace',
-				id: 'id',
-				name: {
-					value: 'name',
+				createdAt: 1,
+				updatedAt: 1,
+				string: 'string',
+				string2: {
+					value: 'string',
 					ifNotExists: true
+				},
+				emptyString: '',
+				emptyString2: {
+					value: ''
 				},
 				undefined: undefined,
 				undefined2: {
-					value: undefined
+					value: undefined,
+					ifNotExists: true
 				},
-				age: 'age',
-				createdAt: 1,
-				updatedAt: 1
-			}, false)).to.equal('#age = :age, #name = if_not_exists(#name, :name)');
+				nulled: null,
+				nulled2: {
+					value: null,
+					ifNotExists: true
+				},
+				zero: 0,
+				zero2: {
+					value: 0,
+					ifNotExists: true
+				},
+				one: 1,
+				one2: {
+					value: 1,
+					ifNotExists: true
+				},
+				truthy: true,
+				truthy2: {
+					value: true,
+					ifNotExists: true
+				},
+				falsy: false,
+				falsy2: {
+					value: false,
+					ifNotExists: true
+				}
+			}, false)).to.equal('#falsy2 = if_not_exists(#falsy2, :falsy2), #falsy = :falsy, #truthy2 = if_not_exists(#truthy2, :truthy2), #truthy = :truthy, #one2 = if_not_exists(#one2, :one2), #one = :one, #zero2 = if_not_exists(#zero2, :zero2), #zero = :zero, #nulled2 = if_not_exists(#nulled2, :nulled2), #nulled = :nulled, #string2 = if_not_exists(#string2, :string2), #string = :string');
 		});
 	});
 

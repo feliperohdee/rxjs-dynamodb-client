@@ -137,7 +137,7 @@ export class ExpressionsHelper {
 				}
 			}
 
-			if(_.isUndefined(value.value)){
+			if(_.isUndefined(value.value) || value.value === ''){
 				return reduction;
 			}
 
