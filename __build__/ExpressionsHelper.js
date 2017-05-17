@@ -137,7 +137,7 @@ class ExpressionsHelper {
 				};
 			}
 
-			if (_lodash2.default.isUndefined(value.value) || value.value === '') {
+			if (_lodash2.default.isUndefined(value.value)) {
 				return reduction;
 			}
 
