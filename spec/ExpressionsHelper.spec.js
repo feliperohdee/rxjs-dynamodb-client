@@ -387,17 +387,13 @@ describe('src/ExpressionsHelper', () => {
 			});
 		});
 
-		it('should make expression ignoring undefined and empty string', () => {
+		it('should make expression ignoring undefined', () => {
 			expect(expressionsHelper.update({
 				createdAt: 1,
 				updatedAt: 1,
 				string: 'string',
 				string2: {
 					value: 'string'
-				},
-				emptyString: '',
-				emptyString2: {
-					value: ''
 				},
 				undefined: undefined,
 				undefined2: {
@@ -434,10 +430,6 @@ describe('src/ExpressionsHelper', () => {
 				string2: {
 					value: 'string'
 				},
-				emptyString: '',
-				emptyString2: {
-					value: ''
-				},
 				undefined: undefined,
 				undefined2: {
 					value: undefined
@@ -473,10 +465,6 @@ describe('src/ExpressionsHelper', () => {
 				string2: {
 					value: 'string',
 					ifNotExists: true
-				},
-				emptyString: '',
-				emptyString2: {
-					value: ''
 				},
 				undefined: undefined,
 				undefined2: {
