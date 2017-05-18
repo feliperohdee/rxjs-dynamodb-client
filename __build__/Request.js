@@ -365,7 +365,7 @@ class Request {
 			return _rxjs.Observable.empty();
 		}).mergeMap(response => {
 			const {
-				items,
+				items = [],
 				count = 0,
 				scannedCount = 0,
 				before = null,
