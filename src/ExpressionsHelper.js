@@ -131,23 +131,23 @@ export class ExpressionsHelper {
 		]);
 
 		return _.reduce(updateAttributes, (reduction, value, key) => {
-			if(!_.isObject(value)){
-				value = {
-					value
-				}
+			const condition = value && value.condition;
+			
+			if(condition){
+				value = value.value;
 			}
 
-			if(_.isUndefined(value.value)){
+			if(_.isUndefined(value)){
 				return reduction;
 			}
 
 			this.request
 				.addPlaceholderName(key)
 				.addPlaceholderValue({
-					[key]: value.value
+					[key]: value
 				});
 			
-			if(value.ifNotExists){
+			if(condition === 'ifNotExists'){
 				reduction.unshift(`#${key} = if_not_exists(#${key}, :${key})`);
 			}else{
 				reduction.unshift(`#${key} = :${key}`);

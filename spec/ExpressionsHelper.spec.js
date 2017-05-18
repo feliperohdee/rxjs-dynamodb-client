@@ -392,34 +392,13 @@ describe('src/ExpressionsHelper', () => {
 				createdAt: 1,
 				updatedAt: 1,
 				string: 'string',
-				string2: {
-					value: 'string'
-				},
 				undefined: undefined,
-				undefined2: {
-					value: undefined
-				},
 				nulled: null,
-				nulled2: {
-					value: null
-				},
 				zero: 0,
-				zero2: {
-					value: 0
-				},
 				one: 1,
-				one2: {
-					value: 1
-				},
 				truthy: true,
-				truthy2: {
-					value: true
-				},
-				falsy: false,
-				falsy2: {
-					value: false
-				}
-			})).to.equal('#falsy2 = :falsy2, #falsy = :falsy, #truthy2 = :truthy2, #truthy = :truthy, #one2 = :one2, #one = :one, #zero2 = :zero2, #zero = :zero, #nulled2 = :nulled2, #nulled = :nulled, #string2 = :string2, #string = :string, #createdAt = if_not_exists(#createdAt, :now), #updatedAt = :now');
+				falsy: false
+			})).to.equal('#falsy = :falsy, #truthy = :truthy, #one = :one, #zero = :zero, #nulled = :nulled, #string = :string, #createdAt = if_not_exists(#createdAt, :now), #updatedAt = :now');
 		});
 
 		it('should make expression without timestamp', () => {
@@ -427,74 +406,53 @@ describe('src/ExpressionsHelper', () => {
 				createdAt: 1,
 				updatedAt: 1,
 				string: 'string',
-				string2: {
-					value: 'string'
-				},
 				undefined: undefined,
-				undefined2: {
-					value: undefined
-				},
 				nulled: null,
-				nulled2: {
-					value: null
-				},
 				zero: 0,
-				zero2: {
-					value: 0
-				},
 				one: 1,
-				one2: {
-					value: 1
-				},
 				truthy: true,
-				truthy2: {
-					value: true
-				},
-				falsy: false,
-				falsy2: {
-					value: false
-				}
-			}, false)).to.equal('#falsy2 = :falsy2, #falsy = :falsy, #truthy2 = :truthy2, #truthy = :truthy, #one2 = :one2, #one = :one, #zero2 = :zero2, #zero = :zero, #nulled2 = :nulled2, #nulled = :nulled, #string2 = :string2, #string = :string');
+				falsy: false
+			}, false)).to.equal('#falsy = :falsy, #truthy = :truthy, #one = :one, #zero = :zero, #nulled = :nulled, #string = :string');
 		});
 
-		it('should make expression with ifNotExists option', () => {
+		it('should make expression with condition.ifNotExists option', () => {
 			expect(expressionsHelper.update({
 				createdAt: 1,
 				updatedAt: 1,
 				string: 'string',
 				string2: {
 					value: 'string',
-					ifNotExists: true
+					condition: 'ifNotExists'
 				},
 				undefined: undefined,
 				undefined2: {
 					value: undefined,
-					ifNotExists: true
+					condition: 'ifNotExists'
 				},
 				nulled: null,
 				nulled2: {
 					value: null,
-					ifNotExists: true
+					condition: 'ifNotExists'
 				},
 				zero: 0,
 				zero2: {
 					value: 0,
-					ifNotExists: true
+					condition: 'ifNotExists'
 				},
 				one: 1,
 				one2: {
 					value: 1,
-					ifNotExists: true
+					condition: 'ifNotExists'
 				},
 				truthy: true,
 				truthy2: {
 					value: true,
-					ifNotExists: true
+					condition: 'ifNotExists'
 				},
 				falsy: false,
 				falsy2: {
 					value: false,
-					ifNotExists: true
+					condition: 'ifNotExists'
 				}
 			}, false)).to.equal('#falsy2 = if_not_exists(#falsy2, :falsy2), #falsy = :falsy, #truthy2 = if_not_exists(#truthy2, :truthy2), #truthy = :truthy, #one2 = if_not_exists(#one2, :one2), #one = :one, #zero2 = if_not_exists(#zero2, :zero2), #zero = :zero, #nulled2 = if_not_exists(#nulled2, :nulled2), #nulled = :nulled, #string2 = if_not_exists(#string2, :string2), #string = :string');
 		});
