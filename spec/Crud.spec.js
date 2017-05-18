@@ -269,6 +269,30 @@ describe('src/Crud', () => {
 				.to.equal(10);
 		});
 
+		describe('with Select.COUNT', () => {
+			beforeEach(done => {
+				crud.fetch({
+						namespace: 'spec',
+						select: Select.COUNT
+					})
+					.subscribe(response => {
+						items = response.items;
+						stats = response.stats;
+					}, null, done);
+			});
+
+			it('should return just stats', () => {
+				expect(items).to.deep.equal([]);
+				expect(stats).to.deep.equal({
+					before: null,
+					after: null,
+					count: 10,
+					scannedCount: 10,
+					iteractions:1 
+				});
+			});
+		});
+
 		describe('with itemSelector', () => {
 			beforeEach(done => {
 				const itemSelector = items => items

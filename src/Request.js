@@ -366,7 +366,7 @@ export class Request {
 			})
 			.mergeMap(response => {
 				const {
-					items,
+					items = [],
 					count = 0,
 					scannedCount = 0,
 					before = null,

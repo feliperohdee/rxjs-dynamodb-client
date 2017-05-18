@@ -822,7 +822,21 @@ describe('src/Request', () => {
 				}, null, done);
 		});
 
-		it('should responds with normalized data using localIndex', done => {
+		it('should responds with normalized data using Select.COUNT', done => {
+			request
+				.limit(2)
+				.select(Select.COUNT)
+				.query({
+					namespace
+				})
+				.toArray()
+				.subscribe(response => {
+					expect(response)
+						.to.deep.equal([]);
+				}, null, done);
+		});
+
+		it('should responds empty using localIndex', done => {
 			request
 				.limit(2)
 				.index('localStringIndex')
