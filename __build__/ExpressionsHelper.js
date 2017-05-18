@@ -131,21 +131,21 @@ class ExpressionsHelper {
 		const updateAttributes = _lodash2.default.omit(attributes, [this.request.partitionAttr, this.request.sortAttr, 'createdAt', 'updatedAt']);
 
 		return _lodash2.default.reduce(updateAttributes, (reduction, value, key) => {
-			if (!_lodash2.default.isObject(value)) {
-				value = {
-					value
-				};
+			const condition = value && value.condition;
+
+			if (condition) {
+				value = value.value;
 			}
 
-			if (_lodash2.default.isUndefined(value.value)) {
+			if (_lodash2.default.isUndefined(value)) {
 				return reduction;
 			}
 
 			this.request.addPlaceholderName(key).addPlaceholderValue({
-				[key]: value.value
+				[key]: value
 			});
 
-			if (value.ifNotExists) {
+			if (condition === 'ifNotExists') {
 				reduction.unshift(`#${key} = if_not_exists(#${key}, :${key})`);
 			} else {
 				reduction.unshift(`#${key} = :${key}`);
