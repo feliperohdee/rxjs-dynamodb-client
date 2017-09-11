@@ -186,24 +186,20 @@ describe('src/Request', () => {
 			const util1 = request.util;
 			const util2 = request.util;
 
-			expect(util1)
-				.to.be.instanceOf(Util);
-			expect(util1 === util2)
-				.to.be.false;
+			expect(util1).to.be.instanceOf(Util);
+			expect(util1 === util2).to.be.false;
 		});
 	});
 
 	describe('partitionAttr', () => {
 		it('should returns primaryKeys.partition', () => {
-			expect(request.partitionAttr)
-				.to.equal('namespace');
+			expect(request.partitionAttr).to.equal('namespace');
 		});
 	});
 
 	describe('sortAttr', () => {
 		it('should returns primaryKeys.sort', () => {
-			expect(request.sortAttr)
-				.to.equal('id');
+			expect(request.sortAttr).to.equal('id');
 		});
 	});
 
@@ -212,16 +208,14 @@ describe('src/Request', () => {
 			request
 				.index('globalStringIndex');
 
-			expect(request.globalIndexPartitionAttr)
-				.to.equal('globalIndexedPartitionAttr');
+			expect(request.globalIndexPartitionAttr).to.equal('globalIndexedPartitionAttr');
 		});
 
 		it('should returns null when wrong globalIndex', () => {
 			request
 				.index('globalStringIndex_');
 
-			expect(request.globalIndexPartitionAttr)
-				.to.be.null;
+			expect(request.globalIndexPartitionAttr).to.be.null;
 		});
 	});
 
@@ -230,22 +224,19 @@ describe('src/Request', () => {
 			request
 				.index('globalStringIndex');
 
-			expect(request.globalIndexSortAttr)
-				.to.equal('globalStringIndexedSortAttr');
+			expect(request.globalIndexSortAttr).to.equal('globalStringIndexedSortAttr');
 
 			request
 				.index('globalNumberIndex');
 
-			expect(request.globalIndexSortAttr)
-				.to.equal('globalNumberIndexedSortAttr');
+			expect(request.globalIndexSortAttr).to.equal('globalNumberIndexedSortAttr');
 		});
 
 		it('should returns null when wrong globalIndex', () => {
 			request
 				.index('globalStringIndex_');
 
-			expect(request.globalIndexSortAttr)
-				.to.be.null;
+			expect(request.globalIndexSortAttr).to.be.null;
 		});
 	});
 
@@ -254,24 +245,21 @@ describe('src/Request', () => {
 			request
 				.index('localStringIndex');
 
-			expect(request.localIndexSortAttr)
-				.to.equal('localStringIndexedSortAttr');
+			expect(request.localIndexSortAttr).to.equal('localStringIndexedSortAttr');
 		});
 
 		it('should returns null when wrong localIndex', () => {
 			request
 				.index('localStringIndex_');
 
-			expect(request.localIndexSortAttr)
-				.to.be.null;
+			expect(request.localIndexSortAttr).to.be.null;
 		});
 
 		it('should returns null when is global index', () => {
 			request
 				.index('globalStringIndex');
 
-			expect(request.localIndexSortAttr)
-				.to.be.null;
+			expect(request.localIndexSortAttr).to.be.null;
 		});
 	});
 
@@ -287,8 +275,7 @@ describe('src/Request', () => {
 		});
 
 		it('should return an Observable', () => {
-			expect(request.routeCall('getItem', {}))
-				.to.be.instanceOf(Observable);
+			expect(request.routeCall('getItem', {})).to.be.instanceOf(Observable);
 		});
 
 		it('should call method on client', done => {
@@ -342,32 +329,27 @@ describe('src/Request', () => {
 			request.describe()
 				.subscribe();
 
-			expect(routeCall)
-				.to.have.been.calledWithExactly('describeTable', {
-					TableName: tableName
-				});
+			expect(routeCall).to.have.been.calledWithExactly('describeTable', {
+				TableName: tableName
+			});
 		});
 
 		it('should return an Observable', () => {
-			expect(request.describe())
-				.to.be.instanceOf(Observable);
+			expect(request.describe()).to.be.instanceOf(Observable);
 		});
 	});
 
 	describe('table', () => {
 		it('should feed table, tableSchema and primaryKeys', () => {
-			expect(request.tableName)
-				.to.equal(tableName);
-			expect(request.primaryKeys)
-				.to.deep.equal({
-					partition: 'namespace',
-					sort: 'id'
-				});
+			expect(request.tableName).to.equal(tableName);
+			expect(request.primaryKeys).to.deep.equal({
+				partition: 'namespace',
+				sort: 'id'
+			});
 		});
 
 		it('should return Request dynamoDb', () => {
-			expect(dynamoDb.table(tableName, tableSchema))
-				.to.be.instanceOf(Request);
+			expect(dynamoDb.table(tableName, tableSchema)).to.be.instanceOf(Request);
 		});
 	});
 
@@ -377,13 +359,11 @@ describe('src/Request', () => {
 		});
 
 		it('should feed returnValues', () => {
-			expect(request.returnValues)
-				.to.equal('ALL_NEW');
+			expect(request.returnValues).to.equal('ALL_NEW');
 		});
 
 		it('should return Request dynamoDb', () => {
-			expect(request.return(ReturnValues.ALL_NEW))
-				.to.be.instanceOf(Request);
+			expect(request.return(ReturnValues.ALL_NEW)).to.be.instanceOf(Request);
 		});
 	});
 
@@ -393,13 +373,11 @@ describe('src/Request', () => {
 		});
 
 		it('should feed returnValues', () => {
-			expect(request.returnConsumedCapacity)
-				.to.equal('TOTAL');
+			expect(request.returnConsumedCapacity).to.equal('TOTAL');
 		});
 
 		it('should return Request dynamoDb', () => {
-			expect(request.consumedCapacity(ConsumedCapacity.TOTAL))
-				.to.be.instanceOf(Request);
+			expect(request.consumedCapacity(ConsumedCapacity.TOTAL)).to.be.instanceOf(Request);
 		});
 	});
 
@@ -409,34 +387,30 @@ describe('src/Request', () => {
 				id: 'value'
 			});
 
-			expect(request.expressionAttributeNames)
-				.to.deep.equal({
-					'#id': 'value'
-				});
+			expect(request.expressionAttributeNames).to.deep.equal({
+				'#id': 'value'
+			});
 		});
 
 		it('should add placeholders with array', () => {
 			request.addPlaceholderName(['id', 'id2']);
 
-			expect(request.expressionAttributeNames)
-				.to.deep.equal({
-					'#id': 'id',
-					'#id2': 'id2'
-				});
+			expect(request.expressionAttributeNames).to.deep.equal({
+				'#id': 'id',
+				'#id2': 'id2'
+			});
 		});
 
 		it('should add placeholders with string', () => {
 			request.addPlaceholderName('id');
 
-			expect(request.expressionAttributeNames)
-				.to.deep.equal({
-					'#id': 'id'
-				});
+			expect(request.expressionAttributeNames).to.deep.equal({
+				'#id': 'id'
+			});
 		});
 
 		it('should return Request dynamoDb', () => {
-			expect(request.addPlaceholderName('id'))
-				.to.be.instanceOf(Request);
+			expect(request.addPlaceholderName('id')).to.be.instanceOf(Request);
 		});
 	});
 
@@ -446,12 +420,11 @@ describe('src/Request', () => {
 				id: 'value'
 			});
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':id': {
-						S: 'value'
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':id': {
+					S: 'value'
+				}
+			});
 		});
 
 		it('should add placeholders with object and number', () => {
@@ -459,12 +432,11 @@ describe('src/Request', () => {
 				id: 9
 			});
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':id': {
-						N: '9'
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':id': {
+					N: '9'
+				}
+			});
 		});
 
 		it('should add placeholders with object and boolean', () => {
@@ -472,12 +444,11 @@ describe('src/Request', () => {
 				id: true
 			});
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':id': {
-						BOOL: true
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':id': {
+					BOOL: true
+				}
+			});
 		});
 
 		it('should add placeholders with object and null', () => {
@@ -485,12 +456,11 @@ describe('src/Request', () => {
 				id: null
 			});
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':id': {
-						NULL: true
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':id': {
+					NULL: true
+				}
+			});
 		});
 
 		it('should add placeholders with object and array', () => {
@@ -498,16 +468,15 @@ describe('src/Request', () => {
 				id: [1, 2]
 			});
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':id': {
-						L: [{
-							N: '1'
-						}, {
-							N: '2'
-						}]
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':id': {
+					L: [{
+						N: '1'
+					}, {
+						N: '2'
+					}]
+				}
+			});
 		});
 
 		it('should add placeholders with object and map', () => {
@@ -517,118 +486,108 @@ describe('src/Request', () => {
 				}
 			});
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':id': {
-						M: {
-							id: {
-								S: 'value'
-							}
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':id': {
+					M: {
+						id: {
+							S: 'value'
 						}
 					}
-				});
+				}
+			});
 		});
 
 		it('should add placeholders with string array', () => {
 			request.addPlaceholderValue(['id', 'id2']);
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':id': {
-						S: 'id'
-					},
-					':id2': {
-						S: 'id2'
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':id': {
+					S: 'id'
+				},
+				':id2': {
+					S: 'id2'
+				}
+			});
 		});
 
 		it('should add placeholders with number array', () => {
 			request.addPlaceholderValue([1, 2]);
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':1': {
-						N: '1'
-					},
-					':2': {
-						N: '2'
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':1': {
+					N: '1'
+				},
+				':2': {
+					N: '2'
+				}
+			});
 		});
 
 		it('should add placeholders with boolean array', () => {
 			request.addPlaceholderValue([true, false]);
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':true': {
-						BOOL: true
-					},
-					':false': {
-						BOOL: false
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':true': {
+					BOOL: true
+				},
+				':false': {
+					BOOL: false
+				}
+			});
 		});
 
 		it('should add placeholders with null array', () => {
 			request.addPlaceholderValue([null]);
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':null': {
-						NULL: true
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':null': {
+					NULL: true
+				}
+			});
 		});
 
 		it('should add placeholders with string', () => {
 			request.addPlaceholderValue('id');
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':id': {
-						S: 'id'
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':id': {
+					S: 'id'
+				}
+			});
 		});
 
 		it('should add placeholders with number', () => {
 			request.addPlaceholderValue(9);
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':9': {
-						N: '9'
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':9': {
+					N: '9'
+				}
+			});
 		});
 
 		it('should add placeholders with boolean', () => {
 			request.addPlaceholderValue(true);
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':true': {
-						BOOL: true
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':true': {
+					BOOL: true
+				}
+			});
 		});
 
 		it('should add placeholders with null', () => {
 			request.addPlaceholderValue(null);
 
-			expect(request.expressionAttributeValues)
-				.to.deep.equal({
-					':null': {
-						NULL: true
-					}
-				});
+			expect(request.expressionAttributeValues).to.deep.equal({
+				':null': {
+					NULL: true
+				}
+			});
 		});
 
 		it('should return Request dynamoDb', () => {
-			expect(request.addPlaceholderValue(null))
-				.to.be.instanceOf(Request);
+			expect(request.addPlaceholderValue(null)).to.be.instanceOf(Request);
 		});
 	});
 
@@ -636,45 +595,38 @@ describe('src/Request', () => {
 		it('should add projectionSelect ALL_ATTRIBUTES', () => {
 			request.select(Select.ALL_ATTRIBUTES);
 
-			expect(request.projectionSelect)
-				.to.equal('ALL_ATTRIBUTES');
+			expect(request.projectionSelect).to.equal('ALL_ATTRIBUTES');
 		});
 
 		it('should add projectionSelect ALL_PROJECTED_ATTRIBUTES', () => {
 			request.select(Select.ALL_PROJECTED_ATTRIBUTES);
 
-			expect(request.projectionSelect)
-				.to.equal('ALL_PROJECTED_ATTRIBUTES');
+			expect(request.projectionSelect).to.equal('ALL_PROJECTED_ATTRIBUTES');
 		});
 
 		it('should add projectionSelect SPECIFIC_ATTRIBUTES', () => {
 			request.select(Select.SPECIFIC_ATTRIBUTES);
 
-			expect(request.projectionSelect)
-				.to.equal('SPECIFIC_ATTRIBUTES');
+			expect(request.projectionSelect).to.equal('SPECIFIC_ATTRIBUTES');
 		});
 
 		it('should add projectionSelect COUNT', () => {
 			request.select(Select.COUNT);
 
-			expect(request.projectionSelect)
-				.to.equal('COUNT');
+			expect(request.projectionSelect).to.equal('COUNT');
 		});
 
 		it('should add projectionSelect, projectionExpression and expressionAttributeNames with custom tokens', () => {
 			request.select('id, name, age');
 
-			expect(request.projectionSelect)
-				.to.equal('SPECIFIC_ATTRIBUTES');
-			expect(request.projectionExpression)
-				.to.equal('#id_0,#name_1,#age_2,#namespace_3');
-			expect(request.expressionAttributeNames)
-				.to.deep.equal({
-					'#id_0': 'id',
-					'#name_1': 'name',
-					'#age_2': 'age',
-					'#namespace_3': 'namespace',
-				});
+			expect(request.projectionSelect).to.equal('SPECIFIC_ATTRIBUTES');
+			expect(request.projectionExpression).to.equal('#id_0,#name_1,#age_2,#namespace_3');
+			expect(request.expressionAttributeNames).to.deep.equal({
+				'#id_0': 'id',
+				'#name_1': 'name',
+				'#age_2': 'age',
+				'#namespace_3': 'namespace',
+			});
 		});
 
 		it('should include also primaryKeys and localIndexSortAttr', () => {
@@ -682,18 +634,15 @@ describe('src/Request', () => {
 				.index('localStringIndex')
 				.select('id, name, age');
 
-			expect(request.projectionSelect)
-				.to.equal('SPECIFIC_ATTRIBUTES');
-			expect(request.projectionExpression)
-				.to.equal('#id_0,#name_1,#age_2,#namespace_3,#localStringIndexedSortAttr_4');
-			expect(request.expressionAttributeNames)
-				.to.deep.equal({
-					'#id_0': 'id',
-					'#name_1': 'name',
-					'#age_2': 'age',
-					'#namespace_3': 'namespace',
-					'#localStringIndexedSortAttr_4': 'localStringIndexedSortAttr'
-				});
+			expect(request.projectionSelect).to.equal('SPECIFIC_ATTRIBUTES');
+			expect(request.projectionExpression).to.equal('#id_0,#name_1,#age_2,#namespace_3,#localStringIndexedSortAttr_4');
+			expect(request.expressionAttributeNames).to.deep.equal({
+				'#id_0': 'id',
+				'#name_1': 'name',
+				'#age_2': 'age',
+				'#namespace_3': 'namespace',
+				'#localStringIndexedSortAttr_4': 'localStringIndexedSortAttr'
+			});
 		});
 
 		it('should include also primaryKeys, globalIndexPartitionAttr and globalIndexSortAttr', () => {
@@ -701,24 +650,20 @@ describe('src/Request', () => {
 				.index('globalStringIndex')
 				.select('name, age');
 
-			expect(request.projectionSelect)
-				.to.equal('SPECIFIC_ATTRIBUTES');
-			expect(request.projectionExpression)
-				.to.equal('#name_0,#age_1,#namespace_2,#id_3,#globalIndexedPartitionAttr_4,#globalStringIndexedSortAttr_5');
-			expect(request.expressionAttributeNames)
-				.to.deep.equal({
-					'#name_0': 'name',
-					'#age_1': 'age',
-					'#namespace_2': 'namespace',
-					'#id_3': 'id',
-					'#globalIndexedPartitionAttr_4': 'globalIndexedPartitionAttr',
-					'#globalStringIndexedSortAttr_5': 'globalStringIndexedSortAttr'
-				});
+			expect(request.projectionSelect).to.equal('SPECIFIC_ATTRIBUTES');
+			expect(request.projectionExpression).to.equal('#name_0,#age_1,#namespace_2,#id_3,#globalIndexedPartitionAttr_4,#globalStringIndexedSortAttr_5');
+			expect(request.expressionAttributeNames).to.deep.equal({
+				'#name_0': 'name',
+				'#age_1': 'age',
+				'#namespace_2': 'namespace',
+				'#id_3': 'id',
+				'#globalIndexedPartitionAttr_4': 'globalIndexedPartitionAttr',
+				'#globalStringIndexedSortAttr_5': 'globalStringIndexedSortAttr'
+			});
 		});
 
 		it('should return Request dynamoDb', () => {
-			expect(request.select('id'))
-				.to.be.instanceOf(Request);
+			expect(request.select('id')).to.be.instanceOf(Request);
 		});
 	});
 
@@ -726,13 +671,11 @@ describe('src/Request', () => {
 		it('should set consistentRead as true', () => {
 			request.consistent();
 
-			expect(request.consistentRead)
-				.to.be.true;
+			expect(request.consistentRead).to.be.true;
 		});
 
 		it('should return Request dynamoDb', () => {
-			expect(request.consistent())
-				.to.be.instanceOf(Request);
+			expect(request.consistent()).to.be.instanceOf(Request);
 		});
 	});
 
@@ -740,8 +683,7 @@ describe('src/Request', () => {
 		it('should keyConditionExpression be same of queryData when latter is string', () => {
 			request.query('#id = :value');
 
-			expect(request.keyConditionExpression)
-				.to.equal('#id = :value');
+			expect(request.keyConditionExpression).to.equal('#id = :value');
 		});
 
 		it('should build keyConditionExpression when queryData is object, using just schema keys', () => {
@@ -750,8 +692,7 @@ describe('src/Request', () => {
 				ignoredAttr: 'this attr should be ignored'
 			});
 
-			expect(request.keyConditionExpression)
-				.to.equal('#namespace = :namespace');
+			expect(request.keyConditionExpression).to.equal('#namespace = :namespace');
 		});
 
 		it('should routeCall with query and relative params and queryLimit + 1', () => {
@@ -760,30 +701,28 @@ describe('src/Request', () => {
 				ignoredAttr: 'this attr should be ignored'
 			});
 
-			expect(routeCall)
-				.to.have.been.calledOnce;
-			expect(routeCall)
-				.to.have.been.calledWithExactly('query', {
-					ConsistentRead: false,
-					ExclusiveStartKey: null,
-					ExpressionAttributeNames: {
-						'#namespace': 'namespace'
-					},
-					ExpressionAttributeValues: {
-						':namespace': {
-							S: 'spec'
-						}
-					},
-					FilterExpression: null,
-					IndexName: null,
-					KeyConditionExpression: '#namespace = :namespace',
-					Limit: 51,
-					ProjectionExpression: undefined,
-					ReturnConsumedCapacity: 'TOTAL',
-					ScanIndexForward: true,
-					Select: 'ALL_ATTRIBUTES',
-					TableName: 'tblSpec'
-				});
+			expect(routeCall).to.have.been.calledOnce;
+			expect(routeCall).to.have.been.calledWithExactly('query', {
+				ConsistentRead: false,
+				ExclusiveStartKey: null,
+				ExpressionAttributeNames: {
+					'#namespace': 'namespace'
+				},
+				ExpressionAttributeValues: {
+					':namespace': {
+						S: 'spec'
+					}
+				},
+				FilterExpression: null,
+				IndexName: null,
+				KeyConditionExpression: '#namespace = :namespace',
+				Limit: 51,
+				ProjectionExpression: undefined,
+				ReturnConsumedCapacity: 'TOTAL',
+				ScanIndexForward: true,
+				Select: 'ALL_ATTRIBUTES',
+				TableName: 'tblSpec'
+			});
 		});
 
 		it('should responds with normalized data', done => {
@@ -792,8 +731,7 @@ describe('src/Request', () => {
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 				.subscribe(response => {
 					expect(response)
 						.to.deep.equal([{
@@ -828,8 +766,7 @@ describe('src/Request', () => {
 				.select(Select.COUNT)
 				.query({
 					namespace
-				})
-				.toArray()
+				}).toArray()
 				.subscribe(response => {
 					expect(response)
 						.to.deep.equal([]);
@@ -844,8 +781,7 @@ describe('src/Request', () => {
 					namespace,
 					localStringIndexedSortAttr: 'local-indexed-3',
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 				.subscribe(response => {
 					expect(response)
 						.to.deep.equal([{
@@ -871,8 +807,7 @@ describe('src/Request', () => {
 					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
 					globalStringIndexedSortAttr: `global-indexed-3`,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 				.subscribe(response => {
 					expect(response)
 						.to.deep.equal([{
@@ -905,8 +840,7 @@ describe('src/Request', () => {
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 
 			query
 				.mergeMap(() => resumedQuery(request.queryStats.after))
@@ -954,8 +888,7 @@ describe('src/Request', () => {
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 
 			query
 				.mergeMap(() => resumedQuery(request.queryStats.after))
@@ -1003,8 +936,7 @@ describe('src/Request', () => {
 				.query({
 					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 
 			query
 				.mergeMap(() => resumedQuery(request.queryStats.after))
@@ -1046,8 +978,7 @@ describe('src/Request', () => {
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 				.subscribe(response => {
 					expect(request.queryStats)
 						.to.deep.equal({
@@ -1078,8 +1009,7 @@ describe('src/Request', () => {
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 				.subscribe(() => {
 					expect(request.queryStats)
 						.to.deep.equal({
@@ -1113,8 +1043,7 @@ describe('src/Request', () => {
 				.query({
 					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 				.subscribe(() => {
 					expect(request.queryStats)
 						.to.deep.equal({
@@ -1143,8 +1072,7 @@ describe('src/Request', () => {
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 				.subscribe(() => {
 					expect(request.queryStats.after)
 						.to.be.null;
@@ -1161,8 +1089,7 @@ describe('src/Request', () => {
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 				.subscribe(() => {
 					expect(request.queryStats.after)
 						.to.be.null;
@@ -1175,8 +1102,7 @@ describe('src/Request', () => {
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 				.subscribe(response => {
 					expect(request.queryStats.before)
 						.to.be.null;
@@ -1193,8 +1119,7 @@ describe('src/Request', () => {
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				})
-				.toArray()
+				}).toArray()
 				.subscribe(response => {
 					expect(request.queryStats.before)
 						.to.be.null;
@@ -1211,39 +1136,36 @@ describe('src/Request', () => {
 					ignoredAttr: 'this attr should be ignored'
 				});
 
-			expect(routeCall)
-				.to.have.been.calledOnce;
-			expect(routeCall)
-				.to.have.been.calledWithExactly('query', {
-					ConsistentRead: false,
-					ExclusiveStartKey: null,
-					ExpressionAttributeNames: {
-						'#message': 'message',
-						'#namespace': 'namespace'
+			expect(routeCall).to.have.been.calledOnce;
+			expect(routeCall).to.have.been.calledWithExactly('query', {
+				ConsistentRead: false,
+				ExclusiveStartKey: null,
+				ExpressionAttributeNames: {
+					'#message': 'message',
+					'#namespace': 'namespace'
+				},
+				ExpressionAttributeValues: {
+					':message': {
+						S: 'message'
 					},
-					ExpressionAttributeValues: {
-						':message': {
-							S: 'message'
-						},
-						':namespace': {
-							S: 'spec'
-						}
-					},
-					FilterExpression: 'begins_with(#message, :message)',
-					IndexName: null,
-					KeyConditionExpression: '#namespace = :namespace',
-					Limit: 200,
-					ProjectionExpression: undefined,
-					ReturnConsumedCapacity: 'TOTAL',
-					ScanIndexForward: true,
-					Select: 'ALL_ATTRIBUTES',
-					TableName: 'tblSpec'
-				});
+					':namespace': {
+						S: 'spec'
+					}
+				},
+				FilterExpression: 'begins_with(#message, :message)',
+				IndexName: null,
+				KeyConditionExpression: '#namespace = :namespace',
+				Limit: 200,
+				ProjectionExpression: undefined,
+				ReturnConsumedCapacity: 'TOTAL',
+				ScanIndexForward: true,
+				Select: 'ALL_ATTRIBUTES',
+				TableName: 'tblSpec'
+			});
 		});
 
 		it('should return an Observable', () => {
-			expect(request.query({}))
-				.to.be.instanceOf(Observable);
+			expect(request.query({})).to.be.instanceOf(Observable);
 		});
 
 		describe('multiple operations', () => {
@@ -1457,23 +1379,21 @@ describe('src/Request', () => {
 					ignoredAttr: 'this attr should be ignored'
 				});
 
-			expect(routeCall)
-				.to.have.been.calledOnce;
-			expect(routeCall)
-				.to.have.been.calledWithExactly('getItem', {
-					ExpressionAttributeNames: null,
-					Key: {
-						id: {
-							S: 'id-0'
-						},
-						namespace: {
-							S: namespace
-						}
+			expect(routeCall).to.have.been.calledOnce;
+			expect(routeCall).to.have.been.calledWithExactly('getItem', {
+				ExpressionAttributeNames: null,
+				Key: {
+					id: {
+						S: 'id-0'
 					},
-					ProjectionExpression: undefined,
-					ReturnConsumedCapacity: 'TOTAL',
-					TableName: 'tblSpec'
-				});
+					namespace: {
+						S: namespace
+					}
+				},
+				ProjectionExpression: undefined,
+				ReturnConsumedCapacity: 'TOTAL',
+				TableName: 'tblSpec'
+			});
 		});
 
 		it('should responds with normalized data', done => {
@@ -1514,8 +1434,7 @@ describe('src/Request', () => {
 		});
 
 		it('should return an Observable', () => {
-			expect(request.get({}))
-				.to.be.instanceOf(Observable);
+			expect(request.get({})).to.be.instanceOf(Observable);
 		});
 	});
 
@@ -1523,13 +1442,11 @@ describe('src/Request', () => {
 		it('should set indexName', () => {
 			request.index('someIndex');
 
-			expect(request.indexName)
-				.to.equal('someIndex');
+			expect(request.indexName).to.equal('someIndex');
 		});
 
 		it('should return Request dynamoDb', () => {
-			expect(request.index('someIndex'))
-				.to.be.instanceOf(Request);
+			expect(request.index('someIndex')).to.be.instanceOf(Request);
 		});
 	});
 
@@ -1537,13 +1454,11 @@ describe('src/Request', () => {
 		it('should set scanIndexForward to false', () => {
 			request.desc();
 
-			expect(request.scanIndexForward)
-				.to.be.false;
+			expect(request.scanIndexForward).to.be.false;
 		});
 
 		it('should return Request dynamoDb', () => {
-			expect(request.desc())
-				.to.be.instanceOf(Request);
+			expect(request.desc()).to.be.instanceOf(Request);
 		});
 	});
 
@@ -1560,13 +1475,11 @@ describe('src/Request', () => {
 		it('should handle not finite values and defaults to 0', () => {
 			request.limit(Infinity);
 
-			expect(request.queryLimit)
-				.to.equal(0);
+			expect(request.queryLimit).to.equal(0);
 		});
 
 		it('should return Request dynamoDb', () => {
-			expect(request.limit(25))
-				.to.be.instanceOf(Request);
+			expect(request.limit(25)).to.be.instanceOf(Request);
 		});
 	});
 
@@ -1574,37 +1487,32 @@ describe('src/Request', () => {
 		it('should set filterExpression', () => {
 			request.filter('someFilter');
 
-			expect(request.filterExpression)
-				.to.equal('someFilter');
+			expect(request.filterExpression).to.equal('someFilter');
 		});
 
 		it('should append filterExpression', () => {
 			request.filter('someFilter');
 			request.filter('someFilter2');
 
-			expect(request.filterExpression)
-				.to.equal('someFilter AND someFilter2');
+			expect(request.filterExpression).to.equal('someFilter AND someFilter2');
 		});
 
 		it('should append filterExpression with OR', () => {
 			request.filter('someFilter');
 			request.filter('someFilter2', true, 'OR');
 
-			expect(request.filterExpression)
-				.to.equal('someFilter OR someFilter2');
+			expect(request.filterExpression).to.equal('someFilter OR someFilter2');
 		});
 
 		it('should replace filterExpression', () => {
 			request.filter('someFilter');
 			request.filter('someFilter2', false);
 
-			expect(request.filterExpression)
-				.to.equal('someFilter2');
+			expect(request.filterExpression).to.equal('someFilter2');
 		});
 
 		it('should return Request dynamoDb', () => {
-			expect(request.filter('someFilter'))
-				.to.be.instanceOf(Request);
+			expect(request.filter('someFilter')).to.be.instanceOf(Request);
 		});
 	});
 
@@ -1615,25 +1523,22 @@ describe('src/Request', () => {
 				id: 'id-0'
 			});
 
-			expect(request.isResumed)
-				.to.be.true;
-			expect(request.exclusiveStartKey)
-				.to.deep.equal({
-					namespace: {
-						S: namespace
-					},
-					id: {
-						S: 'id-0'
-					}
-				});
+			expect(request.isResumed).to.be.true;
+			expect(request.exclusiveStartKey).to.deep.equal({
+				namespace: {
+					S: namespace
+				},
+				id: {
+					S: 'id-0'
+				}
+			});
 		});
 
 		it('should return Request dynamoDb', () => {
 			expect(request.resume({
-					namespace,
-					id: 'id-0'
-				}))
-				.to.be.instanceOf(Request);
+				namespace,
+				id: 'id-0'
+			})).to.be.instanceOf(Request);
 		});
 	});
 
@@ -1641,37 +1546,32 @@ describe('src/Request', () => {
 		it('should set conditionExpression', () => {
 			request.condition('someCondition');
 
-			expect(request.conditionExpression)
-				.to.equal('someCondition');
+			expect(request.conditionExpression).to.equal('someCondition');
 		});
 
 		it('should append conditionExpression', () => {
 			request.condition('someCondition');
 			request.condition('someCondition2');
 
-			expect(request.conditionExpression)
-				.to.equal('someCondition AND someCondition2');
+			expect(request.conditionExpression).to.equal('someCondition AND someCondition2');
 		});
 
 		it('should append conditionExpression with OR', () => {
 			request.condition('someCondition');
 			request.condition('someCondition2', true, 'OR');
 
-			expect(request.conditionExpression)
-				.to.equal('someCondition OR someCondition2');
+			expect(request.conditionExpression).to.equal('someCondition OR someCondition2');
 		});
 
 		it('should replace conditionExpression', () => {
 			request.condition('someCondition');
 			request.condition('someCondition2', false);
 
-			expect(request.conditionExpression)
-				.to.equal('someCondition2');
+			expect(request.conditionExpression).to.equal('someCondition2');
 		});
 
 		it('should return Request dynamoDb', () => {
-			expect(request.condition('someCondition'))
-				.to.be.instanceOf(Request);
+			expect(request.condition('someCondition')).to.be.instanceOf(Request);
 		});
 	});
 
@@ -1684,35 +1584,33 @@ describe('src/Request', () => {
 					message: `message-${now}`
 				});
 
-			expect(routeCall)
-				.to.have.been.calledOnce;
-			expect(routeCall)
-				.to.have.been.calledWithExactly('putItem', {
-					ConditionExpression: 'attribute_not_exists(#namespace)',
-					ExpressionAttributeNames: {
-						'#namespace': 'namespace'
+			expect(routeCall).to.have.been.calledOnce;
+			expect(routeCall).to.have.been.calledWithExactly('putItem', {
+				ConditionExpression: 'attribute_not_exists(#namespace)',
+				ExpressionAttributeNames: {
+					'#namespace': 'namespace'
+				},
+				ExpressionAttributeValues: null,
+				Item: {
+					namespace: {
+						S: 'spec'
 					},
-					ExpressionAttributeValues: null,
-					Item: {
-						namespace: {
-							S: 'spec'
-						},
-						id: {
-							S: `id-${now}`
-						},
-						message: {
-							S: `message-${now}`
-						},
-						createdAt: {
-							N: match.string
-						},
-						updatedAt: {
-							N: match.string
-						}
+					id: {
+						S: `id-${now}`
 					},
-					ReturnConsumedCapacity: 'TOTAL',
-					TableName: 'tblSpec'
-				});
+					message: {
+						S: `message-${now}`
+					},
+					createdAt: {
+						N: match.string
+					},
+					updatedAt: {
+						N: match.string
+					}
+				},
+				ReturnConsumedCapacity: 'TOTAL',
+				TableName: 'tblSpec'
+			});
 		});
 
 		it('should responds with normalized data and createdAt and updatedAt be equals', done => {
@@ -1816,8 +1714,7 @@ describe('src/Request', () => {
 		});
 
 		it('should return an Observable', () => {
-			expect(request.insert({}))
-				.to.be.instanceOf(Observable);
+			expect(request.insert({})).to.be.instanceOf(Observable);
 		});
 	});
 
@@ -1835,8 +1732,7 @@ describe('src/Request', () => {
 		it('should call insert with replace = true', () => {
 			request.insertOrReplace({});
 
-			expect(insert)
-				.to.have.been.calledWith(match.object, true);
+			expect(insert).to.have.been.calledWith(match.object, true);
 		});
 	});
 
@@ -1854,8 +1750,7 @@ describe('src/Request', () => {
 		it('should call update with where = false, insert = true', () => {
 			request.insertOrUpdate({});
 
-			expect(update)
-				.to.have.been.calledWith(match.object, undefined, true);
+			expect(update).to.have.been.calledWith(match.object, undefined, true);
 		});
 	});
 
@@ -1863,8 +1758,7 @@ describe('src/Request', () => {
 		it('should updateExpression be same of item when latter is string', () => {
 			request.update('SET #id = :value', {});
 
-			expect(request.updateExpression)
-				.to.equal('SET #id = :value');
+			expect(request.updateExpression).to.equal('SET #id = :value');
 		});
 
 		it('should build updateExpression when item is object', () => {
@@ -1873,8 +1767,7 @@ describe('src/Request', () => {
 				id2: 'value2',
 			});
 
-			expect(request.updateExpression)
-				.to.equal('SET #id2 = :id2, #createdAt = if_not_exists(#createdAt, :now), #updatedAt = :now');
+			expect(request.updateExpression).to.equal('SET #id2 = :id2, #createdAt = if_not_exists(#createdAt, :now), #updatedAt = :now');
 		});
 
 		it('should omit createdAt and updatedAt from updateExpression', () => {
@@ -1885,8 +1778,7 @@ describe('src/Request', () => {
 				updatedAt: 1
 			});
 
-			expect(request.updateExpression)
-				.to.equal('SET #id2 = :id2, #createdAt = if_not_exists(#createdAt, :now), #updatedAt = :now');
+			expect(request.updateExpression).to.equal('SET #id2 = :id2, #createdAt = if_not_exists(#createdAt, :now), #updatedAt = :now');
 		});
 
 		it('should throw when item is string and no where statement is provided', done => {
@@ -1907,15 +1799,14 @@ describe('src/Request', () => {
 					ignoredAttr: 'this attr should be ignored'
 				});
 
-			expect(routeCall.lastCall.args[1].Key)
-				.to.deep.equal({
-					id: {
-						S: 'id-0'
-					},
-					namespace: {
-						S: 'spec'
-					}
-				});
+			expect(routeCall.lastCall.args[1].Key).to.deep.equal({
+				id: {
+					S: 'id-0'
+				},
+				namespace: {
+					S: 'spec'
+				}
+			});
 		});
 
 		it('should routeCall with updateItem and relative params', () => {
@@ -1927,38 +1818,36 @@ describe('src/Request', () => {
 					message: 'message-0'
 				});
 
-			expect(routeCall)
-				.to.have.been.calledOnce;
-			expect(routeCall)
-				.to.have.been.calledWithExactly('updateItem', {
-					ConditionExpression: 'attribute_exists(#namespace)',
-					ExpressionAttributeNames: {
-						'#createdAt': 'createdAt',
-						'#namespace': 'namespace',
-						'#message': 'message',
-						'#updatedAt': 'updatedAt'
+			expect(routeCall).to.have.been.calledOnce;
+			expect(routeCall).to.have.been.calledWithExactly('updateItem', {
+				ConditionExpression: 'attribute_exists(#namespace)',
+				ExpressionAttributeNames: {
+					'#createdAt': 'createdAt',
+					'#namespace': 'namespace',
+					'#message': 'message',
+					'#updatedAt': 'updatedAt'
+				},
+				ExpressionAttributeValues: {
+					':message': {
+						S: 'message-0'
 					},
-					ExpressionAttributeValues: {
-						':message': {
-							S: 'message-0'
-						},
-						':now': {
-							N: match.string
-						}
+					':now': {
+						N: match.string
+					}
+				},
+				Key: {
+					id: {
+						S: 'id-0'
 					},
-					Key: {
-						id: {
-							S: 'id-0'
-						},
-						namespace: {
-							S: 'spec'
-						}
-					},
-					ReturnConsumedCapacity: 'TOTAL',
-					ReturnValues: 'ALL_NEW',
-					TableName: 'tblSpec',
-					UpdateExpression: 'SET #message = :message, #createdAt = if_not_exists(#createdAt, :now), #updatedAt = :now'
-				});
+					namespace: {
+						S: 'spec'
+					}
+				},
+				ReturnConsumedCapacity: 'TOTAL',
+				ReturnValues: 'ALL_NEW',
+				TableName: 'tblSpec',
+				UpdateExpression: 'SET #message = :message, #createdAt = if_not_exists(#createdAt, :now), #updatedAt = :now'
+			});
 		});
 
 		it('should responds with normalized data and createdAt and updatedAt be different', done => {
@@ -2025,8 +1914,7 @@ describe('src/Request', () => {
 		});
 
 		it('should return an Observable', () => {
-			expect(request.update({}))
-				.to.be.instanceOf(Observable);
+			expect(request.update({})).to.be.instanceOf(Observable);
 		});
 	});
 
@@ -2040,15 +1928,14 @@ describe('src/Request', () => {
 					ignoredAttr: 'this attr should be ignored'
 				});
 
-			expect(routeCall.lastCall.args[1].Key)
-				.to.deep.equal({
-					id: {
-						S: 'id-0'
-					},
-					namespace: {
-						S: 'spec'
-					}
-				});
+			expect(routeCall.lastCall.args[1].Key).to.deep.equal({
+				id: {
+					S: 'id-0'
+				},
+				namespace: {
+					S: 'spec'
+				}
+			});
 		});
 
 		it('should routeCall with deleteItem and relative params', () => {
@@ -2060,25 +1947,23 @@ describe('src/Request', () => {
 					message: 'message-0'
 				});
 
-			expect(routeCall)
-				.to.have.been.calledOnce;
-			expect(routeCall)
-				.to.have.been.calledWithExactly('deleteItem', {
-					ConditionExpression: null,
-					ExpressionAttributeNames: null,
-					ExpressionAttributeValues: null,
-					Key: {
-						id: {
-							S: 'id-0'
-						},
-						namespace: {
-							S: 'spec'
-						}
+			expect(routeCall).to.have.been.calledOnce;
+			expect(routeCall).to.have.been.calledWithExactly('deleteItem', {
+				ConditionExpression: null,
+				ExpressionAttributeNames: null,
+				ExpressionAttributeValues: null,
+				Key: {
+					id: {
+						S: 'id-0'
 					},
-					ReturnConsumedCapacity: 'TOTAL',
-					ReturnValues: 'ALL_OLD',
-					TableName: 'tblSpec'
-				});
+					namespace: {
+						S: 'spec'
+					}
+				},
+				ReturnConsumedCapacity: 'TOTAL',
+				ReturnValues: 'ALL_OLD',
+				TableName: 'tblSpec'
+			});
 		});
 
 		it('should responds with normalized data', done => {
@@ -2123,8 +2008,7 @@ describe('src/Request', () => {
 				message: `message-${n}`
 			})));
 
-			expect(routeCall)
-				.to.have.been.callCount(4);
+			expect(routeCall).to.have.been.callCount(4);
 		});
 
 		describe('toDelete', () => {
@@ -2397,8 +2281,7 @@ describe('src/Request', () => {
 				id: `id-${n}`
 			})));
 
-			expect(routeCall)
-				.to.have.been.calledTwice;
+			expect(routeCall).to.have.been.calledTwice;
 		});
 
 		it('should routeCall with batchGet and relative params', () => {
@@ -2410,32 +2293,31 @@ describe('src/Request', () => {
 				id: 'id-1'
 			}]);
 
-			expect(routeCall)
-				.to.have.been.calledWithExactly('batchGetItem', {
-					RequestItems: {
-						tblSpec: {
-							Keys: [{
-								namespace: {
-									S: 'spec'
-								},
-								id: {
-									S: 'id-0'
-								}
-							}, {
-								id: {
-									S: 'id-1'
-								},
-								namespace: {
-									S: 'spec'
-								}
-							}],
-							ConsistentRead: false,
-							ExpressionAttributeNames: null,
-							ProjectionExpression: undefined
-						}
-					},
-					ReturnConsumedCapacity: 'TOTAL'
-				});
+			expect(routeCall).to.have.been.calledWithExactly('batchGetItem', {
+				RequestItems: {
+					tblSpec: {
+						Keys: [{
+							namespace: {
+								S: 'spec'
+							},
+							id: {
+								S: 'id-0'
+							}
+						}, {
+							id: {
+								S: 'id-1'
+							},
+							namespace: {
+								S: 'spec'
+							}
+						}],
+						ConsistentRead: false,
+						ExpressionAttributeNames: null,
+						ProjectionExpression: undefined
+					}
+				},
+				ReturnConsumedCapacity: 'TOTAL'
+			});
 		});
 
 		it('should responds with normalized data', done => {
@@ -2445,8 +2327,7 @@ describe('src/Request', () => {
 				}, {
 					namespace,
 					id: 'id-1'
-				}])
-				.toArray()
+				}]).toArray()
 				.subscribe(response => {
 					expect(response)
 						.to.deep.equal([{
