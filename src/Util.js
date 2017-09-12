@@ -40,7 +40,7 @@ export class Util {
 		}
 
 		if (_.isArray(value)) {
-			return _.reduce(value, (result, value) => {
+			return _.reduce(value, (result, value, key) => {
 				result.L.push(this.anormalizeValue(value));
 
 				return result;
@@ -50,10 +50,8 @@ export class Util {
 		}
 
 		if (_.isObject(value)) {
-			return _.reduce(value, (result, value, key) => {
+			return _.transform(value, (result, value, key) => {
 				result.M[key] = this.anormalizeValue(value);
-
-				return result;
 			}, {
 				M: {}
 			});

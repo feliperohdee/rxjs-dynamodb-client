@@ -22,7 +22,9 @@ describe('src/Util', () => {
 			negativeFloat: -0.5,
 			numberArray: [1, 2, 3],
 			stringArray: ['a', 'b'],
-			array: [1, 'a'],
+			array: [1, 'a', {
+				length: 2
+			}],
 			map: {
 				key: 'value',
 				deepMap: {
@@ -83,6 +85,12 @@ describe('src/Util', () => {
 					N: '1'
 				}, {
 					S: 'a'
+				}, {
+					M: {
+						length: {
+							N: '2'
+						}
+					}
 				}]
 			},
 			map: {
