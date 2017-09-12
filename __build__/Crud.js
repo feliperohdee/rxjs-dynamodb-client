@@ -785,6 +785,37 @@ class Crud {
 		}]);
 	}
 
+	multiGet(args, hook = false) {
+		let {
+			items,
+			select
+		} = args;
+
+		if (!_lodash2.default.isArray(items)) {
+			items = [items];
+		}
+
+		items = _lodash2.default.map(items, item => _lodash2.default.pick(item, [this.partitionAttr, this.sortAttr]));
+
+		const request = this.request;
+		let hookArgs;
+
+		if (select) {
+			request.select(select);
+		}
+
+		if (hook) {
+			const hookParams = {
+				request,
+				items
+			};
+
+			hookArgs = hook.call(this, hookParams);
+		}
+
+		return request.batchGet.apply(request, hookArgs || [items]);
+	}
+
 	clear(args) {
 		var _context;
 
