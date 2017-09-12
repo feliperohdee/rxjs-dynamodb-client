@@ -522,6 +522,18 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				partition: string, 
 				sort: string | number) : Array<args>) : Observable<object>
 
+		multiGet(
+			args: {
+				items: Array<{
+					[partition]: string (required);
+					[sort]: string;
+				}>
+				select: string (comma separated);
+			}, 
+			hook: function(
+				request: Request, 
+				items: Array<object>) : Observable<object>
+
 		insert(
 			args: {
 				[partition]: string (required);

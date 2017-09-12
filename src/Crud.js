@@ -811,6 +811,41 @@ export class Crud {
 			}]);
 	}
 
+	multiGet(args, hook = false) {
+		let {
+			items,
+			select
+		} = args;
+
+		if (!_.isArray(items)) {
+			items = [items];
+		}
+
+		items = _.map(items, item => _.pick(item, [
+			this.partitionAttr, 
+			this.sortAttr
+		]));
+
+		const request = this.request;
+		let hookArgs;
+
+		if (select) {
+			request.select(select);
+		}
+
+		if (hook) {
+			const hookParams = {
+				request,
+				items
+			};
+
+			hookArgs = hook.call(this, hookParams);
+		}
+
+		return request
+			.batchGet.apply(request, hookArgs || [items]);
+	}
+
 	clear(args) {
 		const partitionAttr = this.partitionAttr;
 		const sortAttr = this.sortAttr;
