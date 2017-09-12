@@ -53,7 +53,7 @@ class Util {
 		}
 
 		if (_lodash2.default.isArray(value)) {
-			return _lodash2.default.reduce(value, (result, value) => {
+			return _lodash2.default.reduce(value, (result, value, key) => {
 				result.L.push(this.anormalizeValue(value));
 
 				return result;
@@ -63,10 +63,8 @@ class Util {
 		}
 
 		if (_lodash2.default.isObject(value)) {
-			return _lodash2.default.reduce(value, (result, value, key) => {
+			return _lodash2.default.transform(value, (result, value, key) => {
 				result.M[key] = this.anormalizeValue(value);
-
-				return result;
 			}, {
 				M: {}
 			});
