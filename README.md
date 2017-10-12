@@ -697,6 +697,34 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				[sort]: string;
 			}) : Observable<object>
 
+## Helpers
+	
+	DynamoDB has two main types of http errors: retryable and non-retryable. The most common type of retryable error is a throughput exception. To handle this, you can chain an Observable helper to handle them:
+		
+		// most simple way, if err.retryable, will retry once, you can configure this behavior like samples below:
+		request.insert()
+			.onRetryableError();
+
+		// shorthand for max retries, will obey err.retryDelay returned by AWS
+		request.insert()
+			.onRetryableError(5);
+		
+		// config retries with a callback function
+		request.insert()
+			.onRetryableError((err, index) => ({
+				delay: (err.retryDelay * 1000) * index, // will retry after n seconds with index factor
+				max: 10,
+				retryable: index >= 4 ? false : err.retryable // will retry 5x before throw (index starts with 0)
+			}));
+		
+		// or with a plain object
+		request.insert()
+			.onRetryableError({
+				return {
+					max: 10, // will retry 10x before throw
+					delay: 1000 // will retry after 1 second
+				};
+			});
 
 ## Final Words
 

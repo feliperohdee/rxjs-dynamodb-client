@@ -1,11 +1,19 @@
-import _ from 'lodash';
-import {
+const chai = require('chai');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+const _ = require('lodash');
+
+const {
 	Select,
 	ReturnValues,
 	ConsumedCapacity
-} from 'src';
+} = require('../../');
 
-describe('src/contants', () => {
+chai.use(sinonChai);
+
+const expect = chai.expect;
+
+describe('lib/constants', () => {
 	it('should Select to have [ALL_ATTRIBUTES, ALL_PROJECTED_ATTRIBUTES, SPECIFIC_ATTRIBUTES, COUNT]', () => {
 		expect(Select).to.deep.equal({
 			ALL_ATTRIBUTES: 0,

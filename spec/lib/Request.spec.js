@@ -1,19 +1,26 @@
-import _ from 'lodash';
-import {
+const chai = require('chai');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+const _ = require('lodash');
+const {
 	Observable,
 	Scheduler
-} from 'rxjs';
-import {
+} = require('rxjs');
+
+const {
 	Util,
 	Request,
 	ReturnValues,
 	Select,
 	ConsumedCapacity
-} from 'src';
-
-import {
+} = require('../../');
+const {
 	dynamoDb
-} from 'testingEnv';
+} = require('../../testing');
+
+chai.use(sinonChai);
+
+const expect = chai.expect;
 
 const namespace = 'spec';
 const tableName = 'tblSpec';
@@ -42,11 +49,12 @@ const tableSchema = {
 	}
 };
 
-describe('src/Request', () => {
+describe('lib/Request', () => {
+	const buffer = new Buffer('hey');
+
 	let now;
 	let request;
 	let client;
-	let routeCall;
 
 	before(done => {
 		client = dynamoDb.client;
@@ -150,6 +158,7 @@ describe('src/Request', () => {
 			.mergeMap(() => Observable.range(0, 10)
 				.mergeMap(n => request.insert({
 					namespace,
+					buffer,
 					id: `id-${n}`,
 					message: `message-${n}`,
 					localStringIndexedSortAttr: `local-indexed-${n}`,
@@ -163,22 +172,24 @@ describe('src/Request', () => {
 
 	after(done => {
 		request = dynamoDb.table(tableName, tableSchema);
+		request.batchWrite = request.batchWrite.bind(request);
+
 		request.query({
-				namespace: 'spec'
+				namespace
 			})
 			.toArray()
-			.mergeMap(::request.batchWrite)
+			.mergeMap(request.batchWrite)
 			.subscribe(null, null, done);
 	});
 
 	beforeEach(() => {
 		now = _.now();
 		request = dynamoDb.table(tableName, tableSchema);
-		routeCall = spy(request, 'routeCall');
+		sinon.spy(request, 'routeCall');
 	});
 
 	afterEach(() => {
-		routeCall.restore();
+		request.routeCall.restore();
 	});
 
 	describe('util', () => {
@@ -205,15 +216,13 @@ describe('src/Request', () => {
 
 	describe('globalIndexPartitionAttr', () => {
 		it('should returns globalIndex.partition', () => {
-			request
-				.index('globalStringIndex');
+			request.index('globalStringIndex');
 
 			expect(request.globalIndexPartitionAttr).to.equal('globalIndexedPartitionAttr');
 		});
 
 		it('should returns null when wrong globalIndex', () => {
-			request
-				.index('globalStringIndex_');
+			request.index('globalStringIndex_');
 
 			expect(request.globalIndexPartitionAttr).to.be.null;
 		});
@@ -221,20 +230,17 @@ describe('src/Request', () => {
 
 	describe('globalIndexSortAttr', () => {
 		it('should returns globalIndex.sort', () => {
-			request
-				.index('globalStringIndex');
+			request.index('globalStringIndex');
 
 			expect(request.globalIndexSortAttr).to.equal('globalStringIndexedSortAttr');
 
-			request
-				.index('globalNumberIndex');
+			request.index('globalNumberIndex');
 
 			expect(request.globalIndexSortAttr).to.equal('globalNumberIndexedSortAttr');
 		});
 
 		it('should returns null when wrong globalIndex', () => {
-			request
-				.index('globalStringIndex_');
+			request.index('globalStringIndex_');
 
 			expect(request.globalIndexSortAttr).to.be.null;
 		});
@@ -242,36 +248,31 @@ describe('src/Request', () => {
 
 	describe('localIndexSortAttr', () => {
 		it('should returns localIndex.sort', () => {
-			request
-				.index('localStringIndex');
+			request.index('localStringIndex');
 
 			expect(request.localIndexSortAttr).to.equal('localStringIndexedSortAttr');
 		});
 
 		it('should returns null when wrong localIndex', () => {
-			request
-				.index('localStringIndex_');
+			request.index('localStringIndex_');
 
 			expect(request.localIndexSortAttr).to.be.null;
 		});
 
 		it('should returns null when is global index', () => {
-			request
-				.index('globalStringIndex');
+			request.index('globalStringIndex');
 
 			expect(request.localIndexSortAttr).to.be.null;
 		});
 	});
 
 	describe('routeCall', () => {
-		let getItem;
-
 		beforeEach(() => {
-			getItem = spy(client, 'getItem');
+			sinon.spy(client, 'getItem');
 		});
 
 		afterEach(() => {
-			getItem.restore();
+			client.getItem.restore();
 		});
 
 		it('should return an Observable', () => {
@@ -291,18 +292,17 @@ describe('src/Request', () => {
 					}
 				})
 				.subscribe(() => {
-					expect(getItem)
-						.to.have.been.calledWith({
-							TableName: tableName,
-							Key: {
-								namespace: {
-									S: 'spec'
-								},
-								id: {
-									S: 'id'
-								}
+					expect(client.getItem).to.have.been.calledWith({
+						TableName: tableName,
+						Key: {
+							namespace: {
+								S: 'spec'
+							},
+							id: {
+								S: 'id'
 							}
-						}, match.func);
+						}
+					}, sinon.match.func);
 				}, null, done);
 		});
 
@@ -319,8 +319,7 @@ describe('src/Request', () => {
 				}
 			});
 
-			expect(getItem)
-				.not.to.have.been.called;
+			expect(client.getItem).not.to.have.been.called;
 		});
 	});
 
@@ -329,7 +328,7 @@ describe('src/Request', () => {
 			request.describe()
 				.subscribe();
 
-			expect(routeCall).to.have.been.calledWithExactly('describeTable', {
+			expect(request.routeCall).to.have.been.calledWithExactly('describeTable', {
 				TableName: tableName
 			});
 		});
@@ -630,8 +629,7 @@ describe('src/Request', () => {
 		});
 
 		it('should include also primaryKeys and localIndexSortAttr', () => {
-			request
-				.index('localStringIndex')
+			request.index('localStringIndex')
 				.select('id, name, age');
 
 			expect(request.projectionSelect).to.equal('SPECIFIC_ATTRIBUTES');
@@ -646,8 +644,7 @@ describe('src/Request', () => {
 		});
 
 		it('should include also primaryKeys, globalIndexPartitionAttr and globalIndexSortAttr', () => {
-			request
-				.index('globalStringIndex')
+			request.index('globalStringIndex')
 				.select('name, age');
 
 			expect(request.projectionSelect).to.equal('SPECIFIC_ATTRIBUTES');
@@ -701,8 +698,8 @@ describe('src/Request', () => {
 				ignoredAttr: 'this attr should be ignored'
 			});
 
-			expect(routeCall).to.have.been.calledOnce;
-			expect(routeCall).to.have.been.calledWithExactly('query', {
+			expect(request.routeCall).to.have.been.calledOnce;
+			expect(request.routeCall).to.have.been.calledWithExactly('query', {
 				ConsistentRead: false,
 				ExclusiveStartKey: null,
 				ExpressionAttributeNames: {
@@ -726,155 +723,155 @@ describe('src/Request', () => {
 		});
 
 		it('should responds with normalized data', done => {
-			request
-				.limit(2)
+			request.limit(2)
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 				.subscribe(response => {
-					expect(response)
-						.to.deep.equal([{
-							namespace: 'spec',
-							localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
-							localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
-							globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
-							globalNumberIndexedSortAttr: response[0].globalNumberIndexedSortAttr,
-							globalStringIndexedSortAttr: response[0].globalStringIndexedSortAttr,
-							id: 'id-0',
-							message: response[0].message,
-							createdAt: response[0].createdAt,
-							updatedAt: response[0].updatedAt
-						}, {
-							namespace: 'spec',
-							localNumberIndexedSortAttr: response[1].localNumberIndexedSortAttr,
-							localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
-							globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
-							globalNumberIndexedSortAttr: response[1].globalNumberIndexedSortAttr,
-							globalStringIndexedSortAttr: response[1].globalStringIndexedSortAttr,
-							id: 'id-1',
-							message: response[1].message,
-							createdAt: response[1].createdAt,
-							updatedAt: response[1].updatedAt
-						}]);
+					expect(response).to.deep.equal([{
+						buffer,
+						namespace,
+						localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
+						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
+						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
+						globalNumberIndexedSortAttr: response[0].globalNumberIndexedSortAttr,
+						globalStringIndexedSortAttr: response[0].globalStringIndexedSortAttr,
+						id: 'id-0',
+						message: response[0].message,
+						createdAt: response[0].createdAt,
+						updatedAt: response[0].updatedAt
+					}, {
+						buffer,
+						namespace,
+						localNumberIndexedSortAttr: response[1].localNumberIndexedSortAttr,
+						localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
+						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
+						globalNumberIndexedSortAttr: response[1].globalNumberIndexedSortAttr,
+						globalStringIndexedSortAttr: response[1].globalStringIndexedSortAttr,
+						id: 'id-1',
+						message: response[1].message,
+						createdAt: response[1].createdAt,
+						updatedAt: response[1].updatedAt
+					}]);
 				}, null, done);
 		});
 
 		it('should responds with normalized data using Select.COUNT', done => {
-			request
-				.limit(2)
+			request.limit(2)
 				.select(Select.COUNT)
 				.query({
 					namespace
-				}).toArray()
+				})
+				.toArray()
 				.subscribe(response => {
-					expect(response)
-						.to.deep.equal([]);
+					expect(response).to.deep.equal([]);
 				}, null, done);
 		});
 
 		it('should responds empty using localIndex', done => {
-			request
-				.limit(2)
+			request.limit(2)
 				.index('localStringIndex')
 				.query({
 					namespace,
 					localStringIndexedSortAttr: 'local-indexed-3',
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 				.subscribe(response => {
-					expect(response)
-						.to.deep.equal([{
-							namespace: 'spec',
-							localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
-							localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
-							globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
-							globalNumberIndexedSortAttr: response[0].globalNumberIndexedSortAttr,
-							globalStringIndexedSortAttr: response[0].globalStringIndexedSortAttr,
-							id: 'id-3',
-							message: response[0].message,
-							createdAt: response[0].createdAt,
-							updatedAt: response[0].updatedAt
-						}]);
+					expect(response).to.deep.equal([{
+						buffer,
+						namespace,
+						localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
+						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
+						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
+						globalNumberIndexedSortAttr: response[0].globalNumberIndexedSortAttr,
+						globalStringIndexedSortAttr: response[0].globalStringIndexedSortAttr,
+						id: 'id-3',
+						message: response[0].message,
+						createdAt: response[0].createdAt,
+						updatedAt: response[0].updatedAt
+					}]);
 				}, null, done);
 		});
 
 		it('should responds with normalized data using globalIndex', done => {
-			request
-				.limit(2)
+			request.limit(2)
 				.index('globalStringIndex')
 				.query({
 					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
 					globalStringIndexedSortAttr: `global-indexed-3`,
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 				.subscribe(response => {
-					expect(response)
-						.to.deep.equal([{
-							namespace: 'spec',
-							localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
-							localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
-							globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
-							globalNumberIndexedSortAttr: response[0].globalNumberIndexedSortAttr,
-							globalStringIndexedSortAttr: response[0].globalStringIndexedSortAttr,
-							id: 'id-3',
-							message: response[0].message,
-							createdAt: response[0].createdAt,
-							updatedAt: response[0].updatedAt
-						}]);
+					expect(response).to.deep.equal([{
+						buffer,
+						namespace,
+						localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
+						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
+						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
+						globalNumberIndexedSortAttr: response[0].globalNumberIndexedSortAttr,
+						globalStringIndexedSortAttr: response[0].globalStringIndexedSortAttr,
+						id: 'id-3',
+						message: response[0].message,
+						createdAt: response[0].createdAt,
+						updatedAt: response[0].updatedAt
+					}]);
 				}, null, done);
 		});
 
 		it('should responds with resumed data', done => {
-			const query = request
-				.limit(3)
+			const query = request.limit(3)
 				.query({
+					buffer,
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
 				})
 				.last();
 
-			const resumedQuery = after => request
-				.limit(2)
+			const resumedQuery = after => request.limit(2)
 				.resume(request.queryStats.after)
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 
 			query
 				.mergeMap(() => resumedQuery(request.queryStats.after))
 				.subscribe(response => {
-					expect(response)
-						.to.deep.equal([{
-							namespace: 'spec',
-							localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
-							localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
-							globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
-							globalNumberIndexedSortAttr: response[0].globalNumberIndexedSortAttr,
-							globalStringIndexedSortAttr: response[0].globalStringIndexedSortAttr,
-							id: 'id-3',
-							message: response[0].message,
-							createdAt: response[0].createdAt,
-							updatedAt: response[0].updatedAt
-						}, {
-							namespace: 'spec',
-							localNumberIndexedSortAttr: response[1].localNumberIndexedSortAttr,
-							localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
-							globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
-							globalNumberIndexedSortAttr: response[1].globalNumberIndexedSortAttr,
-							globalStringIndexedSortAttr: response[1].globalStringIndexedSortAttr,
-							id: 'id-4',
-							message: response[1].message,
-							createdAt: response[1].createdAt,
-							updatedAt: response[1].updatedAt
-						}]);
+					expect(response).to.deep.equal([{
+						buffer,
+						namespace,
+						localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
+						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
+						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
+						globalNumberIndexedSortAttr: response[0].globalNumberIndexedSortAttr,
+						globalStringIndexedSortAttr: response[0].globalStringIndexedSortAttr,
+						id: 'id-3',
+						message: response[0].message,
+						createdAt: response[0].createdAt,
+						updatedAt: response[0].updatedAt
+					}, {
+						buffer,
+						namespace,
+						localNumberIndexedSortAttr: response[1].localNumberIndexedSortAttr,
+						localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
+						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
+						globalNumberIndexedSortAttr: response[1].globalNumberIndexedSortAttr,
+						globalStringIndexedSortAttr: response[1].globalStringIndexedSortAttr,
+						id: 'id-4',
+						message: response[1].message,
+						createdAt: response[1].createdAt,
+						updatedAt: response[1].updatedAt
+					}]);
 				}, null, done);
 		});
 
 		it('should responds with resumed data using localIndex', done => {
-			const query = request
-				.limit(3)
+			const query = request.limit(3)
 				.index('localStringIndex')
 				.query({
 					namespace,
@@ -882,47 +879,47 @@ describe('src/Request', () => {
 				})
 				.last();
 
-			const resumedQuery = after => request
-				.limit(2)
+			const resumedQuery = after => request.limit(2)
 				.resume(request.queryStats.after)
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 
 			query
 				.mergeMap(() => resumedQuery(request.queryStats.after))
 				.subscribe(response => {
-					expect(response)
-						.to.deep.equal([{
-							namespace: 'spec',
-							localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
-							localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
-							globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
-							globalNumberIndexedSortAttr: response[0].globalNumberIndexedSortAttr,
-							globalStringIndexedSortAttr: response[0].globalStringIndexedSortAttr,
-							id: 'id-3',
-							message: response[0].message,
-							createdAt: response[0].createdAt,
-							updatedAt: response[0].updatedAt
-						}, {
-							namespace: 'spec',
-							localNumberIndexedSortAttr: response[1].localNumberIndexedSortAttr,
-							localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
-							globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
-							globalNumberIndexedSortAttr: response[1].globalNumberIndexedSortAttr,
-							globalStringIndexedSortAttr: response[1].globalStringIndexedSortAttr,
-							id: 'id-4',
-							message: response[1].message,
-							createdAt: response[1].createdAt,
-							updatedAt: response[1].updatedAt
-						}]);
+					expect(response).to.deep.equal([{
+						buffer,
+						namespace,
+						localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
+						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
+						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
+						globalNumberIndexedSortAttr: response[0].globalNumberIndexedSortAttr,
+						globalStringIndexedSortAttr: response[0].globalStringIndexedSortAttr,
+						id: 'id-3',
+						message: response[0].message,
+						createdAt: response[0].createdAt,
+						updatedAt: response[0].updatedAt
+					}, {
+						buffer,
+						namespace,
+						localNumberIndexedSortAttr: response[1].localNumberIndexedSortAttr,
+						localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
+						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
+						globalNumberIndexedSortAttr: response[1].globalNumberIndexedSortAttr,
+						globalStringIndexedSortAttr: response[1].globalStringIndexedSortAttr,
+						id: 'id-4',
+						message: response[1].message,
+						createdAt: response[1].createdAt,
+						updatedAt: response[1].updatedAt
+					}]);
 				}, null, done);
 		});
 
 		it('should responds with resumed data using globalIndex', done => {
-			const query = request
-				.limit(3)
+			const query = request.limit(3)
 				.index('globalStringIndex')
 				.query({
 					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
@@ -930,47 +927,47 @@ describe('src/Request', () => {
 				})
 				.last();
 
-			const resumedQuery = after => request
-				.limit(2)
+			const resumedQuery = after => request.limit(2)
 				.resume(request.queryStats.after)
 				.query({
 					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 
 			query
 				.mergeMap(() => resumedQuery(request.queryStats.after))
 				.subscribe(response => {
-					expect(response)
-						.to.deep.equal([{
-							namespace: 'spec',
-							localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
-							localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
-							globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
-							globalNumberIndexedSortAttr: response[0].globalNumberIndexedSortAttr,
-							globalStringIndexedSortAttr: response[0].globalStringIndexedSortAttr,
-							id: 'id-3',
-							message: response[0].message,
-							createdAt: response[0].createdAt,
-							updatedAt: response[0].updatedAt
-						}, {
-							namespace: 'spec',
-							localNumberIndexedSortAttr: response[1].localNumberIndexedSortAttr,
-							localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
-							globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
-							globalNumberIndexedSortAttr: response[1].globalNumberIndexedSortAttr,
-							globalStringIndexedSortAttr: response[1].globalStringIndexedSortAttr,
-							id: 'id-4',
-							message: response[1].message,
-							createdAt: response[1].createdAt,
-							updatedAt: response[1].updatedAt
-						}]);
+					expect(response).to.deep.equal([{
+						buffer,
+						namespace,
+						localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
+						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
+						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
+						globalNumberIndexedSortAttr: response[0].globalNumberIndexedSortAttr,
+						globalStringIndexedSortAttr: response[0].globalStringIndexedSortAttr,
+						id: 'id-3',
+						message: response[0].message,
+						createdAt: response[0].createdAt,
+						updatedAt: response[0].updatedAt
+					}, {
+						buffer,
+						namespace,
+						localNumberIndexedSortAttr: response[1].localNumberIndexedSortAttr,
+						localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
+						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
+						globalNumberIndexedSortAttr: response[1].globalNumberIndexedSortAttr,
+						globalStringIndexedSortAttr: response[1].globalStringIndexedSortAttr,
+						id: 'id-4',
+						message: response[1].message,
+						createdAt: response[1].createdAt,
+						updatedAt: response[1].updatedAt
+					}]);
 				}, null, done);
 		});
 
 		it('shuld feed queryStats', done => {
-			request
-				.limit(2)
+			request.limit(2)
 				.resume({
 					namespace,
 					id: 'id-2'
@@ -978,110 +975,106 @@ describe('src/Request', () => {
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 				.subscribe(response => {
-					expect(request.queryStats)
-						.to.deep.equal({
-							before: {
-								namespace: 'spec',
-								id: 'id-3'
-							},
-							after: {
-								namespace: 'spec',
-								id: 'id-4'
-							},
-							count: 2,
-							scannedCount: 2,
-							iteractions: 1
-						});
+					expect(request.queryStats).to.deep.equal({
+						before: {
+							namespace,
+							id: 'id-3'
+						},
+						after: {
+							namespace,
+							id: 'id-4'
+						},
+						count: 2,
+						scannedCount: 2,
+						iteractions: 1
+					});
 				}, null, done);
 		});
 
 		it('should feed queryStats with localIndex', done => {
-			request
-				.index('localStringIndex')
+			request.index('localStringIndex')
 				.limit(2)
 				.resume({
 					id: 'id-2',
-					namespace: 'spec',
+					namespace,
 					localStringIndexedSortAttr: 'local-indexed-2'
 				})
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 				.subscribe(() => {
-					expect(request.queryStats)
-						.to.deep.equal({
-							before: {
-								localStringIndexedSortAttr: 'local-indexed-3',
-								namespace: 'spec',
-								id: 'id-3'
-							},
-							after: {
-								localStringIndexedSortAttr: 'local-indexed-4',
-								namespace: 'spec',
-								id: 'id-4'
-							},
-							count: 2,
-							scannedCount: 2,
-							iteractions: 1
-						});
+					expect(request.queryStats).to.deep.equal({
+						before: {
+							localStringIndexedSortAttr: 'local-indexed-3',
+							namespace,
+							id: 'id-3'
+						},
+						after: {
+							localStringIndexedSortAttr: 'local-indexed-4',
+							namespace,
+							id: 'id-4'
+						},
+						count: 2,
+						scannedCount: 2,
+						iteractions: 1
+					});
 				}, null, done);
 		});
 
 		it('should feed queryStats with globalIndex', done => {
-			request
-				.index('globalStringIndex')
+			request.index('globalStringIndex')
 				.limit(2)
 				.resume({
 					id: 'id-2',
-					namespace: 'spec',
+					namespace,
 					globalIndexedPartitionAttr: 'global-indexed-spec',
 					globalStringIndexedSortAttr: 'global-indexed-2'
 				})
 				.query({
 					globalIndexedPartitionAttr: `global-indexed-${namespace}`,
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 				.subscribe(() => {
-					expect(request.queryStats)
-						.to.deep.equal({
-							before: {
-								id: 'id-3',
-								namespace: 'spec',
-								globalIndexedPartitionAttr: 'global-indexed-spec',
-								globalStringIndexedSortAttr: 'global-indexed-3'
-							},
-							after: {
-								id: 'id-4',
-								namespace: 'spec',
-								globalIndexedPartitionAttr: 'global-indexed-spec',
-								globalStringIndexedSortAttr: 'global-indexed-4'
-							},
-							count: 2,
-							scannedCount: 2,
-							iteractions: 1
-						});
+					expect(request.queryStats).to.deep.equal({
+						before: {
+							id: 'id-3',
+							namespace,
+							globalIndexedPartitionAttr: 'global-indexed-spec',
+							globalStringIndexedSortAttr: 'global-indexed-3'
+						},
+						after: {
+							id: 'id-4',
+							namespace,
+							globalIndexedPartitionAttr: 'global-indexed-spec',
+							globalStringIndexedSortAttr: 'global-indexed-4'
+						},
+						count: 2,
+						scannedCount: 2,
+						iteractions: 1
+					});
 				}, null, done);
 		});
 
 		it('should not feed queryStats.after when query fetches all', done => {
-			request
-				.limit(10)
+			request.limit(10)
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 				.subscribe(() => {
-					expect(request.queryStats.after)
-						.to.be.null;
+					expect(request.queryStats.after).to.be.null;
 				}, null, done);
 		});
 
 		it('should not feed queryStats.after when resume fetches all', done => {
-			request
-				.limit(5)
+			request.limit(5)
 				.resume({
 					namespace,
 					id: 'id-4'
@@ -1089,29 +1082,27 @@ describe('src/Request', () => {
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 				.subscribe(() => {
-					expect(request.queryStats.after)
-						.to.be.null;
+					expect(request.queryStats.after).to.be.null;
 				}, null, done);
 		});
 
 		it('should not feed queryStats.before when not resumed', done => {
-			request
-				.limit(2)
+			request.limit(2)
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 				.subscribe(response => {
-					expect(request.queryStats.before)
-						.to.be.null;
+					expect(request.queryStats.before).to.be.null;
 				}, null, done);
 		});
 
 		it('should not feed queryStats.before when inexistent items', done => {
-			request
-				.limit(10)
+			request.limit(10)
 				.resume({
 					namespace,
 					id: 'id-9'
@@ -1119,16 +1110,15 @@ describe('src/Request', () => {
 				.query({
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
-				}).toArray()
+				})
+				.toArray()
 				.subscribe(response => {
-					expect(request.queryStats.before)
-						.to.be.null;
+					expect(request.queryStats.before).to.be.null;
 				}, null, done);
 		});
 
 		it('should routeCall with queryLimit * 4 when filterExpression', () => {
-			request
-				.addPlaceholderName('message')
+			request.addPlaceholderName('message')
 				.addPlaceholderValue('message')
 				.filter('begins_with(#message, :message)')
 				.query({
@@ -1136,8 +1126,8 @@ describe('src/Request', () => {
 					ignoredAttr: 'this attr should be ignored'
 				});
 
-			expect(routeCall).to.have.been.calledOnce;
-			expect(routeCall).to.have.been.calledWithExactly('query', {
+			expect(request.routeCall).to.have.been.calledOnce;
+			expect(request.routeCall).to.have.been.calledWithExactly('query', {
 				ConsistentRead: false,
 				ExclusiveStartKey: null,
 				ExpressionAttributeNames: {
@@ -1172,8 +1162,8 @@ describe('src/Request', () => {
 			beforeEach(() => {
 				let index = 0;
 
-				routeCall.restore();
-				routeCall = stub(request, 'routeCall')
+				request.routeCall.restore();
+				sinon.stub(request, 'routeCall')
 					.callsFake(() => Observable.of({
 							Items: [{
 								id: {
@@ -1217,8 +1207,7 @@ describe('src/Request', () => {
 			});
 
 			it('should run queryOperation 25 times until reach default limit or after be null', done => {
-				request
-					.query({
+				request.query({
 						namespace,
 						ignoredAttr: 'this attr should be ignored'
 					})
@@ -1234,8 +1223,7 @@ describe('src/Request', () => {
 			});
 
 			it('should run queryOperation 5 times until reach limit', done => {
-				request
-					.limit(10)
+				request.limit(10)
 					.query({
 						namespace,
 						ignoredAttr: 'this attr should be ignored'
@@ -1252,8 +1240,7 @@ describe('src/Request', () => {
 			});
 
 			it('should return strict the limit even if more items were processed', done => {
-				request
-					.limit(9)
+				request.limit(9)
 					.query({
 						namespace,
 						ignoredAttr: 'this attr should be ignored'
@@ -1272,8 +1259,7 @@ describe('src/Request', () => {
 			});
 
 			it('should not feed queryStats.before when not resumed', done => {
-				request
-					.limit(10)
+				request.limit(10)
 					.query({
 						namespace,
 						ignoredAttr: 'this attr should be ignored'
@@ -1286,8 +1272,7 @@ describe('src/Request', () => {
 			});
 
 			it('should feed queryStats.before when resumed', done => {
-				request
-					.limit(10)
+				request.limit(10)
 					.resume({})
 					.query({
 						namespace,
@@ -1297,7 +1282,7 @@ describe('src/Request', () => {
 					.subscribe(response => {
 						expect(request.queryStats.before)
 							.to.deep.equal({
-								namespace: 'spec',
+								namespace,
 								id: 'id-1'
 							});
 					}, null, done);
@@ -1372,15 +1357,14 @@ describe('src/Request', () => {
 
 	describe('get', () => {
 		it('should routeCall with get and relative params', () => {
-			request
-				.get({
-					namespace,
-					id: 'id-0',
-					ignoredAttr: 'this attr should be ignored'
-				});
+			request.get({
+				namespace,
+				id: 'id-0',
+				ignoredAttr: 'this attr should be ignored'
+			});
 
-			expect(routeCall).to.have.been.calledOnce;
-			expect(routeCall).to.have.been.calledWithExactly('getItem', {
+			expect(request.routeCall).to.have.been.calledOnce;
+			expect(request.routeCall).to.have.been.calledWithExactly('getItem', {
 				ExpressionAttributeNames: null,
 				Key: {
 					id: {
@@ -1397,39 +1381,36 @@ describe('src/Request', () => {
 		});
 
 		it('should responds with normalized data', done => {
-			request
-				.get({
+			request.get({
 					namespace,
 					id: 'id-0',
 					ignoredAttr: 'this attr should be ignored'
 				})
 				.subscribe(response => {
-					expect(response)
-						.to.deep.equal({
-							namespace: 'spec',
-							localNumberIndexedSortAttr: 0,
-							localStringIndexedSortAttr: 'local-indexed-0',
-							globalIndexedPartitionAttr: 'global-indexed-spec',
-							globalNumberIndexedSortAttr: 0,
-							globalStringIndexedSortAttr: 'global-indexed-0',
-							id: 'id-0',
-							message: response.message,
-							createdAt: response.createdAt,
-							updatedAt: response.updatedAt
-						});
+					expect(response).to.deep.equal({
+						buffer,
+						namespace,
+						localNumberIndexedSortAttr: 0,
+						localStringIndexedSortAttr: 'local-indexed-0',
+						globalIndexedPartitionAttr: 'global-indexed-spec',
+						globalNumberIndexedSortAttr: 0,
+						globalStringIndexedSortAttr: 'global-indexed-0',
+						id: 'id-0',
+						message: response.message,
+						createdAt: response.createdAt,
+						updatedAt: response.updatedAt
+					});
 				}, null, done);
 		});
 
 		it('should responds null', done => {
-			request
-				.get({
+			request.get({
 					namespace,
 					id: 'id-inexistent',
 					ignoredAttr: 'this attr should be ignored'
 				})
 				.subscribe(response => {
-					expect(response)
-						.to.be.null;
+					expect(response).to.be.null;
 				}, null, done);
 		});
 
@@ -1467,8 +1448,7 @@ describe('src/Request', () => {
 			it(`should set queryLimit as ${typeof limit}`, () => {
 				request.limit(limit);
 
-				expect(request.queryLimit)
-					.to.equal(25);
+				expect(request.queryLimit).to.equal(25);
 			});
 		});
 
@@ -1577,15 +1557,14 @@ describe('src/Request', () => {
 
 	describe('insert', () => {
 		it('should routeCall with putItem and relative params', () => {
-			request
-				.insert({
-					namespace,
-					id: `id-${now}`,
-					message: `message-${now}`
-				});
+			request.insert({
+				namespace,
+				id: `id-${now}`,
+				message: `message-${now}`
+			});
 
-			expect(routeCall).to.have.been.calledOnce;
-			expect(routeCall).to.have.been.calledWithExactly('putItem', {
+			expect(request.routeCall).to.have.been.calledOnce;
+			expect(request.routeCall).to.have.been.calledWithExactly('putItem', {
 				ConditionExpression: 'attribute_not_exists(#namespace)',
 				ExpressionAttributeNames: {
 					'#namespace': 'namespace'
@@ -1602,10 +1581,10 @@ describe('src/Request', () => {
 						S: `message-${now}`
 					},
 					createdAt: {
-						N: match.string
+						N: sinon.match.string
 					},
 					updatedAt: {
-						N: match.string
+						N: sinon.match.string
 					}
 				},
 				ReturnConsumedCapacity: 'TOTAL',
@@ -1614,8 +1593,8 @@ describe('src/Request', () => {
 		});
 
 		it('should responds with normalized data and createdAt and updatedAt be equals', done => {
-			request
-				.insert({
+			request.insert({
+					buffer,
 					namespace,
 					id: `id-${now}`,
 					message: `message-${now}`,
@@ -1634,31 +1613,29 @@ describe('src/Request', () => {
 					})
 				})
 				.subscribe(response => {
-					expect(response.createdAt === response.updatedAt)
-						.to.be.true;
-					expect(response)
-						.to.deep.equal({
-							namespace: 'spec',
-							id: `id-${now}`,
-							message: response.message,
-							undefined: undefined,
-							null: null,
-							number: 1,
-							boolean: true,
-							object: {
-								data: 'data'
-							},
-							ss: ['a'],
-							ns: [1],
-							createdAt: response.createdAt,
-							updatedAt: response.updatedAt
-						});
+					expect(response.createdAt === response.updatedAt).to.be.true;
+					expect(response).to.deep.equal({
+						buffer,
+						namespace,
+						id: `id-${now}`,
+						message: response.message,
+						undefined: undefined,
+						null: null,
+						number: 1,
+						boolean: true,
+						object: {
+							data: 'data'
+						},
+						ss: ['a'],
+						ns: [1],
+						createdAt: response.createdAt,
+						updatedAt: response.updatedAt
+					});
 				}, null, done);
 		});
 
 		it('should override createdAt updatedAt', done => {
-			request
-				.insert({
+			request.insert({
 					namespace,
 					id: `id-${now}`,
 					createdAt: 1,
@@ -1669,47 +1646,39 @@ describe('src/Request', () => {
 						.not.be.equal(1);
 					expect(response.updatedAt)
 						.not.be.equal(1);
-					expect(response.createdAt === response.updatedAt)
-						.to.be.true;
+					expect(response.createdAt === response.updatedAt).to.be.true;
 				}, null, done);
 		});
 
 		it('should throw if record exists and replace = false', done => {
-			request
-				.insert({
+			request.insert({
 					namespace,
 					id: 'id-0',
 					message: 'message-0'
 				})
 				.subscribe(null, err => {
-					expect(request.conditionExpression)
-						.to.equal('attribute_not_exists(#namespace)');
-					expect(err.message)
-						.to.equal('The conditional request failed');
+					expect(request.conditionExpression).to.equal('attribute_not_exists(#namespace)');
+					expect(err.message).to.equal('The conditional request failed');
 					done();
 				});
 		});
 
 		it('should responds with normalized data if data exists and replace = true', done => {
-			request
-				.insert({
+			request.insert({
 					namespace,
 					id: 'id-0',
-					message: 'message-0'
+					message: 'message-0',
 				}, true)
 				.subscribe(response => {
-					expect(request.conditionExpression)
-						.to.be.null;
-					expect(response.createdAt === response.updatedAt)
-						.to.be.true;
-					expect(response)
-						.to.deep.equal({
-							namespace: 'spec',
-							id: 'id-0',
-							message: response.message,
-							createdAt: response.createdAt,
-							updatedAt: response.updatedAt
-						});
+					expect(request.conditionExpression).to.be.null;
+					expect(response.createdAt === response.updatedAt).to.be.true;
+					expect(response).to.deep.equal({
+						namespace,
+						id: 'id-0',
+						message: response.message,
+						createdAt: response.createdAt,
+						updatedAt: response.updatedAt
+					});
 				}, null, done);
 		});
 
@@ -1719,38 +1688,34 @@ describe('src/Request', () => {
 	});
 
 	describe('insertOrReplace', () => {
-		let insert;
-
 		beforeEach(() => {
-			insert = spy(request, 'insert');
+			sinon.spy(request, 'insert');
 		});
 
 		afterEach(() => {
-			insert.restore();
+			request.insert.restore();
 		});
 
 		it('should call insert with replace = true', () => {
 			request.insertOrReplace({});
 
-			expect(insert).to.have.been.calledWith(match.object, true);
+			expect(request.insert).to.have.been.calledWith(sinon.match.object, true);
 		});
 	});
 
 	describe('insertOrUpdate', () => {
-		let update;
-
 		beforeEach(() => {
-			update = spy(request, 'update');
+			sinon.spy(request, 'update');
 		});
 
 		afterEach(() => {
-			update.restore();
+			request.update.restore();
 		});
 
 		it('should call update with where = false, insert = true', () => {
 			request.insertOrUpdate({});
 
-			expect(update).to.have.been.calledWith(match.object, undefined, true);
+			expect(request.update).to.have.been.calledWith(sinon.match.object, undefined, true);
 		});
 	});
 
@@ -1784,22 +1749,20 @@ describe('src/Request', () => {
 		it('should throw when item is string and no where statement is provided', done => {
 			request.update('SET #id = :value')
 				.subscribe(null, err => {
-					expect(err.message)
-						.to.equal('Where statement might be provided');
+					expect(err.message).to.equal('Where statement might be provided');
 					done();
 				});
 		});
 
 		it('should Keys be composed with just primary keys', () => {
-			request
-				.return(ReturnValues.ALL_NEW)
+			request.return(ReturnValues.ALL_NEW)
 				.update({
 					namespace,
 					id: 'id-0',
 					ignoredAttr: 'this attr should be ignored'
 				});
 
-			expect(routeCall.lastCall.args[1].Key).to.deep.equal({
+			expect(request.routeCall.lastCall.args[1].Key).to.deep.equal({
 				id: {
 					S: 'id-0'
 				},
@@ -1810,16 +1773,15 @@ describe('src/Request', () => {
 		});
 
 		it('should routeCall with updateItem and relative params', () => {
-			request
-				.return(ReturnValues.ALL_NEW)
+			request.return(ReturnValues.ALL_NEW)
 				.update({
 					namespace,
 					id: 'id-0',
 					message: 'message-0'
 				});
 
-			expect(routeCall).to.have.been.calledOnce;
-			expect(routeCall).to.have.been.calledWithExactly('updateItem', {
+			expect(request.routeCall).to.have.been.calledOnce;
+			expect(request.routeCall).to.have.been.calledWithExactly('updateItem', {
 				ConditionExpression: 'attribute_exists(#namespace)',
 				ExpressionAttributeNames: {
 					'#createdAt': 'createdAt',
@@ -1832,7 +1794,7 @@ describe('src/Request', () => {
 						S: 'message-0'
 					},
 					':now': {
-						N: match.string
+						N: sinon.match.string
 					}
 				},
 				Key: {
@@ -1851,65 +1813,59 @@ describe('src/Request', () => {
 		});
 
 		it('should responds with normalized data and createdAt and updatedAt be different', done => {
-			request
-				.return(ReturnValues.ALL_NEW)
+			request.return(ReturnValues.ALL_NEW)
 				.update({
+					buffer,
 					namespace,
 					id: 'id-0',
 					message: 'message-0'
 				})
 				.subscribe(response => {
-					expect(response.createdAt !== response.updatedAt)
-						.to.be.true;
-					expect(response)
-						.to.deep.equal({
-							id: 'id-0',
-							createdAt: response.createdAt,
-							namespace: 'spec',
-							updatedAt: response.updatedAt,
-							message: response.message
-						});
+					expect(response.createdAt !== response.updatedAt).to.be.true;
+					expect(response).to.deep.equal({
+						buffer,
+						id: 'id-0',
+						createdAt: response.createdAt,
+						namespace,
+						updatedAt: response.updatedAt,
+						message: response.message
+					});
 				}, null, done);
 		});
 
 		it('should throw if record doesn\'t exists and insert = false', done => {
-			request
-				.return(ReturnValues.ALL_NEW)
+			request.return(ReturnValues.ALL_NEW)
 				.update({
 					namespace,
 					id: `id-${now}`,
 					message: `message-${now}`
 				})
 				.subscribe(null, err => {
-					expect(request.conditionExpression)
-						.to.equal('attribute_exists(#namespace)');
-					expect(err.message)
-						.to.equal('The conditional request failed');
+					expect(request.conditionExpression).to.equal('attribute_exists(#namespace)');
+					expect(err.message).to.equal('The conditional request failed');
 					done();
 				});
 		});
 
 		it('should responds with normalized data if data exists and insert = true and createdAt and updatedAt be equals', done => {
-			request
-				.return(ReturnValues.ALL_NEW)
+			request.return(ReturnValues.ALL_NEW)
 				.update({
+					buffer,
 					namespace,
 					id: `id-${now}`,
 					message: `message-${now}`
 				}, null, true)
 				.subscribe(response => {
-					expect(request.conditionExpression)
-						.to.be.null;
-					expect(response.createdAt === response.updatedAt)
-						.to.be.true;
-					expect(response)
-						.to.deep.equal({
-							namespace: 'spec',
-							id: response.id,
-							message: response.message,
-							createdAt: response.createdAt,
-							updatedAt: response.updatedAt
-						});
+					expect(request.conditionExpression).to.be.null;
+					expect(response.createdAt === response.updatedAt).to.be.true;
+					expect(response).to.deep.equal({
+						buffer,
+						namespace,
+						id: response.id,
+						message: response.message,
+						createdAt: response.createdAt,
+						updatedAt: response.updatedAt
+					});
 				}, null, done);
 		});
 
@@ -1920,15 +1876,14 @@ describe('src/Request', () => {
 
 	describe('delete', () => {
 		it('should Keys be composed with just primary keys', () => {
-			request
-				.return(ReturnValues.ALL_OLD)
+			request.return(ReturnValues.ALL_OLD)
 				.delete({
 					namespace,
 					id: 'id-0',
 					ignoredAttr: 'this attr should be ignored'
 				});
 
-			expect(routeCall.lastCall.args[1].Key).to.deep.equal({
+			expect(request.routeCall.lastCall.args[1].Key).to.deep.equal({
 				id: {
 					S: 'id-0'
 				},
@@ -1939,16 +1894,15 @@ describe('src/Request', () => {
 		});
 
 		it('should routeCall with deleteItem and relative params', () => {
-			request
-				.return(ReturnValues.ALL_OLD)
+			request.return(ReturnValues.ALL_OLD)
 				.delete({
 					namespace,
 					id: 'id-0',
 					message: 'message-0'
 				});
 
-			expect(routeCall).to.have.been.calledOnce;
-			expect(routeCall).to.have.been.calledWithExactly('deleteItem', {
+			expect(request.routeCall).to.have.been.calledOnce;
+			expect(request.routeCall).to.have.been.calledWithExactly('deleteItem', {
 				ConditionExpression: null,
 				ExpressionAttributeNames: null,
 				ExpressionAttributeValues: null,
@@ -1967,35 +1921,32 @@ describe('src/Request', () => {
 		});
 
 		it('should responds with normalized data', done => {
-			request
-				.return(ReturnValues.ALL_OLD)
+			request.return(ReturnValues.ALL_OLD)
 				.delete({
 					namespace,
 					id: 'id-0',
 					message: 'message-0'
 				})
 				.subscribe(response => {
-					expect(response)
-						.to.deep.equal({
-							namespace: 'spec',
-							id: 'id-0',
-							message: response.message,
-							createdAt: response.createdAt,
-							updatedAt: response.updatedAt
-						});
+					expect(response).to.deep.equal({
+						buffer,
+						namespace,
+						id: 'id-0',
+						message: response.message,
+						createdAt: response.createdAt,
+						updatedAt: response.updatedAt
+					});
 				}, null, done);
 		});
 
 		it('should responds null when record doesn\'t exists', done => {
-			request
-				.return(ReturnValues.ALL_OLD)
+			request.return(ReturnValues.ALL_OLD)
 				.delete({
 					namespace,
 					id: `non-existent-id`
 				})
 				.subscribe(response => {
-					expect(response)
-						.to.be.null;
+					expect(response).to.be.null;
 				}, null, done);
 		});
 	});
@@ -2008,7 +1959,7 @@ describe('src/Request', () => {
 				message: `message-${n}`
 			})));
 
-			expect(routeCall).to.have.been.callCount(4);
+			expect(request.routeCall).to.have.been.callCount(4);
 		});
 
 		describe('toDelete', () => {
@@ -2023,7 +1974,7 @@ describe('src/Request', () => {
 						message: 'message-1'
 					}])
 					.subscribe(null, null, () => {
-						routeCall.reset();
+						request.routeCall.reset();
 						done();
 					});
 			});
@@ -2039,39 +1990,37 @@ describe('src/Request', () => {
 					message: 'message-1'
 				}]);
 
-				expect(routeCall)
-					.to.have.been.calledWithExactly('batchWriteItem', {
-						RequestItems: {
-							tblSpec: [{
-								DeleteRequest: {
-									Key: {
-										namespace: {
-											S: 'spec'
-										},
-										id: {
-											S: 'batchWrite-0'
-										}
+				expect(request.routeCall).to.have.been.calledWithExactly('batchWriteItem', {
+					RequestItems: {
+						tblSpec: [{
+							DeleteRequest: {
+								Key: {
+									namespace: {
+										S: 'spec'
+									},
+									id: {
+										S: 'batchWrite-0'
 									}
 								}
-							}, {
-								DeleteRequest: {
-									Key: {
-										id: {
-											S: 'batchWrite-1'
-										},
-										namespace: {
-											S: 'spec'
-										}
+							}
+						}, {
+							DeleteRequest: {
+								Key: {
+									id: {
+										S: 'batchWrite-1'
+									},
+									namespace: {
+										S: 'spec'
 									}
 								}
-							}]
-						}
-					});
+							}
+						}]
+					}
+				});
 			});
 
 			it('should responds with normalized data', done => {
-				request
-					.batchWrite([{
+				request.batchWrite([{
 						namespace,
 						id: 'batchWrite-0',
 						message: 'message-0'
@@ -2101,57 +2050,55 @@ describe('src/Request', () => {
 					message: 'message-1'
 				}]);
 
-				expect(routeCall)
-					.to.have.been.calledWithExactly('batchWriteItem', {
-						RequestItems: {
-							tblSpec: [{
-								PutRequest: {
-									Item: {
-										namespace: {
-											S: 'spec'
-										},
-										id: {
-											S: 'batchWrite-0'
-										},
-										message: {
-											S: 'message-0'
-										},
-										createdAt: {
-											N: match.string
-										},
-										updatedAt: {
-											N: match.string
-										}
+				expect(request.routeCall).to.have.been.calledWithExactly('batchWriteItem', {
+					RequestItems: {
+						tblSpec: [{
+							PutRequest: {
+								Item: {
+									namespace: {
+										S: 'spec'
+									},
+									id: {
+										S: 'batchWrite-0'
+									},
+									message: {
+										S: 'message-0'
+									},
+									createdAt: {
+										N: sinon.match.string
+									},
+									updatedAt: {
+										N: sinon.match.string
 									}
 								}
-							}, {
-								PutRequest: {
-									Item: {
-										namespace: {
-											S: 'spec'
-										},
-										id: {
-											S: 'batchWrite-1'
-										},
-										message: {
-											S: 'message-1'
-										},
-										createdAt: {
-											N: match.string
-										},
-										updatedAt: {
-											N: match.string
-										}
+							}
+						}, {
+							PutRequest: {
+								Item: {
+									namespace: {
+										S: 'spec'
+									},
+									id: {
+										S: 'batchWrite-1'
+									},
+									message: {
+										S: 'message-1'
+									},
+									createdAt: {
+										N: sinon.match.string
+									},
+									updatedAt: {
+										N: sinon.match.string
 									}
 								}
-							}]
-						}
-					});
+							}
+						}]
+					}
+				});
 			});
 
 			it('should responds with normalized data', done => {
-				request
-					.batchWrite(null, [{
+				request.batchWrite(null, [{
 						namespace,
 						id: 'batchWrite-0',
 						message: 'message-0'
@@ -2189,74 +2136,73 @@ describe('src/Request', () => {
 					message: 'message-1'
 				}]);
 
-				expect(routeCall)
-					.to.have.been.calledWithExactly('batchWriteItem', {
-						RequestItems: {
-							tblSpec: [{
-								DeleteRequest: {
-									Key: {
-										namespace: {
-											S: 'spec'
-										},
-										id: {
-											S: 'batchWrite-0'
-										}
+				expect(request.routeCall).to.have.been.calledWithExactly('batchWriteItem', {
+					RequestItems: {
+						tblSpec: [{
+							DeleteRequest: {
+								Key: {
+									namespace: {
+										S: 'spec'
+									},
+									id: {
+										S: 'batchWrite-0'
 									}
 								}
-							}, {
-								DeleteRequest: {
-									Key: {
-										namespace: {
-											S: 'spec'
-										},
-										id: {
-											S: 'batchWrite-1'
-										}
+							}
+						}, {
+							DeleteRequest: {
+								Key: {
+									namespace: {
+										S: 'spec'
+									},
+									id: {
+										S: 'batchWrite-1'
 									}
 								}
-							}, {
-								PutRequest: {
-									Item: {
-										namespace: {
-											S: 'spec'
-										},
-										id: {
-											S: 'batchWrite-0'
-										},
-										message: {
-											S: 'message-0'
-										},
-										createdAt: {
-											N: match.string
-										},
-										updatedAt: {
-											N: match.string
-										}
+							}
+						}, {
+							PutRequest: {
+								Item: {
+									namespace: {
+										S: 'spec'
+									},
+									id: {
+										S: 'batchWrite-0'
+									},
+									message: {
+										S: 'message-0'
+									},
+									createdAt: {
+										N: sinon.match.string
+									},
+									updatedAt: {
+										N: sinon.match.string
 									}
 								}
-							}, {
-								PutRequest: {
-									Item: {
-										namespace: {
-											S: 'spec'
-										},
-										id: {
-											S: 'batchWrite-1'
-										},
-										message: {
-											S: 'message-1'
-										},
-										createdAt: {
-											N: match.string
-										},
-										updatedAt: {
-											N: match.string
-										}
+							}
+						}, {
+							PutRequest: {
+								Item: {
+									namespace: {
+										S: 'spec'
+									},
+									id: {
+										S: 'batchWrite-1'
+									},
+									message: {
+										S: 'message-1'
+									},
+									createdAt: {
+										N: sinon.match.string
+									},
+									updatedAt: {
+										N: sinon.match.string
 									}
 								}
-							}]
-						}
-					});
+							}
+						}]
+					}
+				});
 			});
 		});
 	});
@@ -2272,7 +2218,7 @@ describe('src/Request', () => {
 				}, true))
 				.subscribe(null, null, done);
 
-			routeCall.reset();
+			request.routeCall.reset();
 		});
 
 		it('should do jobs in steps with 100 operations max', () => {
@@ -2281,7 +2227,7 @@ describe('src/Request', () => {
 				id: `id-${n}`
 			})));
 
-			expect(routeCall).to.have.been.calledTwice;
+			expect(request.routeCall).to.have.been.calledTwice;
 		});
 
 		it('should routeCall with batchGet and relative params', () => {
@@ -2293,7 +2239,7 @@ describe('src/Request', () => {
 				id: 'id-1'
 			}]);
 
-			expect(routeCall).to.have.been.calledWithExactly('batchGetItem', {
+			expect(request.routeCall).to.have.been.calledWithExactly('batchGetItem', {
 				RequestItems: {
 					tblSpec: {
 						Keys: [{
@@ -2327,24 +2273,24 @@ describe('src/Request', () => {
 				}, {
 					namespace,
 					id: 'id-1'
-				}]).toArray()
+				}])
+				.toArray()
 				.subscribe(response => {
-					expect(response)
-						.to.deep.equal([{
-							namespace: 'spec',
-							localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
-							createdAt: response[0].createdAt,
-							message: response[0].message,
-							id: response[0].id,
-							updatedAt: response[0].updatedAt
-						}, {
-							namespace: 'spec',
-							localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
-							createdAt: response[1].createdAt,
-							message: response[1].message,
-							id: response[1].id,
-							updatedAt: response[1].updatedAt
-						}]);
+					expect(response).to.deep.equal([{
+						namespace,
+						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
+						createdAt: response[0].createdAt,
+						message: response[0].message,
+						id: response[0].id,
+						updatedAt: response[0].updatedAt
+					}, {
+						namespace,
+						localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
+						createdAt: response[1].createdAt,
+						message: response[1].message,
+						id: response[1].id,
+						updatedAt: response[1].updatedAt
+					}]);
 				}, null, done);
 		});
 	});

@@ -1,20 +1,26 @@
-import _ from 'lodash';
-import {
-	Observable,
-	Scheduler
-} from 'rxjs';
-import {
+const chai = require('chai');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+const _ = require('lodash');
+const {
+	Observable
+} = require('rxjs');
+
+const {
 	Util,
 	Request,
 	ReturnValues,
 	Select,
 	ConsumedCapacity,
 	Crud
-} from 'src';
-
-import {
+} = require('../../');
+const {
 	dynamoDb
-} from 'testingEnv';
+} = require('../../testing');
+
+chai.use(sinonChai);
+
+const expect = chai.expect;
 
 const namespace = 'spec';
 const tableName = 'tblSpec';
@@ -43,7 +49,7 @@ const tableSchema = {
 	}
 };
 
-describe('src/Crud', () => {
+describe('lib/Crud', () => {
 	let now;
 	let request;
 	let client;
@@ -167,11 +173,12 @@ describe('src/Crud', () => {
 
 	after(done => {
 		request = dynamoDb.table(tableName, tableSchema);
+
 		request.query({
 				namespace: 'spec'
 			})
 			.toArray()
-			.mergeMap(::request.batchWrite)
+			.mergeMap(response => request.batchWrite(response))
 			.subscribe(null, null, done);
 	});
 
@@ -306,8 +313,7 @@ describe('src/Crud', () => {
 					id: 'id-0'
 				});
 
-				expect(stats.count)
-					.to.equal(1);
+				expect(stats.count).to.equal(1);
 			});
 		});
 
@@ -326,8 +332,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should fetch and apply customReducer', () => {
-				expect(items[0].id)
-					.to.equal('id-0');
+				expect(items[0].id).to.equal('id-0');
 			});
 		});
 
@@ -344,10 +349,8 @@ describe('src/Crud', () => {
 			});
 
 			it('should fetch with namespace and id', () => {
-				expect(items[0].id)
-					.to.equal('id-3');
-				expect(stats.count)
-					.to.equal(1);
+				expect(items[0].id).to.equal('id-3');
+				expect(stats.count).to.equal(1);
 			});
 		});
 
@@ -457,10 +460,8 @@ describe('src/Crud', () => {
 					before
 				});
 
-				expect(items[0].id)
-					.to.equal('id-7');
-				expect(items[1].id)
-					.to.equal('id-8');
+				expect(items[0].id).to.equal('id-7');
+				expect(items[1].id).to.equal('id-8');
 
 				query(stats.before)
 					.do(response => {
@@ -509,10 +510,8 @@ describe('src/Crud', () => {
 					desc: true
 				});
 
-				expect(items[0].id)
-					.to.equal('id-7');
-				expect(items[1].id)
-					.to.equal('id-8');
+				expect(items[0].id).to.equal('id-7');
+				expect(items[1].id).to.equal('id-8');
 
 				query(stats.before)
 					.do(response => {
@@ -673,10 +672,8 @@ describe('src/Crud', () => {
 					after
 				});
 
-				expect(items[0].id)
-					.to.equal('id-3');
-				expect(items[1].id)
-					.to.equal('id-4');
+				expect(items[0].id).to.equal('id-3');
+				expect(items[1].id).to.equal('id-4');
 
 				query(stats.after)
 					.do(response => {
@@ -716,10 +713,8 @@ describe('src/Crud', () => {
 					desc: true
 				});
 
-				expect(items[0].id)
-					.to.equal('id-3');
-				expect(items[1].id)
-					.to.equal('id-4');
+				expect(items[0].id).to.equal('id-3');
+				expect(items[1].id).to.equal('id-4');
 
 				query(stats.after)
 					.do(response => {
@@ -844,18 +839,15 @@ describe('src/Crud', () => {
 
 			it('should get correct before and after', () => {
 				expect(_.last(items)
-						.id)
-					.to.equal('id-4');
+						.id).to.equal('id-4');
 
-				expect(JSON.parse(crud.fromBase64(stats.before)))
-					.to.be.null;
+				expect(JSON.parse(crud.fromBase64(stats.before))).to.be.null;
 				expect(JSON.parse(crud.fromBase64(stats.after))).to.deep.equal({
 					namespace: 'spec',
 					id: 'id-4'
 				});
 
-				expect(stats.count)
-					.to.equal(5);
+				expect(stats.count).to.equal(5);
 			});
 
 			it('should resume based on after and feed before', done => {
@@ -1014,10 +1006,8 @@ describe('src/Crud', () => {
 			});
 
 			it('should fetch desc', () => {
-				expect(items[0].id)
-					.to.equal('id-9');
-				expect(stats.count)
-					.to.equal(10);
+				expect(items[0].id).to.equal('id-9');
+				expect(stats.count).to.equal(10);
 			});
 		});
 
@@ -1039,8 +1029,7 @@ describe('src/Crud', () => {
 					id: 'id-0'
 				});
 
-				expect(stats.count)
-					.to.equal(10);
+				expect(stats.count).to.equal(10);
 			});
 		});
 
@@ -1057,14 +1046,13 @@ describe('src/Crud', () => {
 			});
 
 			it('should fetch one', () => {
-				expect(stats.count)
-					.to.equal(1);
+				expect(stats.count).to.equal(1);
 			});
 		});
 
 		describe('consistent', () => {
 			beforeEach(done => {
-				spy(Request.prototype, 'consistent');
+				sinon.spy(Request.prototype, 'consistent');
 
 				crud.fetch({
 						consistent: true,
@@ -1087,10 +1075,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let query;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.fetch({
 					namespace: 'spec'
@@ -1099,14 +1087,15 @@ describe('src/Crud', () => {
 					request
 				}) => {
 					callback(expression);
-					_request = spy(request, 'query');
+
+					query = sinon.spy(request, 'query');
 
 					return ['hooked expression'];
 				});
 			});
 
 			afterEach(() => {
-				_request.restore();
+				query.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -1114,7 +1103,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith('hooked expression');
+				expect(query).to.have.been.calledWith('hooked expression');
 			});
 		});
 	});
@@ -1158,10 +1147,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let get;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.get({
 					namespace: 'spec',
@@ -1176,14 +1165,14 @@ describe('src/Crud', () => {
 						sort
 					});
 
-					_request = spy(request, 'get');
+					get = sinon.spy(request, 'get');
 
 					return ['hooked'];
 				});
 			});
 
 			afterEach(() => {
-				_request.restore();
+				get.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -1194,7 +1183,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith('hooked');
+				expect(get).to.have.been.calledWith('hooked');
 			});
 		});
 	});
@@ -1233,10 +1222,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let insert;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.insert({
 					namespace: 'spec',
@@ -1254,7 +1243,7 @@ describe('src/Crud', () => {
 						args
 					});
 
-					_request = spy(request, 'insert');
+					insert = sinon.spy(request, 'insert');
 
 					return [{
 						hooked: true
@@ -1263,7 +1252,7 @@ describe('src/Crud', () => {
 			});
 
 			afterEach(() => {
-				_request.restore();
+				insert.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -1279,7 +1268,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith({
+				expect(insert).to.have.been.calledWith({
 					hooked: true
 				});
 			});
@@ -1321,10 +1310,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let insertOrReplace;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.insertOrReplace({
 					namespace: 'spec',
@@ -1342,7 +1331,7 @@ describe('src/Crud', () => {
 						args
 					});
 
-					_request = spy(request, 'insertOrReplace');
+					insertOrReplace = sinon.spy(request, 'insertOrReplace');
 
 					return [{
 						hooked: true
@@ -1351,7 +1340,7 @@ describe('src/Crud', () => {
 			});
 
 			afterEach(() => {
-				_request.restore();
+				insertOrReplace.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -1367,7 +1356,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith({
+				expect(insertOrReplace).to.have.been.calledWith({
 					hooked: true
 				});
 			});
@@ -1426,10 +1415,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let insertOrUpdate;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.insertOrUpdate({
 					namespace: 'spec',
@@ -1447,7 +1436,7 @@ describe('src/Crud', () => {
 						args
 					});
 
-					_request = spy(request, 'insertOrUpdate');
+					insertOrUpdate = sinon.spy(request, 'insertOrUpdate');
 
 					return [{
 						hooked: true
@@ -1456,7 +1445,7 @@ describe('src/Crud', () => {
 			});
 
 			afterEach(() => {
-				_request.restore();
+				insertOrUpdate.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -1472,7 +1461,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith({
+				expect(insertOrUpdate).to.have.been.calledWith({
 					hooked: true
 				});
 			});
@@ -1531,10 +1520,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let update;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.update({
 					namespace: 'spec',
@@ -1552,7 +1541,7 @@ describe('src/Crud', () => {
 						args
 					});
 
-					_request = spy(request, 'update');
+					update = sinon.spy(request, 'update');
 
 					return [{
 						hooked: true
@@ -1561,7 +1550,7 @@ describe('src/Crud', () => {
 			});
 
 			afterEach(() => {
-				_request.restore();
+				update.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -1577,7 +1566,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith({
+				expect(update).to.have.been.calledWith({
 					hooked: true
 				});
 			});
@@ -1614,10 +1603,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let del;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.delete({
 					namespace: 'spec',
@@ -1632,7 +1621,7 @@ describe('src/Crud', () => {
 						sort
 					});
 
-					_request = spy(request, 'delete');
+					del = sinon.spy(request, 'delete');
 
 					return [{
 						hooked: true
@@ -1641,7 +1630,7 @@ describe('src/Crud', () => {
 			});
 
 			afterEach(() => {
-				_request.restore();
+				del.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -1652,7 +1641,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith({
+				expect(del).to.have.been.calledWith({
 					hooked: true
 				});
 			});
@@ -1756,10 +1745,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let update;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.appendToList({
 					namespace,
@@ -1774,14 +1763,15 @@ describe('src/Crud', () => {
 					expression
 				}) => {
 					callback(expression.replace(/:appendList_\w*/g, ':appendList_{cuid}'));
-					_request = spy(request, 'update');
+					
+					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
 				});
 			});
 
 			afterEach(() => {
-				_request.restore();
+				update.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -1789,7 +1779,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith('hooked expression');
+				expect(update).to.have.been.calledWith('hooked expression');
 			});
 		});
 	});
@@ -1891,10 +1881,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let update;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.prependToList({
 					namespace,
@@ -1909,14 +1899,15 @@ describe('src/Crud', () => {
 					expression
 				}) => {
 					callback(expression.replace(/:appendList_\w*/g, ':appendList_{cuid}'));
-					_request = spy(request, 'update');
+					
+					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
 				});
 			});
 
 			afterEach(() => {
-				_request.restore();
+				update.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -1924,7 +1915,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith('hooked expression');
+				expect(update).to.have.been.calledWith('hooked expression');
 			});
 		});
 	});
@@ -1985,10 +1976,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let update;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.removeFromList({
 					namespace,
@@ -1999,14 +1990,15 @@ describe('src/Crud', () => {
 					expression
 				}) => {
 					callback(expression);
-					_request = spy(request, 'update');
+					
+					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
 				});
 			});
 
 			afterEach(() => {
-				_request.restore();
+				update.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -2014,7 +2006,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith('hooked expression');
+				expect(update).to.have.been.calledWith('hooked expression');
 			});
 		});
 	});
@@ -2094,10 +2086,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let update;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.updateAtList({
 					namespace,
@@ -2110,14 +2102,15 @@ describe('src/Crud', () => {
 					expression
 				}) => {
 					callback(expression.replace(/:\w{7,8}/g, ':{cuid}'));
-					_request = spy(request, 'update');
+					
+					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
 				});
 			});
 
 			afterEach(() => {
-				_request.restore();
+				update.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -2125,7 +2118,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith('hooked expression');
+				expect(update).to.have.been.calledWith('hooked expression');
 			});
 		});
 	});
@@ -2240,10 +2233,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let update;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.addToSet({
 					namespace,
@@ -2254,14 +2247,15 @@ describe('src/Crud', () => {
 					expression
 				}) => {
 					callback(expression);
-					_request = spy(request, 'update');
+					
+					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
 				});
 			});
 
 			afterEach(() => {
-				_request.restore();
+				update.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -2269,7 +2263,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith('hooked expression');
+				expect(update).to.have.been.calledWith('hooked expression');
 			});
 		});
 	});
@@ -2340,10 +2334,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let update;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.removeFromSet({
 					namespace,
@@ -2354,14 +2348,15 @@ describe('src/Crud', () => {
 					expression
 				}) => {
 					callback(expression);
-					_request = spy(request, 'update');
+					
+					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
 				});
 			});
 
 			afterEach(() => {
-				_request.restore();
+				update.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -2369,7 +2364,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith('hooked expression');
+				expect(update).to.have.been.calledWith('hooked expression');
 			});
 		});
 	});
@@ -2421,10 +2416,10 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let update;
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.removeAttributes({
 					namespace: 'spec',
@@ -2435,14 +2430,15 @@ describe('src/Crud', () => {
 					expression
 				}) => {
 					callback(expression);
-					_request = spy(request, 'update');
+					
+					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
 				});
 			});
 
 			afterEach(() => {
-				_request.restore();
+				update.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -2450,7 +2446,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith('hooked expression');
+				expect(update).to.have.been.calledWith('hooked expression');
 			});
 		});
 	});
@@ -2533,7 +2529,7 @@ describe('src/Crud', () => {
 
 		describe('hook', () => {
 			let callback;
-			let _request;
+			let batchGet;
 			let items = [{
 				namespace,
 				id: 'id-8',
@@ -2549,7 +2545,7 @@ describe('src/Crud', () => {
 			}];
 
 			beforeEach(() => {
-				callback = stub();
+				callback = sinon.stub();
 
 				crud.multiGet({
 					items
@@ -2561,14 +2557,14 @@ describe('src/Crud', () => {
 						items
 					});
 
-					_request = spy(request, 'batchGet');
+					batchGet = sinon.spy(request, 'batchGet');
 
 					return ['hooked'];
 				});
 			});
 
 			afterEach(() => {
-				_request.restore();
+				batchGet.restore();
 			});
 
 			it('should callback be called with hookArgs', () => {
@@ -2578,7 +2574,7 @@ describe('src/Crud', () => {
 			});
 
 			it('should query be called with hookArgs', () => {
-				expect(_request).to.have.been.calledWith('hooked');
+				expect(batchGet).to.have.been.calledWith('hooked');
 			});
 		});
 	});

@@ -1,14 +1,16 @@
-import _ from 'lodash';
-import cuid from 'cuid';
-import {
+const chai = require('chai');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+const _ = require('lodash');
+const cuid = require('cuid');
+
+const {
 	ExpressionsHelper
-} from 'src';
-
-import {
+} = require('../../');
+const {
 	dynamoDb
-} from 'testingEnv';
+} = require('../../testing');
 
-const _global = {};
 const tableName = 'tblSpec';
 const tableSchema = {
 	primaryKeys: {
@@ -17,13 +19,17 @@ const tableSchema = {
 	}
 };
 
-describe('src/ExpressionsHelper', () => {
+chai.use(sinonChai);
+
+const expect = chai.expect;
+
+describe('lib/ExpressionsHelper', () => {
 	let expressionsHelper;
 	let request;
 	let cuidIndex = 0;
 
 	beforeEach(() => {
-		_global.slug = stub(cuid, 'slug').callsFake(() => {
+		sinon.stub(cuid, 'slug').callsFake(() => {
 			return `{cuid_${cuidIndex++}}`
 		});
 
@@ -33,7 +39,7 @@ describe('src/ExpressionsHelper', () => {
 
 	afterEach(() => {
 		cuidIndex = 0;
-		_global.slug.restore();
+		cuid.slug.restore();
 	});
 
 	describe('contructor', () => {
@@ -50,18 +56,18 @@ describe('src/ExpressionsHelper', () => {
 
 	describe('attrNotExists', () => {
 		beforeEach(() => {
-			_global.addPlaceholderName = spy(request, 'addPlaceholderName');
+			sinon.spy(request, 'addPlaceholderName');
 		});
 
 		afterEach(() => {
-			_global.addPlaceholderName.restore();
+			request.addPlaceholderName.restore();
 		});
 
 		it('should call addPlaceholderName', () => {
 			expressionsHelper.attrNotExists('namespace');
 
-			expect(_global.addPlaceholderName).to.have.been.calledOnce;
-			expect(_global.addPlaceholderName).to.have.been.calledWith('namespace');
+			expect(request.addPlaceholderName).to.have.been.calledOnce;
+			expect(request.addPlaceholderName).to.have.been.calledWith('namespace');
 		});
 
 		it('should make expression', () => {
@@ -73,18 +79,18 @@ describe('src/ExpressionsHelper', () => {
 
 	describe('attrExists', () => {
 		beforeEach(() => {
-			_global.addPlaceholderName = spy(request, 'addPlaceholderName');
+			sinon.spy(request, 'addPlaceholderName');
 		});
 
 		afterEach(() => {
-			_global.addPlaceholderName.restore();
+			request.addPlaceholderName.restore();
 		});
 
 		it('should call addPlaceholderName', () => {
 			expressionsHelper.attrExists('namespace');
 
-			expect(_global.addPlaceholderName).to.have.been.calledOnce;
-			expect(_global.addPlaceholderName).to.have.been.calledWith('namespace');
+			expect(request.addPlaceholderName).to.have.been.calledOnce;
+			expect(request.addPlaceholderName).to.have.been.calledWith('namespace');
 		});
 
 		it('should make expression', () => {
@@ -96,30 +102,30 @@ describe('src/ExpressionsHelper', () => {
 
 	describe('prependList', () => {
 		beforeEach(() => {
-			_global.addPlaceholderName = spy(request, 'addPlaceholderName');
-			_global.addPlaceholderValue = spy(request, 'addPlaceholderValue');
+			sinon.spy(request, 'addPlaceholderName');
+			sinon.spy(request, 'addPlaceholderValue');
 		});
 
 		afterEach(() => {
-			_global.addPlaceholderName.restore();
-			_global.addPlaceholderValue.restore();
+			request.addPlaceholderName.restore();
+			request.addPlaceholderValue.restore();
 		});
 
 		it('should call addPlaceholderName', () => {
 			expressionsHelper.prependList('list', 123);
 
-			expect(_global.addPlaceholderName).to.have.been.calledOnce;
-			expect(_global.addPlaceholderName).to.have.been.calledWith('list');
+			expect(request.addPlaceholderName).to.have.been.calledOnce;
+			expect(request.addPlaceholderName).to.have.been.calledWith('list');
 		});
 
 		it('should call addPlaceholderValue', () => {
 			expressionsHelper.prependList('list', 123);
 
-			expect(_global.addPlaceholderValue).to.have.been.calledTwice;
-			expect(_global.addPlaceholderValue.firstCall).to.have.been.calledWith({
+			expect(request.addPlaceholderValue).to.have.been.calledTwice;
+			expect(request.addPlaceholderValue.firstCall).to.have.been.calledWith({
 				'appendList_{cuid_0}': [123]
 			});
-			expect(_global.addPlaceholderValue.secondCall).to.have.been.calledWith({
+			expect(request.addPlaceholderValue.secondCall).to.have.been.calledWith({
 				emptyList: []
 			});
 		});
@@ -139,30 +145,30 @@ describe('src/ExpressionsHelper', () => {
 
 	describe('appendList', () => {
 		beforeEach(() => {
-			_global.addPlaceholderName = spy(request, 'addPlaceholderName');
-			_global.addPlaceholderValue = spy(request, 'addPlaceholderValue');
+			sinon.spy(request, 'addPlaceholderName');
+			sinon.spy(request, 'addPlaceholderValue');
 		});
 
 		afterEach(() => {
-			_global.addPlaceholderName.restore();
-			_global.addPlaceholderValue.restore();
+			request.addPlaceholderName.restore();
+			request.addPlaceholderValue.restore();
 		});
 
 		it('should call addPlaceholderName', () => {
 			expressionsHelper.appendList('list', 123);
 
-			expect(_global.addPlaceholderName).to.have.been.calledOnce;
-			expect(_global.addPlaceholderName).to.have.been.calledWith('list');
+			expect(request.addPlaceholderName).to.have.been.calledOnce;
+			expect(request.addPlaceholderName).to.have.been.calledWith('list');
 		});
 
 		it('should call addPlaceholderValue', () => {
 			expressionsHelper.appendList('list', 123);
 
-			expect(_global.addPlaceholderValue).to.have.been.calledTwice;
-			expect(_global.addPlaceholderValue.firstCall).to.have.been.calledWith({
+			expect(request.addPlaceholderValue).to.have.been.calledTwice;
+			expect(request.addPlaceholderValue.firstCall).to.have.been.calledWith({
 				'appendList_{cuid_0}': [123]
 			});
-			expect(_global.addPlaceholderValue.secondCall).to.have.been.calledWith({
+			expect(request.addPlaceholderValue.secondCall).to.have.been.calledWith({
 				emptyList: []
 			});
 		});
@@ -182,26 +188,26 @@ describe('src/ExpressionsHelper', () => {
 
 	describe('ifNotExists', () => {
 		beforeEach(() => {
-			_global.addPlaceholderName = spy(request, 'addPlaceholderName');
-			_global.addPlaceholderValue = spy(request, 'addPlaceholderValue');
+			sinon.spy(request, 'addPlaceholderName');
+			sinon.spy(request, 'addPlaceholderValue');
 		});
 
 		afterEach(() => {
-			_global.addPlaceholderName.restore();
-			_global.addPlaceholderValue.restore();
+			request.addPlaceholderName.restore();
+			request.addPlaceholderValue.restore();
 		});
 
 		it('should call addPlaceholderName', () => {
 			expressionsHelper.ifNotExists('list', 123);
 
-			expect(_global.addPlaceholderName).to.have.been.calledOnce;
-			expect(_global.addPlaceholderName).to.have.been.calledWith('list');
+			expect(request.addPlaceholderName).to.have.been.calledOnce;
+			expect(request.addPlaceholderName).to.have.been.calledWith('list');
 		});
 
 		it('should call addPlaceholderValue', () => {
 			expressionsHelper.ifNotExists('list', 123);
 
-			expect(_global.addPlaceholderValue).to.have.been.calledOnce;
+			expect(request.addPlaceholderValue).to.have.been.calledOnce;
 		});
 
 		it('should make expression', () => {
@@ -213,13 +219,13 @@ describe('src/ExpressionsHelper', () => {
 
 	describe('contains', () => {
 		beforeEach(() => {
-			_global.addPlaceholderName = spy(request, 'addPlaceholderName');
-			_global.addPlaceholderValue = spy(request, 'addPlaceholderValue');
+			sinon.spy(request, 'addPlaceholderName');
+			sinon.spy(request, 'addPlaceholderValue');
 		});
 
 		afterEach(() => {
-			_global.addPlaceholderName.restore();
-			_global.addPlaceholderValue.restore();
+			request.addPlaceholderName.restore();
+			request.addPlaceholderValue.restore();
 		});
 
 		it('should make expression without array', () => {
@@ -236,14 +242,14 @@ describe('src/ExpressionsHelper', () => {
 			it('should call addPlaceholderName', () => {
 				expressionsHelper.contains('list', [123, 124, 125]);
 
-				expect(_global.addPlaceholderName).to.have.been.calledOnce;
-				expect(_global.addPlaceholderName).to.have.been.calledWith('list');
+				expect(request.addPlaceholderName).to.have.been.calledOnce;
+				expect(request.addPlaceholderName).to.have.been.calledWith('list');
 			});
 
 			it('should call addPlaceholderValue', () => {
 				expressionsHelper.contains('list', [123, 124, 125]);
 
-				expect(_global.addPlaceholderValue).to.have.been.calledOnce;
+				expect(request.addPlaceholderValue).to.have.been.calledOnce;
 			});
 
 			it('should make expression', () => {
@@ -257,14 +263,14 @@ describe('src/ExpressionsHelper', () => {
 			it('should call addPlaceholderName', () => {
 				expressionsHelper.contains('list', [123, 124, 125], 'AND');
 
-				expect(_global.addPlaceholderName).to.have.been.calledOnce;
-				expect(_global.addPlaceholderName).to.have.been.calledWith('list');
+				expect(request.addPlaceholderName).to.have.been.calledOnce;
+				expect(request.addPlaceholderName).to.have.been.calledWith('list');
 			});
 
 			it('should call addPlaceholderValue', () => {
 				expressionsHelper.contains('list', [123, 124, 125], 'AND');
 
-				expect(_global.addPlaceholderValue).to.have.been.calledOnce;
+				expect(request.addPlaceholderValue).to.have.been.calledOnce;
 			});
 
 			it('should make expression', () => {
@@ -277,27 +283,27 @@ describe('src/ExpressionsHelper', () => {
 
 	describe('between', () => {
 		beforeEach(() => {
-			_global.addPlaceholderName = spy(request, 'addPlaceholderName');
-			_global.addPlaceholderValue = spy(request, 'addPlaceholderValue');
+			sinon.spy(request, 'addPlaceholderName');
+			sinon.spy(request, 'addPlaceholderValue');
 		});
 
 		afterEach(() => {
-			_global.addPlaceholderName.restore();
-			_global.addPlaceholderValue.restore();
+			request.addPlaceholderName.restore();
+			request.addPlaceholderValue.restore();
 		});
 
 		it('should call addPlaceholderName', () => {
 			expressionsHelper.between('value', 123);
 
-			expect(_global.addPlaceholderName).to.have.been.calledOnce;
-			expect(_global.addPlaceholderName).to.have.been.calledWith('value');
+			expect(request.addPlaceholderName).to.have.been.calledOnce;
+			expect(request.addPlaceholderName).to.have.been.calledWith('value');
 		});
 
 		describe('min only', () => {
 			it('should call addPlaceholderValue', () => {
 				expressionsHelper.between('value', 123);
 
-				expect(_global.addPlaceholderValue).to.have.been.calledOnce;
+				expect(request.addPlaceholderValue).to.have.been.calledOnce;
 			});
 
 			it('should make expression', () => {
@@ -311,7 +317,7 @@ describe('src/ExpressionsHelper', () => {
 			it('should call addPlaceholderValue', () => {
 				expressionsHelper.between('value', null, 123);
 
-				expect(_global.addPlaceholderValue).to.have.been.calledOnce;
+				expect(request.addPlaceholderValue).to.have.been.calledOnce;
 			});
 
 			it('should make expression', () => {
@@ -325,7 +331,7 @@ describe('src/ExpressionsHelper', () => {
 			it('should call addPlaceholderValue', () => {
 				expressionsHelper.between('value', 122, 123);
 
-				expect(_global.addPlaceholderValue).to.have.been.calledTwice;
+				expect(request.addPlaceholderValue).to.have.been.calledTwice;
 			});
 
 			it('should make expression', () => {
@@ -338,15 +344,15 @@ describe('src/ExpressionsHelper', () => {
 
 	describe('update', () => {
 		beforeEach(() => {
-			_global.now = stub(_, 'now').returns(1);
-			_global.addPlaceholderName = spy(request, 'addPlaceholderName');
-			_global.addPlaceholderValue = spy(request, 'addPlaceholderValue');
+			sinon.stub(_, 'now').returns(1);
+			sinon.spy(request, 'addPlaceholderName');
+			sinon.spy(request, 'addPlaceholderValue');
 		});
 
 		afterEach(() => {
-			_global.now.restore();
-			_global.addPlaceholderName.restore();
-			_global.addPlaceholderValue.restore();
+			_.now.restore();
+			request.addPlaceholderName.restore();
+			request.addPlaceholderValue.restore();
 		});
 
 		it('should call addPlaceholderName', () => {
@@ -359,10 +365,10 @@ describe('src/ExpressionsHelper', () => {
 				updatedAt: 1
 			});
 
-			expect(_global.addPlaceholderName).to.have.been.calledThrice;
-			expect(_global.addPlaceholderName).to.have.been.calledWith('name');
-			expect(_global.addPlaceholderName).to.have.been.calledWith('age');
-			expect(_global.addPlaceholderName).to.have.been.calledWith(['createdAt', 'updatedAt']);
+			expect(request.addPlaceholderName).to.have.been.calledThrice;
+			expect(request.addPlaceholderName).to.have.been.calledWith('name');
+			expect(request.addPlaceholderName).to.have.been.calledWith('age');
+			expect(request.addPlaceholderName).to.have.been.calledWith(['createdAt', 'updatedAt']);
 		});
 
 		it('should call addPlaceholderValue', () => {
@@ -375,14 +381,14 @@ describe('src/ExpressionsHelper', () => {
 				updatedAt: 1
 			});
 
-			expect(_global.addPlaceholderValue).to.have.been.calledThrice;
-			expect(_global.addPlaceholderValue).to.have.been.calledWith({
+			expect(request.addPlaceholderValue).to.have.been.calledThrice;
+			expect(request.addPlaceholderValue).to.have.been.calledWith({
 				name: 'name'
 			});
-			expect(_global.addPlaceholderValue).to.have.been.calledWith({
+			expect(request.addPlaceholderValue).to.have.been.calledWith({
 				age: 'age'
 			});
-			expect(_global.addPlaceholderValue).to.have.been.calledWith({
+			expect(request.addPlaceholderValue).to.have.been.calledWith({
 				now: 1
 			});
 		});
@@ -460,29 +466,29 @@ describe('src/ExpressionsHelper', () => {
 
 	describe('timestamp', () => {
 		beforeEach(() => {
-			_global.now = stub(_, 'now').returns(1);
-			_global.addPlaceholderName = spy(request, 'addPlaceholderName');
-			_global.addPlaceholderValue = spy(request, 'addPlaceholderValue');
+			sinon.stub(_, 'now').returns(1);
+			sinon.spy(request, 'addPlaceholderName');
+			sinon.spy(request, 'addPlaceholderValue');
 		});
 
 		afterEach(() => {
-			_global.now.restore();
-			_global.addPlaceholderName.restore();
-			_global.addPlaceholderValue.restore();
+			_.now.restore();
+			request.addPlaceholderName.restore();
+			request.addPlaceholderValue.restore();
 		});
 
 		it('should call addPlaceholderName', () => {
 			expressionsHelper.timestamp();
 
-			expect(_global.addPlaceholderName).to.have.been.calledOnce;
-			expect(_global.addPlaceholderName).to.have.been.calledWith(['createdAt', 'updatedAt']);
+			expect(request.addPlaceholderName).to.have.been.calledOnce;
+			expect(request.addPlaceholderName).to.have.been.calledWith(['createdAt', 'updatedAt']);
 		});
 
 		it('should call addPlaceholderValue', () => {
 			expressionsHelper.timestamp();
 
-			expect(_global.addPlaceholderValue).to.have.been.calledOnce;
-			expect(_global.addPlaceholderValue).to.have.been.calledWith({
+			expect(request.addPlaceholderValue).to.have.been.calledOnce;
+			expect(request.addPlaceholderValue).to.have.been.calledWith({
 				now: 1
 			});
 		});

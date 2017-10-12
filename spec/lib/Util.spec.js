@@ -1,14 +1,23 @@
-import {
+const chai = require('chai');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+const {
 	Util
-} from 'src';
+} = require('../../');
 
-describe('src/Util', () => {
+chai.use(sinonChai);
+
+const expect = chai.expect;
+
+describe('lib/Util', () => {
 	let util;
 	let normalItem;
 	let anormalItem;
+	let buffer;
 
 	beforeEach(() => {
 		util = new Util();
+		buffer = new Buffer('binary data');
 		normalItem = {
 			booleanTruthy: true,
 			booleanFalsy: false,
@@ -30,7 +39,8 @@ describe('src/Util', () => {
 				deepMap: {
 					key: 9
 				}
-			}
+			},
+			buffer
 		}
 
 		anormalItem = {
@@ -106,6 +116,9 @@ describe('src/Util', () => {
 						}
 					}
 				}
+			},
+			buffer: {
+				B: buffer
 			}
 		}
 	});
@@ -184,6 +197,10 @@ describe('src/Util', () => {
 		it('should convert map to M', () => {
 			expect(util.anormalizeValue(normalItem.map)).to.deep.equal(anormalItem.map);
 		});
+
+		it('should convert buffer to B', () => {
+			expect(util.anormalizeValue(normalItem.buffer)).to.deep.equal(anormalItem.buffer);
+		});
 	});
 
 	describe('anormalizeItem', () => {
@@ -221,6 +238,10 @@ describe('src/Util', () => {
 
 		it('should return M for objects', () => {
 			expect(util.anormalizeType({})).to.equal('M');
+		});
+
+		it('should return B for buffers', () => {
+			expect(util.anormalizeType(buffer)).to.equal('B');
 		});
 	});
 
@@ -287,6 +308,10 @@ describe('src/Util', () => {
 			expect(util.normalizeValue({
 				SS: ['a', 'b', 'c']
 			})).to.deep.equal(['a', 'b', 'c']);
+		});
+
+		it('should convert buffer to B', () => {
+			expect(util.normalizeValue(anormalItem.buffer)).to.deep.equal(normalItem.buffer);
 		});
 	});
 
