@@ -2,8 +2,6 @@
 
 # DynamoDb client built with lodash and rxjs!
 
-## Compatible with just Node 7!!!!!!
-
 Hi, this client is built on top of RxJS Observables (a reactive programming library http://reactivex.io/rxjs/), so, would be good to have a small portion of knowledege about that to enjoy all the features which this lib provide, specially the operators. I'will explain a bit when needed.
 
 To create an instance, is simple, just pass a dynamodb client to lib's constructor:
