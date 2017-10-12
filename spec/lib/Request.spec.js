@@ -50,6 +50,8 @@ const tableSchema = {
 };
 
 describe('lib/Request', () => {
+	const buffer = new Buffer('hey');
+
 	let now;
 	let request;
 	let client;
@@ -156,6 +158,7 @@ describe('lib/Request', () => {
 			.mergeMap(() => Observable.range(0, 10)
 				.mergeMap(n => request.insert({
 					namespace,
+					buffer,
 					id: `id-${n}`,
 					message: `message-${n}`,
 					localStringIndexedSortAttr: `local-indexed-${n}`,
@@ -172,7 +175,7 @@ describe('lib/Request', () => {
 		request.batchWrite = request.batchWrite.bind(request);
 
 		request.query({
-				namespace: 'spec'
+				namespace
 			})
 			.toArray()
 			.mergeMap(request.batchWrite)
@@ -728,7 +731,8 @@ describe('lib/Request', () => {
 				.toArray()
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
-						namespace: 'spec',
+						buffer,
+						namespace,
 						localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
 						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
@@ -739,7 +743,8 @@ describe('lib/Request', () => {
 						createdAt: response[0].createdAt,
 						updatedAt: response[0].updatedAt
 					}, {
-						namespace: 'spec',
+						buffer,
+						namespace,
 						localNumberIndexedSortAttr: response[1].localNumberIndexedSortAttr,
 						localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
 						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
@@ -776,7 +781,8 @@ describe('lib/Request', () => {
 				.toArray()
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
-						namespace: 'spec',
+						buffer,
+						namespace,
 						localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
 						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
@@ -801,7 +807,8 @@ describe('lib/Request', () => {
 				.toArray()
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
-						namespace: 'spec',
+						buffer,
+						namespace,
 						localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
 						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
@@ -818,6 +825,7 @@ describe('lib/Request', () => {
 		it('should responds with resumed data', done => {
 			const query = request.limit(3)
 				.query({
+					buffer,
 					namespace,
 					ignoredAttr: 'this attr should be ignored'
 				})
@@ -835,7 +843,8 @@ describe('lib/Request', () => {
 				.mergeMap(() => resumedQuery(request.queryStats.after))
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
-						namespace: 'spec',
+						buffer,
+						namespace,
 						localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
 						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
@@ -846,7 +855,8 @@ describe('lib/Request', () => {
 						createdAt: response[0].createdAt,
 						updatedAt: response[0].updatedAt
 					}, {
-						namespace: 'spec',
+						buffer,
+						namespace,
 						localNumberIndexedSortAttr: response[1].localNumberIndexedSortAttr,
 						localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
 						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
@@ -881,7 +891,8 @@ describe('lib/Request', () => {
 				.mergeMap(() => resumedQuery(request.queryStats.after))
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
-						namespace: 'spec',
+						buffer,
+						namespace,
 						localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
 						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
@@ -892,7 +903,8 @@ describe('lib/Request', () => {
 						createdAt: response[0].createdAt,
 						updatedAt: response[0].updatedAt
 					}, {
-						namespace: 'spec',
+						buffer,
+						namespace,
 						localNumberIndexedSortAttr: response[1].localNumberIndexedSortAttr,
 						localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
 						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
@@ -927,7 +939,8 @@ describe('lib/Request', () => {
 				.mergeMap(() => resumedQuery(request.queryStats.after))
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
-						namespace: 'spec',
+						buffer,
+						namespace,
 						localNumberIndexedSortAttr: response[0].localNumberIndexedSortAttr,
 						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
 						globalIndexedPartitionAttr: response[0].globalIndexedPartitionAttr,
@@ -938,7 +951,8 @@ describe('lib/Request', () => {
 						createdAt: response[0].createdAt,
 						updatedAt: response[0].updatedAt
 					}, {
-						namespace: 'spec',
+						buffer,
+						namespace,
 						localNumberIndexedSortAttr: response[1].localNumberIndexedSortAttr,
 						localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
 						globalIndexedPartitionAttr: response[1].globalIndexedPartitionAttr,
@@ -966,11 +980,11 @@ describe('lib/Request', () => {
 				.subscribe(response => {
 					expect(request.queryStats).to.deep.equal({
 						before: {
-							namespace: 'spec',
+							namespace,
 							id: 'id-3'
 						},
 						after: {
-							namespace: 'spec',
+							namespace,
 							id: 'id-4'
 						},
 						count: 2,
@@ -985,7 +999,7 @@ describe('lib/Request', () => {
 				.limit(2)
 				.resume({
 					id: 'id-2',
-					namespace: 'spec',
+					namespace,
 					localStringIndexedSortAttr: 'local-indexed-2'
 				})
 				.query({
@@ -997,12 +1011,12 @@ describe('lib/Request', () => {
 					expect(request.queryStats).to.deep.equal({
 						before: {
 							localStringIndexedSortAttr: 'local-indexed-3',
-							namespace: 'spec',
+							namespace,
 							id: 'id-3'
 						},
 						after: {
 							localStringIndexedSortAttr: 'local-indexed-4',
-							namespace: 'spec',
+							namespace,
 							id: 'id-4'
 						},
 						count: 2,
@@ -1017,7 +1031,7 @@ describe('lib/Request', () => {
 				.limit(2)
 				.resume({
 					id: 'id-2',
-					namespace: 'spec',
+					namespace,
 					globalIndexedPartitionAttr: 'global-indexed-spec',
 					globalStringIndexedSortAttr: 'global-indexed-2'
 				})
@@ -1030,13 +1044,13 @@ describe('lib/Request', () => {
 					expect(request.queryStats).to.deep.equal({
 						before: {
 							id: 'id-3',
-							namespace: 'spec',
+							namespace,
 							globalIndexedPartitionAttr: 'global-indexed-spec',
 							globalStringIndexedSortAttr: 'global-indexed-3'
 						},
 						after: {
 							id: 'id-4',
-							namespace: 'spec',
+							namespace,
 							globalIndexedPartitionAttr: 'global-indexed-spec',
 							globalStringIndexedSortAttr: 'global-indexed-4'
 						},
@@ -1268,7 +1282,7 @@ describe('lib/Request', () => {
 					.subscribe(response => {
 						expect(request.queryStats.before)
 							.to.deep.equal({
-								namespace: 'spec',
+								namespace,
 								id: 'id-1'
 							});
 					}, null, done);
@@ -1374,7 +1388,8 @@ describe('lib/Request', () => {
 				})
 				.subscribe(response => {
 					expect(response).to.deep.equal({
-						namespace: 'spec',
+						buffer,
+						namespace,
 						localNumberIndexedSortAttr: 0,
 						localStringIndexedSortAttr: 'local-indexed-0',
 						globalIndexedPartitionAttr: 'global-indexed-spec',
@@ -1579,6 +1594,7 @@ describe('lib/Request', () => {
 
 		it('should responds with normalized data and createdAt and updatedAt be equals', done => {
 			request.insert({
+					buffer,
 					namespace,
 					id: `id-${now}`,
 					message: `message-${now}`,
@@ -1599,7 +1615,8 @@ describe('lib/Request', () => {
 				.subscribe(response => {
 					expect(response.createdAt === response.updatedAt).to.be.true;
 					expect(response).to.deep.equal({
-						namespace: 'spec',
+						buffer,
+						namespace,
 						id: `id-${now}`,
 						message: response.message,
 						undefined: undefined,
@@ -1656,7 +1673,7 @@ describe('lib/Request', () => {
 					expect(request.conditionExpression).to.be.null;
 					expect(response.createdAt === response.updatedAt).to.be.true;
 					expect(response).to.deep.equal({
-						namespace: 'spec',
+						namespace,
 						id: 'id-0',
 						message: response.message,
 						createdAt: response.createdAt,
@@ -1798,6 +1815,7 @@ describe('lib/Request', () => {
 		it('should responds with normalized data and createdAt and updatedAt be different', done => {
 			request.return(ReturnValues.ALL_NEW)
 				.update({
+					buffer,
 					namespace,
 					id: 'id-0',
 					message: 'message-0'
@@ -1805,9 +1823,10 @@ describe('lib/Request', () => {
 				.subscribe(response => {
 					expect(response.createdAt !== response.updatedAt).to.be.true;
 					expect(response).to.deep.equal({
+						buffer,
 						id: 'id-0',
 						createdAt: response.createdAt,
-						namespace: 'spec',
+						namespace,
 						updatedAt: response.updatedAt,
 						message: response.message
 					});
@@ -1831,6 +1850,7 @@ describe('lib/Request', () => {
 		it('should responds with normalized data if data exists and insert = true and createdAt and updatedAt be equals', done => {
 			request.return(ReturnValues.ALL_NEW)
 				.update({
+					buffer,
 					namespace,
 					id: `id-${now}`,
 					message: `message-${now}`
@@ -1839,7 +1859,8 @@ describe('lib/Request', () => {
 					expect(request.conditionExpression).to.be.null;
 					expect(response.createdAt === response.updatedAt).to.be.true;
 					expect(response).to.deep.equal({
-						namespace: 'spec',
+						buffer,
+						namespace,
 						id: response.id,
 						message: response.message,
 						createdAt: response.createdAt,
@@ -1908,7 +1929,8 @@ describe('lib/Request', () => {
 				})
 				.subscribe(response => {
 					expect(response).to.deep.equal({
-						namespace: 'spec',
+						buffer,
+						namespace,
 						id: 'id-0',
 						message: response.message,
 						createdAt: response.createdAt,
@@ -2255,14 +2277,14 @@ describe('lib/Request', () => {
 				.toArray()
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
-						namespace: 'spec',
+						namespace,
 						localStringIndexedSortAttr: response[0].localStringIndexedSortAttr,
 						createdAt: response[0].createdAt,
 						message: response[0].message,
 						id: response[0].id,
 						updatedAt: response[0].updatedAt
 					}, {
-						namespace: 'spec',
+						namespace,
 						localStringIndexedSortAttr: response[1].localStringIndexedSortAttr,
 						createdAt: response[1].createdAt,
 						message: response[1].message,
