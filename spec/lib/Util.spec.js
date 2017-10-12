@@ -13,9 +13,11 @@ describe('lib/Util', () => {
 	let util;
 	let normalItem;
 	let anormalItem;
+	let buffer;
 
 	beforeEach(() => {
 		util = new Util();
+		buffer = new Buffer('binary data');
 		normalItem = {
 			booleanTruthy: true,
 			booleanFalsy: false,
@@ -37,7 +39,8 @@ describe('lib/Util', () => {
 				deepMap: {
 					key: 9
 				}
-			}
+			},
+			buffer
 		}
 
 		anormalItem = {
@@ -113,6 +116,9 @@ describe('lib/Util', () => {
 						}
 					}
 				}
+			},
+			buffer: {
+				B: buffer
 			}
 		}
 	});
@@ -191,6 +197,10 @@ describe('lib/Util', () => {
 		it('should convert map to M', () => {
 			expect(util.anormalizeValue(normalItem.map)).to.deep.equal(anormalItem.map);
 		});
+
+		it('should convert buffer to B', () => {
+			expect(util.anormalizeValue(normalItem.buffer)).to.deep.equal(anormalItem.buffer);
+		});
 	});
 
 	describe('anormalizeItem', () => {
@@ -228,6 +238,10 @@ describe('lib/Util', () => {
 
 		it('should return M for objects', () => {
 			expect(util.anormalizeType({})).to.equal('M');
+		});
+
+		it('should return B for buffers', () => {
+			expect(util.anormalizeType(buffer)).to.equal('B');
 		});
 	});
 
@@ -294,6 +308,10 @@ describe('lib/Util', () => {
 			expect(util.normalizeValue({
 				SS: ['a', 'b', 'c']
 			})).to.deep.equal(['a', 'b', 'c']);
+		});
+
+		it('should convert buffer to B', () => {
+			expect(util.normalizeValue(anormalItem.buffer)).to.deep.equal(normalItem.buffer);
 		});
 	});
 

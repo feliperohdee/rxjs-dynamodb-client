@@ -6,16 +6,10 @@
   "scripts": {
     "deploy": "git add --all; git commit -m 'Bump' && npm version patch -m 'Bump %s' && git push origin master && npm publish",
     "test": "NODE_ENV=test ./node_modules/.bin/_mocha spec --recursive --watch",
+    "testOnce": "NODE_ENV=test ./node_modules/.bin/_mocha spec --recursive --exit",
     "coverage": "NODE_ENV=test ./node_modules/.bin/istanbul cover -x 'spec/**' -x 'testing/**' ./node_modules/.bin/_mocha -- 'spec' --recursive"
   },
   "author": "Felipe Rohde",
-  "devDependencies": {
-    "chai": "^3.5.0",
-    "istanbul": "^0.4.5",
-    "mocha": "^3.5.2",
-    "sinon": "^2.0.0-pre.4",
-    "sinon-chai": "^2.8.0"
-  },
   "license": "ISC",
   "dependencies": {
     "aws-sdk": "^2.112.0",
@@ -27,5 +21,12 @@
     "type": "git",
     "url": "https://github.com/feliperohdee/smallorange-dynamodb-client"
   },
-  "homepage": "https://smallorange.co"
+  "homepage": "https://smallorange.co",
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "istanbul": "^0.4.5",
+    "mocha": "^4.0.1",
+    "sinon": "^4.0.1",
+    "sinon-chai": "^2.14.0"
+  }
 }

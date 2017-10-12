@@ -3,6 +3,9 @@ const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
 const _ = require('lodash');
 const {
+	Observable
+} = require('rxjs');
+const {
 	DynamoDB: AWSDynamoDB
 } = require('aws-sdk');
 
@@ -21,12 +24,121 @@ const expect = chai.expect;
 
 describe('src/index', () => {
 	describe('constructor', () => {
-		it('should throw if not deps.client', () => {			
+		it('should throw if not deps.client', () => {
 			expect(() => new DynamoDB()).to.throw('no dynamoDb client provided.');
 		});
 
-		it('client be dynamoDb of AWSDynamoDB', () => {			
+		it('client be dynamoDb of AWSDynamoDB', () => {
 			expect(dynamoDb.client).to.be.instanceOf(AWSDynamoDB);
+		});
+	});
+
+	describe('onRetryableError', () => {
+		let request;
+		let callback;
+		let err;
+
+		beforeEach(() => {
+			request = dynamoDb.request;
+			callback = sinon.stub();
+			err = new Error();
+			err.code = 'LimitExceededException';
+			err.statusCode = 400;
+			err.retryable = true;
+
+			sinon.stub(request, 'insert')
+				.callsFake(() => {
+					let index = 0;
+
+					return Observable.create(subscriber => {
+						err.retryDelay = index++;
+						callback();
+
+						subscriber.error(err);
+					});
+				});
+		});
+
+		afterEach(() => {
+			request.insert.restore();
+		});
+
+		it('should retry 1x by default', done => {
+			request.insert()
+				.onRetryableError()
+				.subscribe(null, err => {
+					expect(callback).to.have.been.callCount(2);
+					expect(err.retryDelay).to.equal(1);
+
+					done();
+				});
+		});
+
+		it('should retry 2x', done => {
+			request.insert()
+				.onRetryableError(() => 2)
+				.subscribe(null, err => {
+					expect(callback).to.have.been.callCount(3);
+					expect(err.retryDelay).to.equal(2);
+
+					done();
+				});
+		});
+
+		it('should retry 3x', done => {
+			request.insert()
+				.onRetryableError(3)
+				.subscribe(null, err => {
+					expect(callback).to.have.been.callCount(4);
+					expect(err.retryDelay).to.equal(3);
+
+					done();
+				});
+		});
+
+		it('should retry 3x by 50ms (150ms total)', done => {
+			request.insert()
+				.onRetryableError({
+					max: 3,
+					delay: 50
+				})
+				.subscribe(null, err => {
+					expect(callback).to.have.been.callCount(4);
+					expect(err.retryDelay).to.equal(3);
+
+					done();
+				});
+		});
+
+		it('should retry 4x', done => {
+			request.insert()
+				.onRetryableError((err, index) => ({
+					max: 10,
+					retryable: index >= 4 ? false : err.retryable
+				}))
+				.subscribe(null, err => {
+					expect(callback).to.have.been.callCount(5);
+					expect(err.retryDelay).to.equal(4);
+
+					done();
+				});
+		});
+
+		describe('not retryable', () => {
+			beforeEach(() => {
+				err.retryable = false;
+			});
+
+			it('should not retry', done => {
+				request.insert()
+					.onRetryableError()
+					.subscribe(null, err => {
+						expect(callback).to.have.been.callCount(1);
+						expect(err.retryDelay).to.equal(0);
+
+						done();
+					});
+			});
 		});
 	});
 

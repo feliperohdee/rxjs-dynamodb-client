@@ -1650,7 +1650,7 @@ describe('lib/Request', () => {
 			request.insert({
 					namespace,
 					id: 'id-0',
-					message: 'message-0'
+					message: 'message-0',
 				}, true)
 				.subscribe(response => {
 					expect(request.conditionExpression).to.be.null;
