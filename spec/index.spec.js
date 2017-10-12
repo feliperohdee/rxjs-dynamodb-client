@@ -1,16 +1,23 @@
-import _ from 'lodash';
-import {
-	DynamoDB as AWSDynamoDB
-} from 'aws-sdk';
-import {
+const chai = require('chai');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+const _ = require('lodash');
+const {
+	DynamoDB: AWSDynamoDB
+} = require('aws-sdk');
+
+const {
 	DynamoDB,
 	Util,
 	Request
-} from 'src';
-
-import {
+} = require('../');
+const {
 	dynamoDb
-} from 'testingEnv';
+} = require('../testing/');
+
+chai.use(sinonChai);
+
+const expect = chai.expect;
 
 describe('src/index', () => {
 	describe('constructor', () => {
@@ -55,20 +62,18 @@ describe('src/index', () => {
 	});
 
 	describe('call', () => {
-		let routeCall;
-
 		beforeEach(() => {
-			routeCall = stub(Request.prototype, 'routeCall');
+			sinon.stub(Request.prototype, 'routeCall');
 		});
 
 		afterEach(() => {
-			routeCall.restore();
+			Request.prototype.routeCall.restore();
 		});
 
-		it('should call routeCall', () => {
+		it('should call Request.prototype.routeCall', () => {
 			dynamoDb.call('someMethod', {});
 
-			expect(routeCall).to.have.been.calledOnce;
+			expect(Request.prototype.routeCall).to.have.been.calledOnce;
 		});
 	});
 

@@ -1,28 +1,20 @@
-import _ from 'lodash';
-import {
+const _ = require('lodash');
+const {
 	Observable,
 	Subject
-} from 'rxjs';
+} = require('rxjs');
 
-import {
-	Util
-} from './Util';
-import {
-	Request
-} from './Request';
-import {
-	ExpressionsHelper
-} from './ExpressionsHelper';
-import {
+const Crud = require('./lib/Crud');
+const Util = require('./lib/Util');
+const Request = require('./lib/Request');
+const ExpressionsHelper = require('./lib/ExpressionsHelper');
+const {
 	Select,
 	ReturnValues,
 	ConsumedCapacity
-} from './constants';
-import {
-	Crud
-} from './Crud';
+} = require('./lib/constants');
 
-export class DynamoDB {
+class DynamoDB {
 	constructor(deps = {}) {
 		if (!deps.client) {
 			throw new Error('no dynamoDb client provided.');
@@ -86,12 +78,13 @@ export class DynamoDB {
 	}
 }
 
-export {
+module.exports = {
+	ConsumedCapacity,
+	Crud,
+	DynamoDB,
 	ExpressionsHelper,
 	Request,
-	Util,
-	Select,
 	ReturnValues,
-	ConsumedCapacity,
-	Crud
+	Select,
+	Util
 }

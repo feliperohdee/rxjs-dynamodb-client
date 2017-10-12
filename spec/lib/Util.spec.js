@@ -1,8 +1,15 @@
-import {
+const chai = require('chai');
+const sinon = require('sinon');
+const sinonChai = require('sinon-chai');
+const {
 	Util
-} from 'src';
+} = require('../../');
 
-describe('src/Util', () => {
+chai.use(sinonChai);
+
+const expect = chai.expect;
+
+describe('lib/Util', () => {
 	let util;
 	let normalItem;
 	let anormalItem;
