@@ -582,6 +582,17 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				sort: string | number, 
 				...args: any) : Array<args>) : Observable<object>
 
+		updatePrimaryKeys(
+			args: {
+				[partition]: string (required);
+				[sort]: string (required);
+			},
+			primaryKeys: {
+				[partition]: string (optional);
+				[sort]: string (optional);
+			}
+		): Observable<object>
+
 		delete(
 			args: {
 				[partition]: string (required);
@@ -688,6 +699,13 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				expression: string, 
 				partition: string, 
 				sort: string | number, attributes: any) : Array<args>) : Observable<object>
+
+		multiGet(
+			items: Array<{
+				[partition]: string (required);
+				[sort]: string | number (required);
+			}>
+		) : Observable<Array<object>>
 
 		clear(
 			args: {

@@ -362,10 +362,8 @@ describe('lib/Crud', () => {
 						localStringIndexedSortAttr: 'local-indexed-3'
 					})
 					.subscribe(response => {
-						expect(response.items[0].localStringIndexedSortAttr)
-							.to.equal('local-indexed-3');
-						expect(response.stats.count)
-							.to.equal(1);
+						expect(response.items[0].localStringIndexedSortAttr).to.equal('local-indexed-3');
+						expect(response.stats.count).to.equal(1);
 					}, null, done);
 			});
 
@@ -376,10 +374,8 @@ describe('lib/Crud', () => {
 						localNumberIndexedSortAttr: 3
 					})
 					.subscribe(response => {
-						expect(response.items[0].localNumberIndexedSortAttr)
-							.to.equal(3);
-						expect(response.stats.count)
-							.to.equal(1);
+						expect(response.items[0].localNumberIndexedSortAttr).to.equal(3);
+						expect(response.stats.count).to.equal(1);
 					}, null, done);
 			});
 		});
@@ -392,10 +388,8 @@ describe('lib/Crud', () => {
 						globalStringIndexedSortAttr: 'global-indexed-3'
 					})
 					.subscribe(response => {
-						expect(response.items[0].globalStringIndexedSortAttr)
-							.to.equal('global-indexed-3');
-						expect(response.stats.count)
-							.to.equal(1);
+						expect(response.items[0].globalStringIndexedSortAttr).to.equal('global-indexed-3');
+						expect(response.stats.count).to.equal(1);
 					}, null, done);
 			});
 
@@ -406,10 +400,8 @@ describe('lib/Crud', () => {
 						globalNumberIndexedSortAttr: 3
 					})
 					.subscribe(response => {
-						expect(response.items[0].globalNumberIndexedSortAttr)
-							.to.equal(3);
-						expect(response.stats.count)
-							.to.equal(1);
+						expect(response.items[0].globalNumberIndexedSortAttr).to.equal(3);
+						expect(response.stats.count).to.equal(1);
 					}, null, done);
 			});
 		});
@@ -423,13 +415,12 @@ describe('lib/Crud', () => {
 						withCursor: true
 					})
 					.subscribe(response => {
-						expect(JSON.parse(crud.fromBase64(response.items[0]._cursor)))
-							.to.deep.equal({
-								namespace: 'spec',
-								id: 'id-3',
-								globalIndexedPartitionAttr: 'global-indexed-spec',
-								globalStringIndexedSortAttr: 'global-indexed-3'
-							});
+						expect(JSON.parse(crud.fromBase64(response.items[0]._cursor))).to.deep.equal({
+							namespace: 'spec',
+							id: 'id-3',
+							globalIndexedPartitionAttr: 'global-indexed-spec',
+							globalStringIndexedSortAttr: 'global-indexed-3'
+						});
 					}, null, done);
 			});
 		});
@@ -465,39 +456,27 @@ describe('lib/Crud', () => {
 
 				query(stats.before)
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-5');
-						expect(response.items[1].id)
-							.to.equal('id-6');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-5');
+						expect(response.items[1].id).to.equal('id-6');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-3');
-						expect(response.items[1].id)
-							.to.equal('id-4');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-3');
+						expect(response.items[1].id).to.equal('id-4');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-1');
-						expect(response.items[1].id)
-							.to.equal('id-2');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-1');
+						expect(response.items[1].id).to.equal('id-2');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-0');
-						expect(response.stats.before)
-							.to.be.null;
-						expect(response.stats.count)
-							.to.equal(1);
+						expect(response.items[0].id).to.equal('id-0');
+						expect(response.stats.before).to.be.null;
+						expect(response.stats.count).to.equal(1);
 					})
 					.subscribe(response => {}, null, done);
 			});
@@ -515,39 +494,27 @@ describe('lib/Crud', () => {
 
 				query(stats.before)
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-6');
-						expect(response.items[1].id)
-							.to.equal('id-5');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-6');
+						expect(response.items[1].id).to.equal('id-5');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-4');
-						expect(response.items[1].id)
-							.to.equal('id-3');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-4');
+						expect(response.items[1].id).to.equal('id-3');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-2');
-						expect(response.items[1].id)
-							.to.equal('id-1');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-2');
+						expect(response.items[1].id).to.equal('id-1');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-0');
-						expect(response.stats.before)
-							.to.be.null;
-						expect(response.stats.count)
-							.to.equal(1);
+						expect(response.items[0].id).to.equal('id-0');
+						expect(response.stats.before).to.be.null;
+						expect(response.stats.count).to.equal(1);
 					})
 					.subscribe(response => {}, null, done);
 			});
@@ -561,39 +528,27 @@ describe('lib/Crud', () => {
 
 				query()
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-8');
-						expect(response.items[1].id)
-							.to.equal('id-9');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-8');
+						expect(response.items[1].id).to.equal('id-9');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-6');
-						expect(response.items[1].id)
-							.to.equal('id-7');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-6');
+						expect(response.items[1].id).to.equal('id-7');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-4');
-						expect(response.items[1].id)
-							.to.equal('id-5');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-4');
+						expect(response.items[1].id).to.equal('id-5');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-2');
-						expect(response.items[1].id)
-							.to.equal('id-3');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-2');
+						expect(response.items[1].id).to.equal('id-3');
+						expect(response.stats.count).to.equal(2);
 					})
 					.subscribe(response => {}, null, done);
 			});
@@ -608,39 +563,27 @@ describe('lib/Crud', () => {
 
 				query()
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-9');
-						expect(response.items[1].id)
-							.to.equal('id-8');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-9');
+						expect(response.items[1].id).to.equal('id-8');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-7');
-						expect(response.items[1].id)
-							.to.equal('id-6');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-7');
+						expect(response.items[1].id).to.equal('id-6');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-5');
-						expect(response.items[1].id)
-							.to.equal('id-4');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-5');
+						expect(response.items[1].id).to.equal('id-4');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-3');
-						expect(response.items[1].id)
-							.to.equal('id-2');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-3');
+						expect(response.items[1].id).to.equal('id-2');
+						expect(response.stats.count).to.equal(2);
 					})
 					.subscribe(response => {}, null, done);
 			});
@@ -677,30 +620,21 @@ describe('lib/Crud', () => {
 
 				query(stats.after)
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-5');
-						expect(response.items[1].id)
-							.to.equal('id-6');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-5');
+						expect(response.items[1].id).to.equal('id-6');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-7');
-						expect(response.items[1].id)
-							.to.equal('id-8');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-7');
+						expect(response.items[1].id).to.equal('id-8');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-9');
-						expect(response.stats.after)
-							.to.be.null;
-						expect(response.stats.count)
-							.to.equal(1);
+						expect(response.items[0].id).to.equal('id-9');
+						expect(response.stats.after).to.be.null;
+						expect(response.stats.count).to.equal(1);
 					})
 					.subscribe(response => {}, null, done);
 			});
@@ -718,30 +652,21 @@ describe('lib/Crud', () => {
 
 				query(stats.after)
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-6');
-						expect(response.items[1].id)
-							.to.equal('id-5');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-6');
+						expect(response.items[1].id).to.equal('id-5');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-8');
-						expect(response.items[1].id)
-							.to.equal('id-7');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-8');
+						expect(response.items[1].id).to.equal('id-7');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-9');
-						expect(response.stats.after)
-							.to.be.null;
-						expect(response.stats.count)
-							.to.equal(1);
+						expect(response.items[0].id).to.equal('id-9');
+						expect(response.stats.after).to.be.null;
+						expect(response.stats.count).to.equal(1);
 					})
 					.subscribe(response => {}, null, done);
 			});
@@ -755,30 +680,21 @@ describe('lib/Crud', () => {
 
 				query()
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-0');
-						expect(response.items[1].id)
-							.to.equal('id-1');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-0');
+						expect(response.items[1].id).to.equal('id-1');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-2');
-						expect(response.items[1].id)
-							.to.equal('id-3');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-2');
+						expect(response.items[1].id).to.equal('id-3');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-4');
-						expect(response.items[1].id)
-							.to.equal('id-5');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-4');
+						expect(response.items[1].id).to.equal('id-5');
+						expect(response.stats.count).to.equal(2);
 					})
 					.subscribe(response => {}, null, done);
 			});
@@ -793,30 +709,21 @@ describe('lib/Crud', () => {
 
 				query()
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-1');
-						expect(response.items[1].id)
-							.to.equal('id-0');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-1');
+						expect(response.items[1].id).to.equal('id-0');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-3');
-						expect(response.items[1].id)
-							.to.equal('id-2');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-3');
+						expect(response.items[1].id).to.equal('id-2');
+						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id)
-							.to.equal('id-5');
-						expect(response.items[1].id)
-							.to.equal('id-4');
-						expect(response.stats.count)
-							.to.equal(2);
+						expect(response.items[0].id).to.equal('id-5');
+						expect(response.items[1].id).to.equal('id-4');
+						expect(response.stats.count).to.equal(2);
 					})
 					.subscribe(response => {}, null, done);
 			});
@@ -839,7 +746,7 @@ describe('lib/Crud', () => {
 
 			it('should get correct before and after', () => {
 				expect(_.last(items)
-						.id).to.equal('id-4');
+					.id).to.equal('id-4');
 
 				expect(JSON.parse(crud.fromBase64(stats.before))).to.be.null;
 				expect(JSON.parse(crud.fromBase64(stats.after))).to.deep.equal({
@@ -857,19 +764,15 @@ describe('lib/Crud', () => {
 						resume: stats.after
 					})
 					.subscribe(response => {
-						expect(response.items[0].id)
-							.to.equal('id-5');
+						expect(response.items[0].id).to.equal('id-5');
 
-						expect(JSON.parse(crud.fromBase64(response.stats.before)))
-							.to.deep.equal({
-								namespace: 'spec',
-								id: 'id-5'
-							});
-						expect(JSON.parse(crud.fromBase64(response.stats.after)))
-							.to.be.null;
+						expect(JSON.parse(crud.fromBase64(response.stats.before))).to.deep.equal({
+							namespace: 'spec',
+							id: 'id-5'
+						});
+						expect(JSON.parse(crud.fromBase64(response.stats.after))).to.be.null;
 
-						expect(response.stats.count)
-							.to.equal(5);
+						expect(response.stats.count).to.equal(5);
 					}, null, done);
 			});
 
@@ -889,20 +792,16 @@ describe('lib/Crud', () => {
 
 				it('should get correct after', () => {
 					expect(_.last(items)
-							.localStringIndexedSortAttr)
-						.to.equal('local-indexed-4');
+						.localStringIndexedSortAttr).to.equal('local-indexed-4');
 
-					expect(JSON.parse(crud.fromBase64(stats.before)))
-						.to.be.null;
-					expect(JSON.parse(crud.fromBase64(stats.after)))
-						.to.deep.equal({
-							namespace: 'spec',
-							id: 'id-4',
-							localStringIndexedSortAttr: 'local-indexed-4',
-						});
+					expect(JSON.parse(crud.fromBase64(stats.before))).to.be.null;
+					expect(JSON.parse(crud.fromBase64(stats.after))).to.deep.equal({
+						namespace: 'spec',
+						id: 'id-4',
+						localStringIndexedSortAttr: 'local-indexed-4',
+					});
 
-					expect(stats.count)
-						.to.equal(5);
+					expect(stats.count).to.equal(5);
 				});
 
 				it('should resume based on after', done => {
@@ -914,20 +813,16 @@ describe('lib/Crud', () => {
 							resume: stats.after
 						})
 						.subscribe(response => {
-							expect(response.items[0].localStringIndexedSortAttr)
-								.to.equal('local-indexed-5');
+							expect(response.items[0].localStringIndexedSortAttr).to.equal('local-indexed-5');
 
-							expect(JSON.parse(crud.fromBase64(response.stats.before)))
-								.to.deep.equal({
-									namespace: 'spec',
-									id: 'id-5',
-									localStringIndexedSortAttr: 'local-indexed-5',
-								});
-							expect(JSON.parse(crud.fromBase64(response.stats.after)))
-								.to.be.null;;
+							expect(JSON.parse(crud.fromBase64(response.stats.before))).to.deep.equal({
+								namespace: 'spec',
+								id: 'id-5',
+								localStringIndexedSortAttr: 'local-indexed-5',
+							});
+							expect(JSON.parse(crud.fromBase64(response.stats.after))).to.be.null;;
 
-							expect(response.stats.count)
-								.to.equal(5);
+							expect(response.stats.count).to.equal(5);
 						}, null, done);
 				});
 			});
@@ -947,21 +842,17 @@ describe('lib/Crud', () => {
 				});
 
 				it('should get correct after', () => {
-					expect(items[0].globalStringIndexedSortAttr)
-						.to.equal('global-indexed-0');
+					expect(items[0].globalStringIndexedSortAttr).to.equal('global-indexed-0');
 
-					expect(JSON.parse(crud.fromBase64(stats.before)))
-						.to.be.null;
-					expect(JSON.parse(crud.fromBase64(stats.after)))
-						.to.deep.equal({
-							namespace: 'spec',
-							id: 'id-4',
-							globalStringIndexedSortAttr: 'global-indexed-4',
-							globalIndexedPartitionAttr: 'global-indexed-spec',
-						});
+					expect(JSON.parse(crud.fromBase64(stats.before))).to.be.null;
+					expect(JSON.parse(crud.fromBase64(stats.after))).to.deep.equal({
+						namespace: 'spec',
+						id: 'id-4',
+						globalStringIndexedSortAttr: 'global-indexed-4',
+						globalIndexedPartitionAttr: 'global-indexed-spec',
+					});
 
-					expect(stats.count)
-						.to.equal(5);
+					expect(stats.count).to.equal(5);
 				});
 
 				it('should resume based on after', done => {
@@ -973,21 +864,15 @@ describe('lib/Crud', () => {
 							resume: stats.after
 						})
 						.subscribe(response => {
-							expect(response.items[0].globalStringIndexedSortAttr)
-								.to.equal('global-indexed-5');
-
-							expect(JSON.parse(crud.fromBase64(response.stats.before)))
-								.to.deep.equal({
-									namespace: 'spec',
-									id: 'id-5',
-									globalStringIndexedSortAttr: 'global-indexed-5',
-									globalIndexedPartitionAttr: 'global-indexed-spec',
-								});
-							expect(JSON.parse(crud.fromBase64(response.stats.after)))
-								.to.be.null;
-
-							expect(response.stats.count)
-								.to.equal(5);
+							expect(response.items[0].globalStringIndexedSortAttr).to.equal('global-indexed-5');
+							expect(JSON.parse(crud.fromBase64(response.stats.before))).to.deep.equal({
+								namespace: 'spec',
+								id: 'id-5',
+								globalStringIndexedSortAttr: 'global-indexed-5',
+								globalIndexedPartitionAttr: 'global-indexed-spec',
+							});
+							expect(JSON.parse(crud.fromBase64(response.stats.after))).to.be.null;
+							expect(response.stats.count).to.equal(5);
 						}, null, done);
 				});
 			});
@@ -1406,10 +1291,8 @@ describe('lib/Crud', () => {
 					title: 'title-1'
 				}, 'ALL_OLD')
 				.subscribe(response => {
-					expect(response.id)
-						.to.equal('id-1');
-					expect(response.title)
-						.to.equal('title');
+					expect(response.id).to.equal('id-1');
+					expect(response.title).to.equal('title');
 				}, null, done);
 		});
 
@@ -1511,10 +1394,8 @@ describe('lib/Crud', () => {
 					title: 'title-1'
 				}, 'ALL_OLD')
 				.subscribe(response => {
-					expect(response.id)
-						.to.equal('id-2');
-					expect(response.title)
-						.to.equal('title');
+					expect(response.id).to.equal('id-2');
+					expect(response.title).to.equal('title');
 				}, null, done);
 		});
 
@@ -1570,6 +1451,69 @@ describe('lib/Crud', () => {
 					hooked: true
 				});
 			});
+		});
+	});
+
+	describe('updatePrimaryKeys', () => {
+		let oldResult;
+		let result;
+
+		beforeEach(done => {
+			sinon.spy(crud, 'delete');
+			sinon.spy(Request.prototype, 'insert');
+
+			crud.get({
+					namespace,
+					id: 'id-0'
+				})
+				.do(response => oldResult = response)
+				.mergeMap(() => crud.updatePrimaryKeys({
+					namespace,
+					id: 'id-0'
+				}, {
+					id: 'id-00',
+					forbidden: 'forbidden'
+				}))
+				.subscribe(response => {
+
+					result = response;
+				}, null, done);
+		});
+
+		afterEach(done => {
+			crud.delete.restore();
+			Request.prototype.insert.restore();
+
+			crud.updatePrimaryKeys({
+					namespace,
+					id: 'id-00'
+				}, {
+					id: 'id-0'
+				})
+				.subscribe(null, null, done);
+		});
+
+		it('should call crud.delete', () => {
+			expect(crud.delete).to.have.been.calledWith({
+				id: 'id-0',
+				namespace,
+			});
+		});
+
+		it('should call crud.insert', () => {
+			expect(Request.prototype.insert).to.have.been.calledWith(_.extend(_.omit(oldResult, ['updatedAt']), {
+				id: 'id-00'
+			}), false, true);
+		});
+
+		it('should return with same createdAt', () => {
+			const expected = _.extend({}, oldResult, {
+				id: 'id-00',
+				updatedAt: result.updatedAt
+			});
+
+			expect(oldResult.updatedAt < result.updatedAt).to.be.true;
+			expect(result).to.deep.equal(expected);
 		});
 	});
 
@@ -1690,16 +1634,15 @@ describe('lib/Crud', () => {
 					}]
 				})
 				.subscribe(response => {
-					expect(response.list)
-						.to.deep.equal([{
-							a: 1
-						}, {
-							b: 2
-						}, {
-							c: 3
-						}, {
-							d: 4
-						}]);
+					expect(response.list).to.deep.equal([{
+						a: 1
+					}, {
+						b: 2
+					}, {
+						c: 3
+					}, {
+						d: 4
+					}]);
 				}, null, done);
 		});
 
@@ -1712,14 +1655,13 @@ describe('lib/Crud', () => {
 					}
 				})
 				.subscribe(response => {
-					expect(response.list)
-						.to.deep.equal([{
-							a: 1
-						}, {
-							b: 2
-						}, {
-							c: 3
-						}]);
+					expect(response.list).to.deep.equal([{
+						a: 1
+					}, {
+						b: 2
+					}, {
+						c: 3
+					}]);
 				}, null, done);
 		});
 
@@ -1734,12 +1676,11 @@ describe('lib/Crud', () => {
 					}]
 				}, 'ALL_OLD')
 				.subscribe(response => {
-					expect(response.list)
-						.to.deep.equal([{
-							a: 1
-						}, {
-							b: 2
-						}]);
+					expect(response.list).to.deep.equal([{
+						a: 1
+					}, {
+						b: 2
+					}]);
 				}, null, done);
 		});
 
@@ -1763,7 +1704,7 @@ describe('lib/Crud', () => {
 					expression
 				}) => {
 					callback(expression.replace(/:appendList_\w*/g, ':appendList_{cuid}'));
-					
+
 					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
@@ -1826,16 +1767,15 @@ describe('lib/Crud', () => {
 					}]
 				})
 				.subscribe(response => {
-					expect(response.list)
-						.to.deep.equal([{
-							c: 3
-						}, {
-							d: 4
-						}, {
-							a: 1
-						}, {
-							b: 2
-						}]);
+					expect(response.list).to.deep.equal([{
+						c: 3
+					}, {
+						d: 4
+					}, {
+						a: 1
+					}, {
+						b: 2
+					}]);
 				}, null, done);
 		});
 
@@ -1848,14 +1788,13 @@ describe('lib/Crud', () => {
 					}
 				})
 				.subscribe(response => {
-					expect(response.list)
-						.to.deep.equal([{
-							c: 3
-						}, {
-							a: 1
-						}, {
-							b: 2
-						}]);
+					expect(response.list).to.deep.equal([{
+						c: 3
+					}, {
+						a: 1
+					}, {
+						b: 2
+					}]);
 				}, null, done);
 		});
 
@@ -1870,12 +1809,11 @@ describe('lib/Crud', () => {
 					}]
 				}, 'ALL_OLD')
 				.subscribe(response => {
-					expect(response.list)
-						.to.deep.equal([{
-							a: 1
-						}, {
-							b: 2
-						}]);
+					expect(response.list).to.deep.equal([{
+						a: 1
+					}, {
+						b: 2
+					}]);
 				}, null, done);
 		});
 
@@ -1899,7 +1837,7 @@ describe('lib/Crud', () => {
 					expression
 				}) => {
 					callback(expression.replace(/:appendList_\w*/g, ':appendList_{cuid}'));
-					
+
 					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
@@ -1945,8 +1883,7 @@ describe('lib/Crud', () => {
 					list: [0, 1]
 				})
 				.subscribe(response => {
-					expect(response.list)
-						.to.deep.equal([2, 3, 4, 5, 6, 7, 8, 9]);
+					expect(response.list).to.deep.equal([2, 3, 4, 5, 6, 7, 8, 9]);
 				}, null, done);
 		});
 
@@ -1957,8 +1894,7 @@ describe('lib/Crud', () => {
 					list: 0
 				})
 				.subscribe(response => {
-					expect(response.list)
-						.to.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+					expect(response.list).to.deep.equal([1, 2, 3, 4, 5, 6, 7, 8, 9]);
 				}, null, done);
 		});
 
@@ -1969,8 +1905,7 @@ describe('lib/Crud', () => {
 					list: 0
 				}, 'ALL_OLD')
 				.subscribe(response => {
-					expect(response.list)
-						.to.deep.equal([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+					expect(response.list).to.deep.equal([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 				}, null, done);
 		});
 
@@ -1990,7 +1925,7 @@ describe('lib/Crud', () => {
 					expression
 				}) => {
 					callback(expression);
-					
+
 					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
@@ -2041,10 +1976,9 @@ describe('lib/Crud', () => {
 					}
 				})
 				.subscribe(response => {
-					expect(response.list)
-						.to.deep.equal(['updated 0', 1, 'updated 2', 3, 4, 5, 6, 7, {
-							a: 1
-						}]);
+					expect(response.list).to.deep.equal(['updated 0', 1, 'updated 2', 3, 4, 5, 6, 7, {
+						a: 1
+					}]);
 				}, null, done);
 		});
 
@@ -2059,10 +1993,9 @@ describe('lib/Crud', () => {
 					}
 				})
 				.subscribe(response => {
-					expect(response.list)
-						.to.deep.equal([0, 1, 2, 3, 4, 5, 6, 7, {
-							a: 2
-						}]);
+					expect(response.list).to.deep.equal([0, 1, 2, 3, 4, 5, 6, 7, {
+						a: 2
+					}]);
 				}, null, done);
 		});
 
@@ -2077,10 +2010,9 @@ describe('lib/Crud', () => {
 					}
 				}, 'ALL_OLD')
 				.subscribe(response => {
-					expect(response.list)
-						.to.deep.equal([0, 1, 2, 3, 4, 5, 6, 7, {
-							a: 1
-						}]);
+					expect(response.list).to.deep.equal([0, 1, 2, 3, 4, 5, 6, 7, {
+						a: 1
+					}]);
 				}, null, done);
 		});
 
@@ -2102,7 +2034,7 @@ describe('lib/Crud', () => {
 					expression
 				}) => {
 					callback(expression.replace(/:\w{7,8}/g, ':{cuid}'));
-					
+
 					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
@@ -2141,8 +2073,7 @@ describe('lib/Crud', () => {
 					set: ['a', 'b']
 				})
 				.subscribe(response => {
-					expect(response.set)
-						.to.deep.equal(['a', 'b']);
+					expect(response.set).to.deep.equal(['a', 'b']);
 				}, null, done);
 		});
 
@@ -2153,8 +2084,7 @@ describe('lib/Crud', () => {
 					set: [1, 2]
 				})
 				.subscribe(response => {
-					expect(response.set)
-						.to.deep.equal([1, 2]);
+					expect(response.set).to.deep.equal([1, 2]);
 				}, null, done);
 		});
 
@@ -2165,8 +2095,7 @@ describe('lib/Crud', () => {
 					set: 'a'
 				})
 				.subscribe(response => {
-					expect(response.set)
-						.to.deep.equal(['a']);
+					expect(response.set).to.deep.equal(['a']);
 				}, null, done);
 		});
 
@@ -2177,8 +2106,7 @@ describe('lib/Crud', () => {
 					set: 1
 				})
 				.subscribe(response => {
-					expect(response.set)
-						.to.deep.equal([1]);
+					expect(response.set).to.deep.equal([1]);
 				}, null, done);
 		});
 
@@ -2194,8 +2122,7 @@ describe('lib/Crud', () => {
 					set: ['a', 'b']
 				}))
 				.subscribe(response => {
-					expect(response.set)
-						.to.deep.equal(['a', 'b']);
+					expect(response.set).to.deep.equal(['a', 'b']);
 				}, null, done);
 		});
 
@@ -2207,8 +2134,7 @@ describe('lib/Crud', () => {
 					set: [1, 'b']
 				})
 				.subscribe(null, err => {
-					expect(err.message)
-						.to.equal('Invalid UpdateExpression: Syntax error; token: "SET", near: "ADD  SET #createdAt"');
+					expect(err.message).to.equal('Invalid UpdateExpression: Syntax error; token: "SET", near: "ADD  SET #createdAt"');
 
 					done();
 				});
@@ -2226,8 +2152,7 @@ describe('lib/Crud', () => {
 					set: 'c'
 				}, 'ALL_OLD'))
 				.subscribe(response => {
-					expect(response.set)
-						.to.deep.equal(['a', 'b']);
+					expect(response.set).to.deep.equal(['a', 'b']);
 				}, null, done);
 		});
 
@@ -2247,7 +2172,7 @@ describe('lib/Crud', () => {
 					expression
 				}) => {
 					callback(expression);
-					
+
 					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
@@ -2291,8 +2216,7 @@ describe('lib/Crud', () => {
 					set: ['a', 'b']
 				})
 				.subscribe(response => {
-					expect(response.set)
-						.to.deep.equal(['c', 'd']);
+					expect(response.set).to.deep.equal(['c', 'd']);
 				}, null, done);
 		});
 
@@ -2303,8 +2227,7 @@ describe('lib/Crud', () => {
 					set: ['a', 'b', 'c', 'd']
 				})
 				.subscribe(response => {
-					expect(response.set)
-						.to.be.undefined;
+					expect(response.set).to.be.undefined;
 				}, null, done);
 		});
 
@@ -2315,8 +2238,7 @@ describe('lib/Crud', () => {
 					set: ['e', 'f']
 				})
 				.subscribe(response => {
-					expect(response.set)
-						.to.deep.equal(['a', 'b', 'c', 'd']);
+					expect(response.set).to.deep.equal(['a', 'b', 'c', 'd']);
 				}, null, done);
 		});
 
@@ -2327,8 +2249,7 @@ describe('lib/Crud', () => {
 					set: 'd'
 				}, 'ALL_OLD')
 				.subscribe(response => {
-					expect(response.set)
-						.to.deep.equal(['a', 'b', 'c', 'd']);
+					expect(response.set).to.deep.equal(['a', 'b', 'c', 'd']);
 				}, null, done);
 		});
 
@@ -2348,7 +2269,7 @@ describe('lib/Crud', () => {
 					expression
 				}) => {
 					callback(expression);
-					
+
 					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
@@ -2386,13 +2307,12 @@ describe('lib/Crud', () => {
 					title: 'title'
 				})
 				.subscribe(response => {
-					expect(response)
-						.to.deep.equal({
-							namespace: 'spec',
-							id: 'id-0',
-							updatedAt: response.updatedAt,
-							createdAt: response.createdAt
-						});
+					expect(response).to.deep.equal({
+						namespace: 'spec',
+						id: 'id-0',
+						updatedAt: response.updatedAt,
+						createdAt: response.createdAt
+					});
 				}, null, done);
 		});
 
@@ -2403,14 +2323,13 @@ describe('lib/Crud', () => {
 					title: 'title'
 				}, 'ALL_OLD')
 				.subscribe(response => {
-					expect(response)
-						.to.deep.equal({
-							namespace: 'spec',
-							id: 'id-0',
-							title: 'title',
-							updatedAt: response.updatedAt,
-							createdAt: response.createdAt
-						});
+					expect(response).to.deep.equal({
+						namespace: 'spec',
+						id: 'id-0',
+						title: 'title',
+						updatedAt: response.updatedAt,
+						createdAt: response.createdAt
+					});
 				}, null, done);
 		});
 
@@ -2430,7 +2349,7 @@ describe('lib/Crud', () => {
 					expression
 				}) => {
 					callback(expression);
-					
+
 					update = sinon.spy(request, 'update');
 
 					return ['hooked expression'];
@@ -2588,8 +2507,7 @@ describe('lib/Crud', () => {
 					namespace
 				}))
 				.subscribe(response => {
-					expect(_.size(response.items))
-						.to.equal(0);
+					expect(_.size(response.items)).to.equal(0);
 				}, null, done);
 		});
 	});

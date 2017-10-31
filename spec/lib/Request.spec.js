@@ -1634,7 +1634,7 @@ describe('lib/Request', () => {
 				}, null, done);
 		});
 
-		it('should override createdAt updatedAt', done => {
+		it('should not override createdAt and updatedAt', done => {
 			request.insert({
 					namespace,
 					id: `id-${now}`,
@@ -1642,10 +1642,22 @@ describe('lib/Request', () => {
 					updatedAt: 1
 				})
 				.subscribe(response => {
-					expect(response.createdAt)
-						.not.be.equal(1);
-					expect(response.updatedAt)
-						.not.be.equal(1);
+					expect(response.createdAt).not.be.equal(1);
+					expect(response.updatedAt).not.be.equal(1);
+					expect(response.createdAt === response.updatedAt).to.be.true;
+				}, null, done);
+		});
+
+		it('should override createdAt and updatedAt', done => {
+			request.insert({
+					namespace,
+					id: `id-${now}`,
+					createdAt: 1,
+					updatedAt: 1
+				}, false, true)
+				.subscribe(response => {
+					expect(response.createdAt).be.equal(1);
+					expect(response.updatedAt).be.equal(1);
 					expect(response.createdAt === response.updatedAt).to.be.true;
 				}, null, done);
 		});
