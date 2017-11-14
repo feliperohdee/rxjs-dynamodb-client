@@ -189,8 +189,7 @@ describe('lib/Crud', () => {
 
 	describe('constructor', () => {
 		it('should throw if not deps.dynamoDb', () => {
-			expect(() => new Crud())
-				.to.throw('no dynamoDb client provided.');
+			expect(() => new Crud()).to.throw('no dynamoDb client provided.');
 		});
 	});
 
@@ -212,8 +211,7 @@ describe('lib/Crud', () => {
 		});
 
 		it('should returns null when wrong globalIndex', () => {
-			expect(crud.globalIndexPartitionAttr('globalStringIndex_'))
-				.to.be.null;
+			expect(crud.globalIndexPartitionAttr('globalStringIndex_')).to.be.null;
 		});
 	});
 
@@ -225,8 +223,7 @@ describe('lib/Crud', () => {
 		});
 
 		it('should returns null when wrong globalIndex', () => {
-			expect(crud.globalIndexSortAttr('globalStringIndex_'))
-				.to.be.null;
+			expect(crud.globalIndexSortAttr('globalStringIndex_')).to.be.null;
 		});
 	});
 
@@ -238,13 +235,11 @@ describe('lib/Crud', () => {
 		});
 
 		it('should returns null when wrong localIndex', () => {
-			expect(crud.localIndexSortAttr())
-				.to.be.null;
+			expect(crud.localIndexSortAttr()).to.be.null;
 		});
 
 		it('should returns null when is global index', () => {
-			expect(crud.localIndexSortAttr('globalStringIndex'))
-				.to.be.null;
+			expect(crud.localIndexSortAttr('globalStringIndex')).to.be.null;
 		});
 	});
 
@@ -265,6 +260,24 @@ describe('lib/Crud', () => {
 		it('should fetch with just namespace', () => {
 			expect(items[0].id).to.equal('id-0');
 			expect(stats.count).to.equal(10);
+		});
+
+		describe('without prefix', () => {
+			beforeEach(done => {
+				crud.fetch({
+						namespace: 'spec',
+						id: 'id-',
+						prefix: false
+					})
+					.subscribe(response => {
+						items = response.items;
+						stats = response.stats;
+					}, null, done);
+			});
+			
+			it('should match exactly', () => {
+				expect(stats.count).to.equal(0);
+			});
 		});
 
 		describe('with Select.COUNT', () => {
@@ -1096,8 +1109,7 @@ describe('lib/Crud', () => {
 
 		it('should return inserted item', () => {
 			expect(item.id).to.equal('id-10');
-			expect(item)
-				.to.have.all.keys([
+			expect(item).to.have.all.keys([
 					'namespace',
 					'id',
 					'createdAt',
@@ -1184,8 +1196,7 @@ describe('lib/Crud', () => {
 		it('should return inserted or replaced item', () => {
 			expect(item.id).to.equal('id-0');
 			expect(item.createdAt).to.equal(item.updatedAt);
-			expect(item)
-				.to.have.all.keys([
+			expect(item).to.have.all.keys([
 					'namespace',
 					'id',
 					'createdAt',
@@ -1266,10 +1277,8 @@ describe('lib/Crud', () => {
 			expect(item.id).to.equal('id-1');
 			expect(item.createdAt)
 				.not.to.equal(item.updatedAt);
-			expect(item.createdAt)
-				.to.be.below(item.updatedAt);
-			expect(item)
-				.to.have.all.keys([
+			expect(item.createdAt).to.be.below(item.updatedAt);
+			expect(item).to.have.all.keys([
 					'globalIndexedPartitionAttr',
 					'globalNumberIndexedSortAttr',
 					'globalStringIndexedSortAttr',
@@ -1369,10 +1378,8 @@ describe('lib/Crud', () => {
 			expect(item.id).to.equal('id-2');
 			expect(item.createdAt)
 				.not.to.equal(item.updatedAt);
-			expect(item.createdAt)
-				.to.be.below(item.updatedAt);
-			expect(item)
-				.to.have.all.keys([
+			expect(item.createdAt).to.be.below(item.updatedAt);
+			expect(item).to.have.all.keys([
 					'globalIndexedPartitionAttr',
 					'globalNumberIndexedSortAttr',
 					'globalStringIndexedSortAttr',
@@ -1536,8 +1543,7 @@ describe('lib/Crud', () => {
 
 		it('should return deleted item', () => {
 			expect(item.id).to.equal('id-3');
-			expect(item)
-				.to.have.all.keys([
+			expect(item).to.have.all.keys([
 					'namespace',
 					'id',
 					'createdAt',
@@ -1615,8 +1621,7 @@ describe('lib/Crud', () => {
 		});
 
 		it('should create a list', () => {
-			expect(item.list)
-				.to.deep.equal([{
+			expect(item.list).to.deep.equal([{
 					a: 1
 				}, {
 					b: 2
@@ -1748,8 +1753,7 @@ describe('lib/Crud', () => {
 		});
 
 		it('should create a list', () => {
-			expect(item.list)
-				.to.deep.equal([{
+			expect(item.list).to.deep.equal([{
 					a: 1
 				}, {
 					b: 2
@@ -2386,8 +2390,7 @@ describe('lib/Crud', () => {
 						id: 'id-90',
 						useless: 'useless'
 					}]
-				})
-				.toArray()
+				}).toArray()
 				.subscribe(response => {
 					expect(response).to.deep.equal([{
 						createdAt: response[0].createdAt,
@@ -2518,8 +2521,7 @@ describe('lib/Crud', () => {
 		});
 
 		it('should return null if empty', () => {
-			expect(crud.toBase64())
-				.to.be.null;
+			expect(crud.toBase64()).to.be.null;
 		});
 	});
 
@@ -2529,8 +2531,7 @@ describe('lib/Crud', () => {
 		});
 
 		it('should return null if empty', () => {
-			expect(crud.fromBase64())
-				.to.be.null;
+			expect(crud.fromBase64()).to.be.null;
 		});
 	});
 });

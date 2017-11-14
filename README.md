@@ -483,14 +483,15 @@ This lib follows with a Crud class helper, at this way you can extend your model
 			args: {
 				[partition | globalIndexPartition]: string (required);
 				[sort | localIndexAttribute | globalIndexSort]: string;
-				resume: base64<string>;
-				before: base64<string>;
 				after: base64<string>;
-				select: string (comma separated);
-				limit: number;
+				before: base64<string>;
+				consistent: boolean;
 				desc: boolean;
 				indexName: string;
-				consistent: boolean;
+				limit: number;
+				prefix: boolean = true;
+				resume: base64<string>;
+				select: string (comma separated);
 			}, 
 			hook: function(
 				request: Request, 
