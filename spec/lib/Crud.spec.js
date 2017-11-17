@@ -1992,13 +1992,15 @@ describe('lib/Crud', () => {
 					id: 'id-0',
 					list: {
 						8: {
-							a: 2
+							a: 2,
+							b: 3
 						}
 					}
 				})
 				.subscribe(response => {
 					expect(response.list).to.deep.equal([0, 1, 2, 3, 4, 5, 6, 7, {
-						a: 2
+						a: 2,
+						b: 3
 					}]);
 				}, null, done);
 		});
