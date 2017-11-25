@@ -1023,6 +1023,30 @@ describe('lib/Crud', () => {
 			expect(item.id).to.equal('id-3');
 		});
 
+		describe('consistent', () => {
+			beforeEach(done => {
+				sinon.spy(Request.prototype, 'consistent');
+
+				crud.get({
+						consistent: true,
+						namespace: 'spec',
+						id: 'id-0'
+					})
+					.subscribe(response => {
+						items = response.items;
+						stats = response.stats;
+					}, null, done);
+			});
+
+			afterEach(() => {
+				Request.prototype.consistent.restore();
+			});
+
+			it('should fetch one', () => {
+				expect(Request.prototype.consistent).to.have.been.calledOnce;
+			});
+		});
+
 		describe('select', () => {
 			beforeEach(done => {
 				crud.get({

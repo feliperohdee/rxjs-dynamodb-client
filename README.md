@@ -514,6 +514,7 @@ This lib follows with a Crud class helper, at this way you can extend your model
 			args: {
 				[partition]: string (required);
 				[sort]: string;
+				consistent: boolean;
 				select: string (comma separated);
 			}, 
 			hook: function(
