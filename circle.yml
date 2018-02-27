@@ -1,10 +1,10 @@
 machine:
   node:
-    version: 8.2.1
+    version: 9.2.0
 test:
   override:
-    - npm run testOnce
-# general:
-#   artifacts:
-#     - 'coverage'
+    - npm run coverage
+general:
+  artifacts:
+    - 'coverage'
 

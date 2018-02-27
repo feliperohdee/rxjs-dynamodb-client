@@ -4,10 +4,10 @@
   "description": "Lightweight dynamoDb client built on top of RxJS",
   "main": "index.js",
   "scripts": {
-    "deploy": "git add --all; git commit -m 'Bump' && npm version patch -m 'Bump %s' && git push origin master && npm publish",
+    "deploy": "npm version patch -m 'Bump %s' && git push origin master && npm publish",
     "test": "NODE_ENV=test ./node_modules/.bin/_mocha spec --recursive --watch",
     "testOnce": "NODE_ENV=test ./node_modules/.bin/_mocha spec --recursive --exit",
-    "coverage": "NODE_ENV=test ./node_modules/.bin/istanbul cover -x 'spec/**' -x 'testing/**' ./node_modules/.bin/_mocha -- 'spec' --recursive"
+    "coverage": "NODE_ENV=test ./node_modules/.bin/istanbul cover -x 'spec/**' -x 'testing/**' ./node_modules/.bin/_mocha -- spec --recursive"
   },
   "author": "Felipe Rohde",
   "license": "ISC",
@@ -25,7 +25,7 @@
   "devDependencies": {
     "chai": "^4.1.2",
     "istanbul": "^0.4.5",
-    "mocha": "^4.0.1",
+    "mocha": "^5.0.1",
     "sinon": "^4.0.1",
     "sinon-chai": "^2.14.0"
   }
