@@ -234,8 +234,12 @@ describe('lib/Crud', () => {
 			expect(crud.localIndexSortAttr('localNumberIndex')).to.equal('localNumberIndexedSortAttr');
 		});
 
-		it('should returns null when wrong localIndex', () => {
+		it('should returns null when no localIndex', () => {
 			expect(crud.localIndexSortAttr()).to.be.null;
+		});
+
+		it('should returns null when wrong localIndex', () => {
+			expect(crud.localIndexSortAttr('localNumberIndex_')).to.be.null;
 		});
 
 		it('should returns null when is global index', () => {

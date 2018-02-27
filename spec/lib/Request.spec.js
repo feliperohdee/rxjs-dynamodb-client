@@ -1986,7 +1986,7 @@ describe('lib/Request', () => {
 						message: 'message-1'
 					}])
 					.subscribe(null, null, () => {
-						request.routeCall.reset();
+						request.routeCall.resetHistory();
 						done();
 					});
 			});
@@ -2230,7 +2230,7 @@ describe('lib/Request', () => {
 				}, true))
 				.subscribe(null, null, done);
 
-			request.routeCall.reset();
+			request.routeCall.resetHistory();
 		});
 
 		it('should do jobs in steps with 100 operations max', () => {
