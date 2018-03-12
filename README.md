@@ -498,10 +498,10 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				expression: string, 
 				partition: string, 
 				sort: string | number) : Array<args>,
-			itemSelector: function(Observable<object>): Observable<object>,
+			dataSelector: function(Observable<object>): Observable<object>,
 			customReducer: function(Observable<object>): Observable<any>,
 			) : Observable<{
-				items: Array<object>, 
+				data: Array<object>, 
 				stats: {
 					count: number, 
 					scannedCount: number, 

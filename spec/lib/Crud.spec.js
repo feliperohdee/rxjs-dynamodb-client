@@ -248,7 +248,7 @@ describe('lib/Crud', () => {
 	});
 
 	describe('fetch', () => {
-		let items;
+		let data;
 		let stats;
 
 		beforeEach(done => {
@@ -256,13 +256,13 @@ describe('lib/Crud', () => {
 					namespace: 'spec'
 				})
 				.subscribe(response => {
-					items = response.items;
+					data = response.data;
 					stats = response.stats;
 				}, null, done);
 		});
 
 		it('should fetch with just namespace', () => {
-			expect(items[0].id).to.equal('id-0');
+			expect(data[0].id).to.equal('id-0');
 			expect(stats.count).to.equal(10);
 		});
 
@@ -274,11 +274,11 @@ describe('lib/Crud', () => {
 						prefix: false
 					})
 					.subscribe(response => {
-						items = response.items;
+						data = response.data;
 						stats = response.stats;
 					}, null, done);
 			});
-			
+
 			it('should match exactly', () => {
 				expect(stats.count).to.equal(0);
 			});
@@ -291,13 +291,13 @@ describe('lib/Crud', () => {
 						select: Select.COUNT
 					})
 					.subscribe(response => {
-						items = response.items;
+						data = response.data;
 						stats = response.stats;
 					}, null, done);
 			});
 
 			it('should return just stats', () => {
-				expect(items).to.deep.equal([]);
+				expect(data).to.deep.equal([]);
 				expect(stats).to.deep.equal({
 					before: null,
 					after: null,
@@ -308,25 +308,24 @@ describe('lib/Crud', () => {
 			});
 		});
 
-		describe('with itemSelector', () => {
+		describe('with dataSelector', () => {
 			beforeEach(done => {
-				const itemSelector = items => items
-					.map(response => _.pick(response, [
-						'id'
-					]));
+				const dataSelector = data => data.map(response => _.pick(response, [
+					'id'
+				]));
 
 				crud.fetch({
 						namespace: 'spec',
 						id: 'id-0'
-					}, null, itemSelector)
+					}, null, dataSelector)
 					.subscribe(response => {
-						items = response.items;
+						data = response.data;
 						stats = response.stats;
 					}, null, done);
 			});
 
-			it('should fetch and apply itemSelector', () => {
-				expect(items[0]).to.deep.equal({
+			it('should fetch and apply dataSelector', () => {
+				expect(data[0]).to.deep.equal({
 					id: 'id-0'
 				});
 
@@ -336,20 +335,19 @@ describe('lib/Crud', () => {
 
 		describe('with customReducer', () => {
 			beforeEach(done => {
-				const customReducer = items => items
-					.toArray();
+				const customReducer = data => data.toArray();
 
 				crud.fetch({
 						namespace: 'spec',
 						id: 'id-0'
 					}, null, null, customReducer)
 					.subscribe(response => {
-						items = response;
+						data = response;
 					}, null, done);
 			});
 
 			it('should fetch and apply customReducer', () => {
-				expect(items[0].id).to.equal('id-0');
+				expect(data[0].id).to.equal('id-0');
 			});
 		});
 
@@ -360,13 +358,13 @@ describe('lib/Crud', () => {
 						id: 'id-3'
 					})
 					.subscribe(response => {
-						items = response.items;
+						data = response.data;
 						stats = response.stats;
 					}, null, done);
 			});
 
 			it('should fetch with namespace and id', () => {
-				expect(items[0].id).to.equal('id-3');
+				expect(data[0].id).to.equal('id-3');
 				expect(stats.count).to.equal(1);
 			});
 		});
@@ -379,7 +377,7 @@ describe('lib/Crud', () => {
 						localStringIndexedSortAttr: 'local-indexed-3'
 					})
 					.subscribe(response => {
-						expect(response.items[0].localStringIndexedSortAttr).to.equal('local-indexed-3');
+						expect(response.data[0].localStringIndexedSortAttr).to.equal('local-indexed-3');
 						expect(response.stats.count).to.equal(1);
 					}, null, done);
 			});
@@ -391,7 +389,7 @@ describe('lib/Crud', () => {
 						localNumberIndexedSortAttr: 3
 					})
 					.subscribe(response => {
-						expect(response.items[0].localNumberIndexedSortAttr).to.equal(3);
+						expect(response.data[0].localNumberIndexedSortAttr).to.equal(3);
 						expect(response.stats.count).to.equal(1);
 					}, null, done);
 			});
@@ -405,7 +403,7 @@ describe('lib/Crud', () => {
 						globalStringIndexedSortAttr: 'global-indexed-3'
 					})
 					.subscribe(response => {
-						expect(response.items[0].globalStringIndexedSortAttr).to.equal('global-indexed-3');
+						expect(response.data[0].globalStringIndexedSortAttr).to.equal('global-indexed-3');
 						expect(response.stats.count).to.equal(1);
 					}, null, done);
 			});
@@ -417,14 +415,14 @@ describe('lib/Crud', () => {
 						globalNumberIndexedSortAttr: 3
 					})
 					.subscribe(response => {
-						expect(response.items[0].globalNumberIndexedSortAttr).to.equal(3);
+						expect(response.data[0].globalNumberIndexedSortAttr).to.equal(3);
 						expect(response.stats.count).to.equal(1);
 					}, null, done);
 			});
 		});
 
 		describe('with cursor', () => {
-			it('should return items with _cursor', done => {
+			it('should return data with _cursor', done => {
 				crud.fetch({
 						indexName: 'globalStringIndex',
 						globalIndexedPartitionAttr: 'global-indexed-spec',
@@ -432,7 +430,7 @@ describe('lib/Crud', () => {
 						withCursor: true
 					})
 					.subscribe(response => {
-						expect(JSON.parse(crud.fromBase64(response.items[0]._cursor))).to.deep.equal({
+						expect(JSON.parse(crud.fromBase64(response.data[0]._cursor))).to.deep.equal({
 							namespace: 'spec',
 							id: 'id-3',
 							globalIndexedPartitionAttr: 'global-indexed-spec',
@@ -443,7 +441,7 @@ describe('lib/Crud', () => {
 		});
 
 		describe('before', () => {
-			let items;
+			let data;
 			let stats;
 
 			beforeEach(done => {
@@ -456,7 +454,7 @@ describe('lib/Crud', () => {
 						}))
 					})
 					.subscribe(response => {
-						items = response.items;
+						data = response.data;
 						stats = response.stats;
 					}, null, done);
 			});
@@ -468,30 +466,30 @@ describe('lib/Crud', () => {
 					before
 				});
 
-				expect(items[0].id).to.equal('id-7');
-				expect(items[1].id).to.equal('id-8');
+				expect(data[0].id).to.equal('id-7');
+				expect(data[1].id).to.equal('id-8');
 
 				query(stats.before)
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-5');
-						expect(response.items[1].id).to.equal('id-6');
+						expect(response.data[0].id).to.equal('id-5');
+						expect(response.data[1].id).to.equal('id-6');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-3');
-						expect(response.items[1].id).to.equal('id-4');
+						expect(response.data[0].id).to.equal('id-3');
+						expect(response.data[1].id).to.equal('id-4');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-1');
-						expect(response.items[1].id).to.equal('id-2');
+						expect(response.data[0].id).to.equal('id-1');
+						expect(response.data[1].id).to.equal('id-2');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-0');
+						expect(response.data[0].id).to.equal('id-0');
 						expect(response.stats.before).to.be.null;
 						expect(response.stats.count).to.equal(1);
 					})
@@ -506,30 +504,30 @@ describe('lib/Crud', () => {
 					desc: true
 				});
 
-				expect(items[0].id).to.equal('id-7');
-				expect(items[1].id).to.equal('id-8');
+				expect(data[0].id).to.equal('id-7');
+				expect(data[1].id).to.equal('id-8');
 
 				query(stats.before)
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-6');
-						expect(response.items[1].id).to.equal('id-5');
+						expect(response.data[0].id).to.equal('id-6');
+						expect(response.data[1].id).to.equal('id-5');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-4');
-						expect(response.items[1].id).to.equal('id-3');
+						expect(response.data[0].id).to.equal('id-4');
+						expect(response.data[1].id).to.equal('id-3');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-2');
-						expect(response.items[1].id).to.equal('id-1');
+						expect(response.data[0].id).to.equal('id-2');
+						expect(response.data[1].id).to.equal('id-1');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-0');
+						expect(response.data[0].id).to.equal('id-0');
 						expect(response.stats.before).to.be.null;
 						expect(response.stats.count).to.equal(1);
 					})
@@ -545,26 +543,26 @@ describe('lib/Crud', () => {
 
 				query()
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-8');
-						expect(response.items[1].id).to.equal('id-9');
+						expect(response.data[0].id).to.equal('id-8');
+						expect(response.data[1].id).to.equal('id-9');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-6');
-						expect(response.items[1].id).to.equal('id-7');
+						expect(response.data[0].id).to.equal('id-6');
+						expect(response.data[1].id).to.equal('id-7');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-4');
-						expect(response.items[1].id).to.equal('id-5');
+						expect(response.data[0].id).to.equal('id-4');
+						expect(response.data[1].id).to.equal('id-5');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-2');
-						expect(response.items[1].id).to.equal('id-3');
+						expect(response.data[0].id).to.equal('id-2');
+						expect(response.data[1].id).to.equal('id-3');
 						expect(response.stats.count).to.equal(2);
 					})
 					.subscribe(response => {}, null, done);
@@ -580,26 +578,26 @@ describe('lib/Crud', () => {
 
 				query()
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-9');
-						expect(response.items[1].id).to.equal('id-8');
+						expect(response.data[0].id).to.equal('id-9');
+						expect(response.data[1].id).to.equal('id-8');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-7');
-						expect(response.items[1].id).to.equal('id-6');
+						expect(response.data[0].id).to.equal('id-7');
+						expect(response.data[1].id).to.equal('id-6');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-5');
-						expect(response.items[1].id).to.equal('id-4');
+						expect(response.data[0].id).to.equal('id-5');
+						expect(response.data[1].id).to.equal('id-4');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.before))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-3');
-						expect(response.items[1].id).to.equal('id-2');
+						expect(response.data[0].id).to.equal('id-3');
+						expect(response.data[1].id).to.equal('id-2');
 						expect(response.stats.count).to.equal(2);
 					})
 					.subscribe(response => {}, null, done);
@@ -607,7 +605,7 @@ describe('lib/Crud', () => {
 		});
 
 		describe('after', () => {
-			let items;
+			let data;
 			let stats;
 
 			beforeEach(done => {
@@ -620,7 +618,7 @@ describe('lib/Crud', () => {
 						}))
 					})
 					.subscribe(response => {
-						items = response.items;
+						data = response.data;
 						stats = response.stats;
 					}, null, done);
 			});
@@ -632,24 +630,24 @@ describe('lib/Crud', () => {
 					after
 				});
 
-				expect(items[0].id).to.equal('id-3');
-				expect(items[1].id).to.equal('id-4');
+				expect(data[0].id).to.equal('id-3');
+				expect(data[1].id).to.equal('id-4');
 
 				query(stats.after)
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-5');
-						expect(response.items[1].id).to.equal('id-6');
+						expect(response.data[0].id).to.equal('id-5');
+						expect(response.data[1].id).to.equal('id-6');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-7');
-						expect(response.items[1].id).to.equal('id-8');
+						expect(response.data[0].id).to.equal('id-7');
+						expect(response.data[1].id).to.equal('id-8');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-9');
+						expect(response.data[0].id).to.equal('id-9');
 						expect(response.stats.after).to.be.null;
 						expect(response.stats.count).to.equal(1);
 					})
@@ -664,24 +662,24 @@ describe('lib/Crud', () => {
 					desc: true
 				});
 
-				expect(items[0].id).to.equal('id-3');
-				expect(items[1].id).to.equal('id-4');
+				expect(data[0].id).to.equal('id-3');
+				expect(data[1].id).to.equal('id-4');
 
 				query(stats.after)
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-6');
-						expect(response.items[1].id).to.equal('id-5');
+						expect(response.data[0].id).to.equal('id-6');
+						expect(response.data[1].id).to.equal('id-5');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-8');
-						expect(response.items[1].id).to.equal('id-7');
+						expect(response.data[0].id).to.equal('id-8');
+						expect(response.data[1].id).to.equal('id-7');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-9');
+						expect(response.data[0].id).to.equal('id-9');
 						expect(response.stats.after).to.be.null;
 						expect(response.stats.count).to.equal(1);
 					})
@@ -697,20 +695,20 @@ describe('lib/Crud', () => {
 
 				query()
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-0');
-						expect(response.items[1].id).to.equal('id-1');
+						expect(response.data[0].id).to.equal('id-0');
+						expect(response.data[1].id).to.equal('id-1');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-2');
-						expect(response.items[1].id).to.equal('id-3');
+						expect(response.data[0].id).to.equal('id-2');
+						expect(response.data[1].id).to.equal('id-3');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-4');
-						expect(response.items[1].id).to.equal('id-5');
+						expect(response.data[0].id).to.equal('id-4');
+						expect(response.data[1].id).to.equal('id-5');
 						expect(response.stats.count).to.equal(2);
 					})
 					.subscribe(response => {}, null, done);
@@ -726,20 +724,20 @@ describe('lib/Crud', () => {
 
 				query()
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-1');
-						expect(response.items[1].id).to.equal('id-0');
+						expect(response.data[0].id).to.equal('id-1');
+						expect(response.data[1].id).to.equal('id-0');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-3');
-						expect(response.items[1].id).to.equal('id-2');
+						expect(response.data[0].id).to.equal('id-3');
+						expect(response.data[1].id).to.equal('id-2');
 						expect(response.stats.count).to.equal(2);
 					})
 					.mergeMap(response => query(response.stats.after))
 					.do(response => {
-						expect(response.items[0].id).to.equal('id-5');
-						expect(response.items[1].id).to.equal('id-4');
+						expect(response.data[0].id).to.equal('id-5');
+						expect(response.data[1].id).to.equal('id-4');
 						expect(response.stats.count).to.equal(2);
 					})
 					.subscribe(response => {}, null, done);
@@ -747,7 +745,7 @@ describe('lib/Crud', () => {
 		});
 
 		describe('resume', () => {
-			let items;
+			let data;
 			let stats;
 
 			beforeEach(done => {
@@ -756,14 +754,13 @@ describe('lib/Crud', () => {
 						namespace: 'spec'
 					})
 					.subscribe(response => {
-						items = response.items;
+						data = response.data;
 						stats = response.stats;
 					}, null, done);
 			});
 
 			it('should get correct before and after', () => {
-				expect(_.last(items)
-					.id).to.equal('id-4');
+				expect(_.last(data).id).to.equal('id-4');
 
 				expect(JSON.parse(crud.fromBase64(stats.before))).to.be.null;
 				expect(JSON.parse(crud.fromBase64(stats.after))).to.deep.equal({
@@ -781,7 +778,7 @@ describe('lib/Crud', () => {
 						resume: stats.after
 					})
 					.subscribe(response => {
-						expect(response.items[0].id).to.equal('id-5');
+						expect(response.data[0].id).to.equal('id-5');
 
 						expect(JSON.parse(crud.fromBase64(response.stats.before))).to.deep.equal({
 							namespace: 'spec',
@@ -802,14 +799,13 @@ describe('lib/Crud', () => {
 							select: 'localStringIndexedSortAttr'
 						})
 						.subscribe(response => {
-							items = response.items;
+							data = response.data;
 							stats = response.stats;
 						}, null, done);
 				});
 
 				it('should get correct after', () => {
-					expect(_.last(items)
-						.localStringIndexedSortAttr).to.equal('local-indexed-4');
+					expect(_.last(data).localStringIndexedSortAttr).to.equal('local-indexed-4');
 
 					expect(JSON.parse(crud.fromBase64(stats.before))).to.be.null;
 					expect(JSON.parse(crud.fromBase64(stats.after))).to.deep.equal({
@@ -830,7 +826,7 @@ describe('lib/Crud', () => {
 							resume: stats.after
 						})
 						.subscribe(response => {
-							expect(response.items[0].localStringIndexedSortAttr).to.equal('local-indexed-5');
+							expect(response.data[0].localStringIndexedSortAttr).to.equal('local-indexed-5');
 
 							expect(JSON.parse(crud.fromBase64(response.stats.before))).to.deep.equal({
 								namespace: 'spec',
@@ -853,13 +849,13 @@ describe('lib/Crud', () => {
 							select: 'globalIndexedPartitionAttr'
 						})
 						.subscribe(response => {
-							items = response.items;
+							data = response.data;
 							stats = response.stats;
 						}, null, done);
 				});
 
 				it('should get correct after', () => {
-					expect(items[0].globalStringIndexedSortAttr).to.equal('global-indexed-0');
+					expect(data[0].globalStringIndexedSortAttr).to.equal('global-indexed-0');
 
 					expect(JSON.parse(crud.fromBase64(stats.before))).to.be.null;
 					expect(JSON.parse(crud.fromBase64(stats.after))).to.deep.equal({
@@ -881,7 +877,7 @@ describe('lib/Crud', () => {
 							resume: stats.after
 						})
 						.subscribe(response => {
-							expect(response.items[0].globalStringIndexedSortAttr).to.equal('global-indexed-5');
+							expect(response.data[0].globalStringIndexedSortAttr).to.equal('global-indexed-5');
 							expect(JSON.parse(crud.fromBase64(response.stats.before))).to.deep.equal({
 								namespace: 'spec',
 								id: 'id-5',
@@ -902,13 +898,13 @@ describe('lib/Crud', () => {
 						namespace: 'spec'
 					})
 					.subscribe(response => {
-						items = response.items;
+						data = response.data;
 						stats = response.stats;
 					}, null, done);
 			});
 
 			it('should fetch desc', () => {
-				expect(items[0].id).to.equal('id-9');
+				expect(data[0].id).to.equal('id-9');
 				expect(stats.count).to.equal(10);
 			});
 		});
@@ -920,13 +916,13 @@ describe('lib/Crud', () => {
 						namespace: 'spec'
 					})
 					.subscribe(response => {
-						items = response.items;
+						data = response.data;
 						stats = response.stats;
 					}, null, done);
 			});
 
 			it('should fetch just namespace and id', () => {
-				expect(items[0]).to.deep.equal({
+				expect(data[0]).to.deep.equal({
 					namespace: 'spec',
 					id: 'id-0'
 				});
@@ -942,7 +938,7 @@ describe('lib/Crud', () => {
 						namespace: 'spec'
 					})
 					.subscribe(response => {
-						items = response.items;
+						data = response.data;
 						stats = response.stats;
 					}, null, done);
 			});
@@ -961,7 +957,7 @@ describe('lib/Crud', () => {
 						namespace: 'spec',
 					})
 					.subscribe(response => {
-						items = response.items;
+						data = response.data;
 						stats = response.stats;
 					}, null, done);
 			});
@@ -1037,7 +1033,7 @@ describe('lib/Crud', () => {
 						id: 'id-0'
 					})
 					.subscribe(response => {
-						items = response.items;
+						data = response.data;
 						stats = response.stats;
 					}, null, done);
 			});
@@ -1138,11 +1134,11 @@ describe('lib/Crud', () => {
 		it('should return inserted item', () => {
 			expect(item.id).to.equal('id-10');
 			expect(item).to.have.all.keys([
-					'namespace',
-					'id',
-					'createdAt',
-					'updatedAt',
-				]);
+				'namespace',
+				'id',
+				'createdAt',
+				'updatedAt',
+			]);
 		});
 
 		describe('hook', () => {
@@ -1225,11 +1221,11 @@ describe('lib/Crud', () => {
 			expect(item.id).to.equal('id-0');
 			expect(item.createdAt).to.equal(item.updatedAt);
 			expect(item).to.have.all.keys([
-					'namespace',
-					'id',
-					'createdAt',
-					'updatedAt'
-				]);
+				'namespace',
+				'id',
+				'createdAt',
+				'updatedAt'
+			]);
 		});
 
 		describe('hook', () => {
@@ -1307,18 +1303,18 @@ describe('lib/Crud', () => {
 				.not.to.equal(item.updatedAt);
 			expect(item.createdAt).to.be.below(item.updatedAt);
 			expect(item).to.have.all.keys([
-					'globalIndexedPartitionAttr',
-					'globalNumberIndexedSortAttr',
-					'globalStringIndexedSortAttr',
-					'localNumberIndexedSortAttr',
-					'localStringIndexedSortAttr',
-					'namespace',
-					'id',
-					'title',
-					'message',
-					'createdAt',
-					'updatedAt',
-				]);
+				'globalIndexedPartitionAttr',
+				'globalNumberIndexedSortAttr',
+				'globalStringIndexedSortAttr',
+				'localNumberIndexedSortAttr',
+				'localStringIndexedSortAttr',
+				'namespace',
+				'id',
+				'title',
+				'message',
+				'createdAt',
+				'updatedAt',
+			]);
 		});
 
 		it('should return old item', done => {
@@ -1408,18 +1404,18 @@ describe('lib/Crud', () => {
 				.not.to.equal(item.updatedAt);
 			expect(item.createdAt).to.be.below(item.updatedAt);
 			expect(item).to.have.all.keys([
-					'globalIndexedPartitionAttr',
-					'globalNumberIndexedSortAttr',
-					'globalStringIndexedSortAttr',
-					'localNumberIndexedSortAttr',
-					'localStringIndexedSortAttr',
-					'namespace',
-					'id',
-					'title',
-					'message',
-					'createdAt',
-					'updatedAt',
-				]);
+				'globalIndexedPartitionAttr',
+				'globalNumberIndexedSortAttr',
+				'globalStringIndexedSortAttr',
+				'localNumberIndexedSortAttr',
+				'localStringIndexedSortAttr',
+				'namespace',
+				'id',
+				'title',
+				'message',
+				'createdAt',
+				'updatedAt',
+			]);
 		});
 
 		it('should return old item', done => {
@@ -1572,11 +1568,11 @@ describe('lib/Crud', () => {
 		it('should return deleted item', () => {
 			expect(item.id).to.equal('id-3');
 			expect(item).to.have.all.keys([
-					'namespace',
-					'id',
-					'createdAt',
-					'updatedAt',
-				]);
+				'namespace',
+				'id',
+				'createdAt',
+				'updatedAt',
+			]);
 		});
 
 		describe('hook', () => {
@@ -1650,10 +1646,10 @@ describe('lib/Crud', () => {
 
 		it('should create a list', () => {
 			expect(item.list).to.deep.equal([{
-					a: 1
-				}, {
-					b: 2
-				}]);
+				a: 1
+			}, {
+				b: 2
+			}]);
 		});
 
 		it('should append array', done => {
@@ -1782,10 +1778,10 @@ describe('lib/Crud', () => {
 
 		it('should create a list', () => {
 			expect(item.list).to.deep.equal([{
-					a: 1
-				}, {
-					b: 2
-				}]);
+				a: 1
+			}, {
+				b: 2
+			}]);
 		});
 
 		it('should prepend array', done => {
