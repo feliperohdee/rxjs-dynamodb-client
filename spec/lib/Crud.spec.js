@@ -2401,7 +2401,7 @@ describe('lib/Crud', () => {
 	});
 
 	describe('multiGet', () => {
-		it('should get multiple items', () => {
+		it('should get multiple items', done => {
 			crud.multiGet({
 					items: [{
 						namespace,
@@ -2441,7 +2441,7 @@ describe('lib/Crud', () => {
 						localStringIndexedSortAttr: 'local-indexed-8',
 						updatedAt: response[1].updatedAt
 					}]);
-				});
+				}, null, done);
 		});
 
 		describe('select', () => {
