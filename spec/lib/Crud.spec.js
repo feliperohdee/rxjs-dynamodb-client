@@ -2511,7 +2511,7 @@ describe('lib/Crud', () => {
 					}]
 				}).toArray()
 				.subscribe(response => {
-					expect(response).to.deep.equal([{
+					expect(response).to.deep.contain({
 						createdAt: response[0].createdAt,
 						globalIndexedPartitionAttr: 'global-indexed-spec',
 						globalNumberIndexedSortAttr: 9,
@@ -2522,7 +2522,9 @@ describe('lib/Crud', () => {
 						message: 'message-9',
 						localStringIndexedSortAttr: 'local-indexed-9',
 						updatedAt: response[0].updatedAt
-					}, {
+					});
+					
+					expect(response).to.deep.contain({
 						createdAt: response[1].createdAt,
 						globalIndexedPartitionAttr: 'global-indexed-spec',
 						globalNumberIndexedSortAttr: 8,
@@ -2533,12 +2535,12 @@ describe('lib/Crud', () => {
 						message: 'message-8',
 						localStringIndexedSortAttr: 'local-indexed-8',
 						updatedAt: response[1].updatedAt
-					}]);
+					});
 				}, null, done);
 		});
 
 		describe('select', () => {
-			it('should get multiple items', () => {
+			it('should get multiple items', done => {
 				crud.multiGet({
 						select: 'id',
 						items: [{
@@ -2557,14 +2559,16 @@ describe('lib/Crud', () => {
 					})
 					.toArray()
 					.subscribe(response => {
-						expect(response).to.deep.equal([{
-							namespace: 'spec',
-							id: 'id-9'
-						}, {
+						expect(response).to.deep.contain({
 							namespace: 'spec',
 							id: 'id-8'
-						}]);
-					});
+						});
+
+						expect(response).to.deep.contain({
+							namespace: 'spec',
+							id: 'id-9'
+						});
+					}, null, done);
 			});
 		});
 
