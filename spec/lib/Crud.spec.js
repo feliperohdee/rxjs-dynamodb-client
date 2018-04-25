@@ -2511,21 +2511,12 @@ describe('lib/Crud', () => {
 					}]
 				}).toArray()
 				.subscribe(response => {
-					expect(response).to.deep.contain({
-						createdAt: response[0].createdAt,
-						globalIndexedPartitionAttr: 'global-indexed-spec',
-						globalNumberIndexedSortAttr: 9,
-						localNumberIndexedSortAttr: 9,
-						namespace: 'spec',
-						id: 'id-9',
-						globalStringIndexedSortAttr: 'global-indexed-9',
-						message: 'message-9',
-						localStringIndexedSortAttr: 'local-indexed-9',
-						updatedAt: response[0].updatedAt
+					const firstIndex = _.findIndex(response, {
+						id: 'id-8'
 					});
-					
+
 					expect(response).to.deep.contain({
-						createdAt: response[1].createdAt,
+						createdAt: response[firstIndex].createdAt,
 						globalIndexedPartitionAttr: 'global-indexed-spec',
 						globalNumberIndexedSortAttr: 8,
 						localNumberIndexedSortAttr: 8,
@@ -2534,7 +2525,20 @@ describe('lib/Crud', () => {
 						globalStringIndexedSortAttr: 'global-indexed-8',
 						message: 'message-8',
 						localStringIndexedSortAttr: 'local-indexed-8',
-						updatedAt: response[1].updatedAt
+						updatedAt: response[firstIndex].updatedAt
+					});
+
+					expect(response).to.deep.contain({
+						createdAt: response[firstIndex === 0 ? 1 : 0].createdAt,
+						globalIndexedPartitionAttr: 'global-indexed-spec',
+						globalNumberIndexedSortAttr: 9,
+						localNumberIndexedSortAttr: 9,
+						namespace: 'spec',
+						id: 'id-9',
+						globalStringIndexedSortAttr: 'global-indexed-9',
+						message: 'message-9',
+						localStringIndexedSortAttr: 'local-indexed-9',
+						updatedAt: response[firstIndex === 0 ? 1 : 0].updatedAt
 					});
 				}, null, done);
 		});
