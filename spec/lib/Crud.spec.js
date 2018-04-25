@@ -1644,6 +1644,41 @@ describe('lib/Crud', () => {
 				}, null, done);
 		});
 
+		it('should not create item', done => {
+			crud.appendToList({
+					namespace,
+					id: 'inexistentAppendList',
+					list: [{
+						a: 1
+					}, {
+						b: 2
+					}]
+				})
+				.subscribe(null, err => {
+					expect(err.message).to.equal('The conditional request failed');
+					done();
+				});
+		});
+		
+		it('should create item if create=true', done => {
+			crud.appendToList({
+					namespace,
+					id: 'inexistentAppendList',
+					list: [{
+						a: 1
+					}, {
+						b: 2
+					}]
+				}, true)
+				.subscribe(response => {
+					expect(item.list).to.deep.equal([{
+						a: 1
+					}, {
+						b: 2
+					}]);
+				}, null, done);
+		});
+
 		it('should create a list', () => {
 			expect(item.list).to.deep.equal([{
 				a: 1
@@ -1703,7 +1738,7 @@ describe('lib/Crud', () => {
 					}, {
 						d: 4
 					}]
-				}, 'ALL_OLD')
+				}, false, 'ALL_OLD')
 				.subscribe(response => {
 					expect(response.list).to.deep.equal([{
 						a: 1
@@ -1728,7 +1763,7 @@ describe('lib/Crud', () => {
 					}, {
 						f: 6
 					}]
-				}, 'ALL_NEW', ({
+				}, false, 'ALL_NEW', ({
 					request,
 					expression
 				}) => {
@@ -1773,6 +1808,41 @@ describe('lib/Crud', () => {
 				}))
 				.subscribe(response => {
 					item = response;
+				}, null, done);
+		});
+
+		it('should not create item', done => {
+			crud.prependToList({
+					namespace,
+					id: 'inexistentPrependList',
+					list: [{
+						a: 1
+					}, {
+						b: 2
+					}]
+				})
+				.subscribe(null, err => {
+					expect(err.message).to.equal('The conditional request failed');
+					done();
+				});
+		});
+		
+		it('should create item if create=true', done => {
+			crud.prependToList({
+					namespace,
+					id: 'inexistentPrependList',
+					list: [{
+						a: 1
+					}, {
+						b: 2
+					}]
+				}, true)
+				.subscribe(response => {
+					expect(item.list).to.deep.equal([{
+						a: 1
+					}, {
+						b: 2
+					}]);
 				}, null, done);
 		});
 
@@ -1835,7 +1905,7 @@ describe('lib/Crud', () => {
 					}, {
 						d: 4
 					}]
-				}, 'ALL_OLD')
+				}, false, 'ALL_OLD')
 				.subscribe(response => {
 					expect(response.list).to.deep.equal([{
 						a: 1
@@ -1860,7 +1930,7 @@ describe('lib/Crud', () => {
 					}, {
 						f: 6
 					}]
-				}, 'ALL_NEW', ({
+				}, false, 'ALL_NEW', ({
 					request,
 					expression
 				}) => {
@@ -2096,6 +2166,29 @@ describe('lib/Crud', () => {
 				.subscribe(null, null, done);
 		});
 
+		it('should not create item', done => {
+			crud.addToSet({
+					namespace,
+					id: 'inexistentSet',
+					set: ['a', 'b']
+				})
+				.subscribe(null, err => {
+					expect(err.message).to.equal('The conditional request failed');
+					done();
+				});
+		});
+		
+		it('should create item if create=true', done => {
+			crud.addToSet({
+					namespace,
+					id: 'inexistentSet',
+					set: ['a', 'b']
+				}, true)
+				.subscribe(response => {
+					expect(response.set).to.deep.equal(['a', 'b']);
+				}, null, done);
+		});
+
 		it('should create a string set with array', done => {
 			crud.addToSet({
 					namespace,
@@ -2180,7 +2273,7 @@ describe('lib/Crud', () => {
 					namespace,
 					id: 'id-0',
 					set: 'c'
-				}, 'ALL_OLD'))
+				}, false, 'ALL_OLD'))
 				.subscribe(response => {
 					expect(response.set).to.deep.equal(['a', 'b']);
 				}, null, done);
@@ -2197,7 +2290,7 @@ describe('lib/Crud', () => {
 					namespace,
 					id: 'id-0',
 					set: ['a', 'b']
-				}, 'ALL_NEW', ({
+				}, false, 'ALL_NEW', ({
 					request,
 					expression
 				}) => {
