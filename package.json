@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "deploy": "npm version patch -m 'Bump %s' && git push origin master && npm publish",
+        "eslint": "eslint . --ext .js --config node_modules/eslint-config/index.js",
         "test": "NODE_ENV=test ./node_modules/.bin/_mocha **.spec.js **/*.spec.js --recursive --watch --timeout 5000",
         "coverage": "rm -rf coverage; NODE_ENV=test nyc ./node_modules/.bin/_mocha **.spec.js **/*.spec.js --recursive --timeout 5000; rm -rf .nyc_output"
     },
@@ -22,6 +23,7 @@
     },
     "devDependencies": {
         "chai": "^4.1.2",
+        "eslint": "^6.6.0",
         "mocha": "^5.1.1",
         "nyc": "^14.1.1",
         "sinon": "^4.5.0",
@@ -31,6 +33,7 @@
         "all": true,
         "reporter": "lcov",
         "exclude": [
+            ".eslintrc.js",
             "*.spec.js",
             "**/*.spec.js",
             "testing/**"

@@ -1,10 +1,6 @@
 const chai = require('chai');
 const sinon = require('sinon');
 const sinonChai = require('sinon-chai');
-const _ = require('lodash');
-const {
-	Observable
-} = require('rxjs');
 const {
 	DynamoDB: AWSDynamoDB
 } = require('aws-sdk');
