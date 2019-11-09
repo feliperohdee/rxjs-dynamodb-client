@@ -1,15 +1,13 @@
-[![CircleCI](https://circleci.com/gh/feliperohdee/smallorange-dynamodb-client.svg?style=svg)](https://circleci.com/gh/feliperohdee/smallorange-dynamodb-client)
-
 # DynamoDb client built with lodash and rxjs!
 
-Hi, this client is built on top of RxJS Observables (a reactive programming library http://reactivex.io/rxjs/), so, would be good to have a small portion of knowledege about that to enjoy all the features which this lib provide, specially the operators. I'will explain a bit when needed.
+Hi, this client is built on top of RxJS Observables (a reactive programming library https://rxjs.dev), so, would be good to have a small portion of knowledege about that to enjoy all the features which this lib provide, specially the operators. I'will explain a bit when needed.
 
 To create an instance, is simple, just pass a dynamodb client to lib's constructor:
 
 		import AWS from 'aws-sdk';
 		import {
 			DynamoDB
-		} from 'smallorange-dynamodb-client';
+		} from 'rxjs-dynamodb-client';
 
 		AWS.config.update({
 			accessKeyId: 'yourAccessKeyId',
@@ -77,7 +75,9 @@ To create an instance, is simple, just pass a dynamodb client to lib's construct
 
 		dynamoDb.table({...})
 			.describe({...})
-			.catch(() => createTable)
+			.pipe(
+				catch(() => createTable)
+			)
 			.subscribe(nextFn, errFn, completeFn);
 
 Note: If you are using Promises, you can easily tranform Observables into Promises calling .toPromise() instead of .subscribe(), but we really advice you to learn RxJS, its amazing powerful.
@@ -88,7 +88,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 
 		import {
 			ConsumedCapacity
-		} from 'smallorange-dynamodb-client';
+		} from 'rxjs-dynamodb-client';
 
 		dynamoDb.table({...})
 			.consumedCapacity(ConsumedCapacity.NONE | ConsumedCapacity.TOTAL | ConsumedCapacity.INDEXES)
@@ -100,7 +100,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 
 		import {
 			Select
-		} from 'smallorange-dynamodb-client';
+		} from 'rxjs-dynamodb-client';
 
 		dynamoDb.table({...})
 			.select('name, age, ...')
@@ -136,15 +136,16 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 				[globalIndexartitionAttr]: string;
 				[globalIndexortAttr]: string;
 			})
-			.filter(filterFn) // rxjs sample operators
-			.map(mapFn) // rxjs sample operators
-			.toArray() // Other way it will emit values by streaming, good if you are using real time responses, like webSocket [=.
+			.pipe(
+				filter(filterFn), // rxjs sample operators
+				map(mapFn), // rxjs sample operators
+				toArray() // Other way it will emit values by streaming, good if you are using real time responses, like webSocket [=.
+			)
 			.subscribe(nextFn, errFn, completeFn);
 
 		const request = dynamoDb.table({...});
 
-		request
-			.select(...)
+		request.select(...)
 			.limit(10)
 			.addPlaceholderName({
 				partition: 'partitionAttr',
@@ -155,13 +156,15 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 				sort: 'sortValue'	
 			})
 			.query(`#partition = :partition AND begins_with(#sort, :sort)`)
-			.toArray() // Other way it will emit values by streaming, good if you are using real time responses, like webSocket [=.
-			.map(response => {
-				return {
-					response,
-					stats: request.queryStats // at the end, you can get queryStats which gives you before, after, count, scannedCount and iteractions
-				}
-			})
+			.pipe(
+				toArray(), // Other way it will emit values by streaming, good if you are using real time responses, like webSocket [=.
+				map(response => {
+					return {
+						response,
+						stats: request.queryStats // at the end, you can get queryStats which gives you before, after, count, scannedCount and iteractions
+					}
+				})
+			)
 			.subscribe(nextFn, errFn, completeFn);
 
 			// this response will be
@@ -189,8 +192,10 @@ Note: DynamoDb just fetch max 1MB, this lib handles this and perform many reques
 				[partitionAttr]: string; // required
 				[sortAttr]: string;	 // required
 			})
-			.filter(filterFn) // rxjs sample operators
-			.map(mapFn) // rxjs sample operators
+			.pipe(
+				filter(filterFn), // rxjs sample operators
+				map(mapFn) // rxjs sample operators
+			)
 			.subscribe(nextFn, errFn, completeFn);
 
 Note: If you are using Promises, you can easily tranform Observables into Promises calling .toPromise() instead of .subscribe(), but we really advice you to learn RxJS, its amazing powerful.
@@ -313,7 +318,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 		
 		import {
 			ReturnValues
-		} from 'smallorange-dynamodb-client';
+		} from 'rxjs-dynamodb-client';
 
 		dynamoDb.table({...})
 			.return(ReturnValues.NONE | ReturnValues.ALL_OLD | ReturnValues.UPDATED_OLD | ReturnValues.ALL_NEW | ReturnValues.UPDATED_NEW)
@@ -332,7 +337,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 		
 		import {
 			ReturnValues
-		} from 'smallorange-dynamodb-client';
+		} from 'rxjs-dynamodb-client';
 
 		dynamoDb.table({...})
 			.return(ReturnValues.NONE | ReturnValues.ALL_OLD)
@@ -352,9 +357,11 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 				[partitionAttr]: string; // required
 				[sortAttr]: string; // required
 			}])
-			.filter(filterFn) // rxjs sample operators
-			.map(mapFn) // rxjs sample operators
-			.toArray() // Other way it will emit values by streaming, good if you are using real time responses, like webSocket [=.
+			.pipe(
+				filter(filterFn), // rxjs sample operators
+				map(mapFn), // rxjs sample operators
+				toArray() // Other way it will emit values by streaming, good if you are using real time responses, like webSocket [=.
+			)
 			.subscribe(nextFn, errFn, completeFn);
 
 Note: Dynamo gets just max 100 entities, but this lib handle this and perform many requests as needed to get all data.
@@ -378,78 +385,83 @@ Note: Dynamo handles 25 write operations max, but this lib handle this and perfo
 
 # Low level requests
 
-If you need to perform low level requests, like create a table, you can do it using `.routeCall(opertaionName: string, args: object)`. This sample creates a table if it not exists, and insert 10 items. We are using RxJS operators, if you have doubts about that, you can learn at http://reactivex.io/rxjs/.
+If you need to perform low level requests, like create a table, you can do it using `.routeCall(opertaionName: string, args: object)`. This sample creates a table if it not exists, and insert 10 items. We are using RxJS operators, if you have doubts about that, you can learn at https://rxjs.dev.
 
 			request.describe() // verify if table exists
-				.catch(() => request.routeCall('createTable', { //if not, create a table
-					TableName: 'tblSpec',
-					ProvisionedThroughput: {
-						ReadCapacityUnits: 1,
-						WriteCapacityUnits: 1
-					},
-					AttributeDefinitions: [{
-						AttributeName: 'namespace',
-						AttributeType: 'S'
-					}, {
-						AttributeName: 'key',
-						AttributeType: 'S'
-					}, {
-						AttributeName: 'localIndexedAttr',
-						AttributeType: 'S'
-					}, {
-						AttributeName: 'globalIndexedPartitionAttr',
-						AttributeType: 'S'
-					}, {
-						AttributeName: 'globalIndexedSortAttr',
-						AttributeType: 'S'
-					}],
-					KeySchema: [{
-						AttributeName: 'namespace',
-						KeyType: 'HASH'
-					}, {
-						AttributeName: 'key',
-						KeyType: 'RANGE'
-					}],
-					LocalSecondaryIndexes: [{
-						IndexName: 'localIndexedSpec',
+				.pipe(
+					catch(() => request.routeCall('createTable', { //if not, create a table
+						TableName: 'tblSpec',
+						ProvisionedThroughput: {
+							ReadCapacityUnits: 1,
+							WriteCapacityUnits: 1
+						},
+						AttributeDefinitions: [{
+							AttributeName: 'namespace',
+							AttributeType: 'S'
+						}, {
+							AttributeName: 'key',
+							AttributeType: 'S'
+						}, {
+							AttributeName: 'localIndexedAttr',
+							AttributeType: 'S'
+						}, {
+							AttributeName: 'globalIndexedPartitionAttr',
+							AttributeType: 'S'
+						}, {
+							AttributeName: 'globalIndexedSortAttr',
+							AttributeType: 'S'
+						}],
 						KeySchema: [{
 							AttributeName: 'namespace',
 							KeyType: 'HASH'
 						}, {
-							AttributeName: 'localIndexedAttr',
+							AttributeName: 'key',
 							KeyType: 'RANGE'
 						}],
-						Projection: {
-							ProjectionType: 'ALL'
-						}
-					}],
-					GlobalSecondaryIndexes: [{
-						IndexName: 'globalIndexedSpec',
-						KeySchema: [{
-							AttributeName: 'globalIndexedPartitionAttr',
-							KeyType: 'HASH'
-						}, {
-							AttributeName: 'globalIndexedSortAttr',
-							KeyType: 'RANGE'
+						LocalSecondaryIndexes: [{
+							IndexName: 'localIndexedSpec',
+							KeySchema: [{
+								AttributeName: 'namespace',
+								KeyType: 'HASH'
+							}, {
+								AttributeName: 'localIndexedAttr',
+								KeyType: 'RANGE'
+							}],
+							Projection: {
+								ProjectionType: 'ALL'
+							}
 						}],
-						Projection: {
-							ProjectionType: 'ALL'
-						},
-						ProvisionedThroughput: {
-							ReadCapacityUnits: 1,
-							WriteCapacityUnits: 1
-						}
-					}]
-				}))
-				.mergeMap(() => Observable.range(0, 10) // insert 10 items to the table
-					.mergeMap(n => request.insert({
-						namespace,
-						key: `key-${n}`,
-						message: `message-${n}`,
-						localIndexedAttr: `local-indexed-${n}`,
-						globalIndexedPartitionAttr: `global-indexed-${namespace}`,
-						globalIndexedSortAttr: `global-indexed-${n}`,
-					}, true)))
+						GlobalSecondaryIndexes: [{
+							IndexName: 'globalIndexedSpec',
+							KeySchema: [{
+								AttributeName: 'globalIndexedPartitionAttr',
+								KeyType: 'HASH'
+							}, {
+								AttributeName: 'globalIndexedSortAttr',
+								KeyType: 'RANGE'
+							}],
+							Projection: {
+								ProjectionType: 'ALL'
+							},
+							ProvisionedThroughput: {
+								ReadCapacityUnits: 1,
+								WriteCapacityUnits: 1
+							}
+						}]
+					})),
+					mergeMap(() => {
+						return range(0, 10) // insert 10 items to the table
+							.pipe(
+								mergeMap(n => request.insert({
+									namespace,
+									key: `key-${n}`,
+									message: `message-${n}`,
+									localIndexedAttr: `local-indexed-${n}`,
+									globalIndexedPartitionAttr: `global-indexed-${namespace}`,
+									globalIndexedSortAttr: `global-indexed-${n}`,
+								}, true))
+					})
+				)
 				.subscribe(null, null, done);
 
 ## CRUD
@@ -460,7 +472,7 @@ This lib follows with a Crud class helper, at this way you can extend your model
 		import {
 			Crud,
 			DynamoDB
-		} from 'smallorange-dynamodb-client';
+		} from 'rxjs-dynamodb-client';
 
 		AWS.config.update({
 			accessKeyId: 'yourAccessKeyId',
@@ -746,10 +758,3 @@ This lib follows with a Crud class helper, at this way you can extend your model
 					delay: 1000 // will retry after 1 second
 				};
 			});
-
-## Final Words
-
-If you have any questions, contact me at felipe@smallorange.co.
-I intend to write a better documentation, as soon I have more time.
-
-
