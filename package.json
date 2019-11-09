@@ -1,21 +1,20 @@
 {
   "name": "smallorange-dynamodb-client",
-  "version": "1.1.8",
+  "version": "1.2.0",
   "description": "Lightweight dynamoDb client built on top of RxJS",
   "main": "index.js",
   "scripts": {
     "deploy": "npm version patch -m 'Bump %s' && git push origin master && npm publish",
-    "test": "NODE_ENV=test ./node_modules/.bin/_mocha spec --recursive --watch",
-    "testOnce": "NODE_ENV=test ./node_modules/.bin/_mocha spec --recursive --exit",
-    "coverage": "NODE_ENV=test ./node_modules/.bin/istanbul cover -x 'spec/**' -x 'testing/**' ./node_modules/.bin/_mocha -- spec --recursive"
+    "test": "NODE_ENV=test ./node_modules/.bin/_mocha **.spec.js **/**.spec.js --recursive --watch --timeout 5000",
+    "coverage": "NODE_ENV=test ./node_modules/.bin/istanbul cover -x '**/**.spec.js' -x '**.spec.js' -x 'testing/**' ./node_modules/.bin/_mocha -- spec --recursive"
   },
   "author": "Felipe Rohde",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.228.1",
-    "cuid": "^2.1.1",
-    "lodash": "^4.17.10",
-    "rxjs": "5.4.3"
+    "aws-sdk": "^2.568.0",
+    "cuid": "^2.1.6",
+    "lodash": "^4.17.15",
+    "rxjs": "6.5.3"
   },
   "repository": {
     "type": "git",
