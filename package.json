@@ -33,7 +33,6 @@
         "all": true,
         "reporter": "lcov",
         "exclude": [
-            ".eslintrc.js",
             "*.spec.js",
             "**/*.spec.js",
             "testing/**"
