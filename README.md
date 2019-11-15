@@ -78,7 +78,7 @@ To create an instance, is simple, just pass a dynamodb client to lib's construct
 			.pipe(
 				catch(() => createTable)
 			)
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 Note: If you are using Promises, you can easily tranform Observables into Promises calling .toPromise() instead of .subscribe(), but we really advice you to learn RxJS, its amazing powerful.
 
@@ -118,8 +118,8 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			.consistent()
 			.query({...});
 
-**.query(data: object | string)**
-**.queryScan(data: object | string)**
+**.query(args: object | string)**
+**.queryScan(args: object | string)**
 * Query table using primaryKeys or Indexes, or combined.
 * Returns an observable carrying the data, which can be used with any RxJS operators, like, map, filter, reduce, debounceTime, ...
 
@@ -142,7 +142,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 				map(mapFn), // rxjs sample operators
 				toArray() // Other way it will emit values by streaming, good if you are using real time responses, like webSocket [=.
 			)
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 		const request = dynamoDb.table({...});
 
@@ -166,7 +166,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 					}
 				})
 			)
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 			// this response will be
 			//
@@ -183,7 +183,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 
 Note: DynamoDb just fetch max 1MB, this lib handles this and perform many requests as needed to fetch all data. So, always look for use `.limit(value: number)` when querying.
 
-**.get(data: object)**
+**.get(item: object)**
 * Get a value table using primaryKeys or Indexes, or combined.
 * Returns an observable carrying the data, which can be used with any RxJS operators, like, map, filter, reduce, debounceTime, ...
 
@@ -197,7 +197,7 @@ Note: DynamoDb just fetch max 1MB, this lib handles this and perform many reques
 				filter(filterFn), // rxjs sample operators
 				map(mapFn) // rxjs sample operators
 			)
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 Note: If you are using Promises, you can easily tranform Observables into Promises calling .toPromise() instead of .subscribe(), but we really advice you to learn RxJS, its amazing powerful.
 
@@ -208,7 +208,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 		dynamoDb.table({...})
 			.index('someLocalIndexName')
 			.query({...})
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 **.desc()**
 * Chain to inform requests that next request will be made in descendent order.
@@ -217,7 +217,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 		dynamoDb.table({...})
 			.desc()
 			.query({...})
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 **.limit()**
 * Chain to inform requests that next request will have a limit.
@@ -226,7 +226,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 		dynamoDb.table({...})
 			.limit(100)
 			.query({...})
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 **.filter(expression: string, append: boolean = false, condition = 'AND')**
 * Chain to create a filterExpression, or append one, it shoud be used with `.addPlaceholderName()` and `.addPlaceholderValue()`.
@@ -245,7 +245,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 				[sortAttr]: string; // required
 				...
 			})
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 			// you can append a filter, and sepecify the condition
 
@@ -281,39 +281,39 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 				[globalIndexortAttr]: string;	
 			})
 			.query({...})
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
-**.insert(data: object)**
+**.insert(item: object, replace: boolean = false, overrideTimestamp: boolean = false)**
 * Insert, how the name says, just inserts, not updates nor replaces an entity.
 * Returns an observable carrying the data just added plus createdAt and updatedAt attributes with the same value, which can be used with any RxJS operators, like, map, filter, reduce, debounceTime, ...
 
 		dynamoDb.table({...})
 			.insert({...})
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 Note: If you are using Promises, you can easily tranform Observables into Promises calling .toPromise() instead of .subscribe(), but we really advice you to learn RxJS, its amazing powerful.
 
-**.insertOrReplace(data: object)**
+**.insertOrReplace(item: object)**
 * Insert or replace, how the name says, just inserts or replaces, not update an entity.
 * Returns an observable carrying the data just added plus createdAt and updatedAt attributes with the same value, which can be used with any RxJS operators, like, map, filter, reduce, debounceTime, ...
 
 		dynamoDb.table({...})
 			.insertOrReplace({...})
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 Note: If you are using Promises, you can easily tranform Observables into Promises calling .toPromise() instead of .subscribe(), but we really advice you to learn RxJS, its amazing powerful.
 
-**.insertOrUpdate(data: object)**
+**.insertOrUpdate(item: object, where: object)**
 * Insert or replace, how the name says, just inserts or updates, not replaces an entity.
 * Returns an observable carrying the data just added plus createdAt and updatedAt attributes with the same value if inserted, and updatedAt changed if it was updated, which can be used with any RxJS operators, like, map, filter, reduce, debounceTime, ...
 
 		dynamoDb.table({...})
 			.insertOrUpdate({...})
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 Note: If you are using Promises, you can easily tranform Observables into Promises calling .toPromise() instead of .subscribe(), but we really advice you to learn RxJS, its amazing powerful.
 
-**.update(data: object)**
+**.update(item: object, where: object, insert: boolean = false)**
 * Just updated a previously inserted value, not inserts nor replaces.
 * Returns an observable carrying the data defined by `.return()`.
 		
@@ -328,11 +328,11 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 				[sortAttr]: string; // required
 				...
 			})
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 Note: If you are using Promises, you can easily tranform Observables into Promises calling .toPromise() instead of .subscribe(), but we really advice you to learn RxJS, its amazing powerful.
 
-**.delete(data: object)**
+**.delete(item: object)**
 * Just delete a previously inserted value.
 * Returns an observable carrying the data defined by `.return()`.
 		
@@ -346,12 +346,12 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 				[partitionAttr]: string; // required
 				[sortAttr]: string; // required
 			})
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 Note: If you are using Promises, you can easily tranform Observables into Promises calling .toPromise() instead of .subscribe(), but we really advice you to learn RxJS, its amazing powerful.
 
-**.batchGet(data: Array<object>)**
-**.batchGetScan(data: Array<object>)**
+**.batchGet(items: Array<object>)**
+**.batchGetScan(items: Array<object>, scan: () => Obervable)**
 * Returns an observable carrying a stream of gotten values
 
 		dynamoDb.table({...})
@@ -364,7 +364,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 				map(mapFn), // rxjs sample operators
 				toArray() // Other way it will emit values by streaming, good if you are using real time responses, like webSocket [=.
 			)
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 Note: Dynamo gets just max 100 entities, but this lib handle this and perform many requests as needed to get all data.
 Note: If you are using Promises, you can easily tranform Observables into Promises calling .toPromise() instead of .subscribe(), but we really advice you to learn RxJS, its amazing powerful.
@@ -381,7 +381,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 				[sortAttr]: string; // required,
 				...
 			}])
-			.subscribe(nextFn, errFn, completeFn);
+			.subscribe(next, err, complete);
 
 Note: Dynamo handles 25 write operations max, but this lib handle this and perform many requests as needed to perform all operations.
 
