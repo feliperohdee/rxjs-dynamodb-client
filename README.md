@@ -119,6 +119,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			.query({...});
 
 **.query(data: object | string)**
+**.queryScan(data: object | string)**
 * Query table using primaryKeys or Indexes, or combined.
 * Returns an observable carrying the data, which can be used with any RxJS operators, like, map, filter, reduce, debounceTime, ...
 
@@ -350,6 +351,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 Note: If you are using Promises, you can easily tranform Observables into Promises calling .toPromise() instead of .subscribe(), but we really advice you to learn RxJS, its amazing powerful.
 
 **.batchGet(data: Array<object>)**
+**.batchGetScan(data: Array<object>)**
 * Returns an observable carrying a stream of gotten values
 
 		dynamoDb.table({...})
