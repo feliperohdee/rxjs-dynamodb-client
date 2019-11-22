@@ -4,10 +4,9 @@
     "description": "Lightweight dynamoDb client built on top of RxJS",
     "main": "index.js",
     "scripts": {
-        "deploy": "npm version patch -m 'Bump %s' && git push origin master && npm publish",
+        "coverage": "rm -rf coverage; NODE_ENV=test nyc ./node_modules/.bin/_mocha **.spec.js **/*.spec.js --recursive --timeout 5000; rm -rf .nyc_output",
         "eslint": "eslint . --ext .js --config node_modules/eslint-config/index.js",
-        "test": "NODE_ENV=test ./node_modules/.bin/_mocha **.spec.js **/*.spec.js --recursive --watch --timeout 5000",
-        "coverage": "rm -rf coverage; NODE_ENV=test nyc ./node_modules/.bin/_mocha **.spec.js **/*.spec.js --recursive --timeout 5000; rm -rf .nyc_output"
+        "test": "NODE_ENV=test ./node_modules/.bin/_mocha **.spec.js **/*.spec.js --recursive --watch --timeout 5000"
     },
     "author": "Felipe Rohde",
     "license": "ISC",
