@@ -65,10 +65,8 @@ class DynamoDB {
 
     L(data) {
         return this.util.raw({
-            L: _.reduce(data, (result, value) => {
-                result.push(this.util.anormalizeValue(value));
-
-                return result;
+            L: _.reduce(data, (reduction, value) => {
+                return reduction.concat(this.util.anormalizeValue(value));
             }, [])
         });
     }

@@ -159,10 +159,10 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			.query(`#partition = :partition AND begins_with(#sort, :sort)`)
 			.pipe(
 				toArray(), // Other way it will emit values by streaming, good if you are using real time responses, like webSocket [=.
-				map(response => {
+				map(items => {
 					return {
-						response,
-						stats: request.queryStats // at the end, you can get queryStats which gives you before, after, count, scannedCount and iteractions
+						items,
+						stats: request.queryStats // at the end, you can get queryStats which gives you before, after, count, consumedCapacity, scannedCount and iteractions
 					}
 				})
 			)
@@ -171,14 +171,13 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			// this response will be
 			//
 			// {
-			//		response: Array<item>,
-			//		stats: {
-			//			before: object;
-			//			after: object;
-			//			count: number;
-			//			scannedCount: number;
-			//			iteractions: number;
-			//		}
+			//		after: object;
+			//		before: object;
+			//		consumedCapacity: number;
+			//		count: number;
+			//		items: Array<item>;
+			//		iteractions: number;
+			//		scannedCount: number;
 			// }
 
 Note: DynamoDb just fetch max 1MB, this lib handles this and perform many requests as needed to fetch all data. So, always look for use `.limit(value: number)` when querying.
@@ -512,17 +511,17 @@ This lib follows with a Crud class helper, at this way you can extend your model
 				expression: string, 
 				partition: string, 
 				sort: string | number) : Array<args>,
-			dataSelector: function(Observable<object>): Observable<object>,
-			customReducer: function(Observable<object>): Observable<any>,
+			itemSelector: function(Observable<object>): Observable<object>,
+			reducer: function(Observable<object>): Observable<any>,
 			) : Observable<{
-				data: Array<object>, 
-				stats: {
-					count: number, 
-					scannedCount: number, 
-					iterations: number, 
-					before: base64<string>,
-					after: base64<string>
-				}}>
+				after: base64<string>;
+				before: base64<string>;
+				count: number;
+				consumedCapacity: number;
+				items: Array<object>;
+				iterations: number;
+				scannedCount: number;
+			}>
 
 		get(
 			args: {
