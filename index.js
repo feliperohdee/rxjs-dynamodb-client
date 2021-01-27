@@ -1,5 +1,4 @@
-const _ = require('lodash');
-
+const _ = require('./lib/lodash');
 const Crud = require('./lib/Crud');
 const Util = require('./lib/Util');
 const Request = require('./lib/Request');

@@ -1,6 +1,6 @@
 {
     "name": "rxjs-dynamodb-client",
-    "version": "2.0.3",
+    "version": "2.0.4",
     "description": "Lightweight dynamoDb client built on top of RxJS",
     "main": "index.js",
     "scripts": {
