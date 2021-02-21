@@ -15,7 +15,7 @@ To create an instance, is simple, just pass a dynamodb client to lib's construct
 			region: 'us-east-1'
 		});
 
-		const dynamoDb = new DynamoDB({
+		const dynamo = new DynamoDB({
 			client: new AWS.DynamoDB()
 		});
 
@@ -25,7 +25,7 @@ To create an instance, is simple, just pass a dynamodb client to lib's construct
 * Starts an operation chain
 * Returns a request instance which allow chain more operations
 
-		dynamoDb.table(tableName: string, tableSchema: {
+		dynamo.table(tableName: string, tableSchema: {
 			primaryKeys: {
 				partition: string [required];
 				sort: string [optional];
@@ -47,7 +47,7 @@ To create an instance, is simple, just pass a dynamodb client to lib's construct
 * Chain to create placeholders to be used in conjunction of expressions
 * Returns a request instance which allow chain more operations
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.addPlaceholderName({
 				a: 'field1'	
 			})
@@ -57,13 +57,13 @@ To create an instance, is simple, just pass a dynamodb client to lib's construct
 			.filter(`begins_with(#a, :b)`) // any dynamodb expression http://docs.aws.amazon.com/amazondynamodb/latest/
 			.query({...});
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.addPlaceholderName('field1')
 			.addPlaceholderValue('value')
 			.filter(`begins_with(#field1, :value)`) // any dynamodb expression http://docs.aws.amazon.com/amazondynamodb/latest/
 			.query({...});
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.addPlaceholderName(['field1', 'field2'])
 			.addPlaceholderValue(['value1', 'value2'])
 			.filter(`begins_with(#field1, :field1) OR #field2 = :value2`) // any dynamodb expression http://docs.aws.amazon.com/amazondynamodb/latest/
@@ -73,7 +73,7 @@ To create an instance, is simple, just pass a dynamodb client to lib's construct
 * Describe existent table
 * Returns an observable carrying the data about table if exists, throws if not, which can be used to create a table if not exists, se sample below.
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.describe({...})
 			.pipe(
 				catch(() => createTable)
@@ -90,7 +90,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			ConsumedCapacity
 		} from 'rxjs-dynamodb-client';
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.consumedCapacity(ConsumedCapacity.NONE | ConsumedCapacity.TOTAL | ConsumedCapacity.INDEXES)
 			.query({...});
 
@@ -102,11 +102,11 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			Select
 		} from 'rxjs-dynamodb-client';
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.select('name, age, ...')
 			.query({...});
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.select(Select.ALL_ATTRIBUTES | Select.ALL_PROJECTED_ATTRIBUTES | Select.SPECIFIC_ATTRIBUTES | Select.COUNT)
 			.query({...});
 
@@ -114,7 +114,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 * Chain to inform requests to perform a consistent read
 * Returns a request instance which allow chain more operations
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.consistent()
 			.query({...});
 
@@ -123,7 +123,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 * Query table using primaryKeys or Indexes, or combined.
 * Returns an observable carrying the data, which can be used with any RxJS operators, like, map, filter, reduce, debounceTime, ...
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.index(...)
 			.select(...)
 			.limit(10)
@@ -144,7 +144,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			)
 			.subscribe(next, err, complete);
 
-		const request = dynamoDb.table({...});
+		const request = dynamo.table({...});
 
 		request.select(...)
 			.limit(10)
@@ -186,7 +186,7 @@ Note: DynamoDb just fetch max 1MB, this lib handles this and perform many reques
 * Get a value table using primaryKeys or Indexes, or combined.
 * Returns an observable carrying the data, which can be used with any RxJS operators, like, map, filter, reduce, debounceTime, ...
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.select(...)
 			.get({
 				[partitionAttr]: string; // required
@@ -204,7 +204,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 * Chain to inform requests that next request will be indexed by a previously created index;
 * Returns a request instance which allow chain more operations
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.index('someLocalIndexName')
 			.query({...})
 			.subscribe(next, err, complete);
@@ -213,7 +213,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 * Chain to inform requests that next request will be made in descendent order.
 * Returns a request instance which allow chain more operations
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.desc()
 			.query({...})
 			.subscribe(next, err, complete);
@@ -222,7 +222,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 * Chain to inform requests that next request will have a limit.
 * Returns a request instance which allow chain more operations
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.limit(100)
 			.query({...})
 			.subscribe(next, err, complete);
@@ -231,7 +231,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 * Chain to create a filterExpression, or append one, it shoud be used with `.addPlaceholderName()` and `.addPlaceholderValue()`.
 * Returns a request instance which allow chain more operations
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.addPlaceholderName({
 				field1: 'field1'	
 			})
@@ -248,7 +248,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 
 			// you can append a filter, and sepecify the condition
 
-			dynamoDb.table({...})
+			dynamo.table({...})
 				.addPlaceholderName({
 					field1: 'field1'	
 				})
@@ -267,7 +267,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 * Chain to inform requests that next request be resumed according to keys' arguments.
 * Returns a request instance which allow chain more operations
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.resume({
 				[partitionAttr]: string;
 				[sortAttr]: string;
@@ -286,7 +286,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 * Insert, how the name says, just inserts, not updates nor replaces an entity.
 * Returns an observable carrying the data just added plus createdAt and updatedAt attributes with the same value, which can be used with any RxJS operators, like, map, filter, reduce, debounceTime, ...
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.insert({...})
 			.subscribe(next, err, complete);
 
@@ -296,7 +296,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 * Insert or replace, how the name says, just inserts or replaces, not update an entity.
 * Returns an observable carrying the data just added plus createdAt and updatedAt attributes with the same value, which can be used with any RxJS operators, like, map, filter, reduce, debounceTime, ...
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.insertOrReplace({...})
 			.subscribe(next, err, complete);
 
@@ -306,7 +306,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 * Insert or replace, how the name says, just inserts or updates, not replaces an entity.
 * Returns an observable carrying the data just added plus createdAt and updatedAt attributes with the same value if inserted, and updatedAt changed if it was updated, which can be used with any RxJS operators, like, map, filter, reduce, debounceTime, ...
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.insertOrUpdate({...})
 			.subscribe(next, err, complete);
 
@@ -320,7 +320,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			ReturnValues
 		} from 'rxjs-dynamodb-client';
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.return(ReturnValues.NONE | ReturnValues.ALL_OLD | ReturnValues.UPDATED_OLD | ReturnValues.ALL_NEW | ReturnValues.UPDATED_NEW)
 			.update({
 				[partitionAttr]: string; // required
@@ -339,7 +339,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 			ReturnValues
 		} from 'rxjs-dynamodb-client';
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.return(ReturnValues.NONE | ReturnValues.ALL_OLD)
 			.delete({
 				[partitionAttr]: string; // required
@@ -353,7 +353,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 **.batchGetScan(items: Array<object>, scan: () => Obervable)**
 * Returns an observable carrying a stream of gotten values
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.batchGet([{
 				[partitionAttr]: string; // required
 				[sortAttr]: string; // required
@@ -371,7 +371,7 @@ Note: If you are using Promises, you can easily tranform Observables into Promis
 **.batchWrite(toDelete: Array<object> | null, toInsert: Array<object> | null)**
 * Returns an observable carrying an array of unprocessed items
 
-		dynamoDb.table({...})
+		dynamo.table({...})
 			.batchWrite(toDelete => [{
 				[partitionAttr]: string; // required
 				[sortAttr]: string; // required
@@ -482,12 +482,12 @@ This lib follows with a Crud class helper, at this way you can extend your model
 		});
 		
 		// instance the lib
-		const dynamoDb = new DynamoDB({
+		const dynamo = new DynamoDB({
 			client: new AWS.DynamoDB()
 		});
 
 		const crud = new Crud(tableName: string, schema: object, {
-			dynamoDb	
+			dynamo	
 		});
 
 ## Crud operations

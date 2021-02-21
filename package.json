@@ -1,7 +1,7 @@
 {
     "name": "rxjs-dynamodb-client",
     "version": "2.0.4",
-    "description": "Lightweight dynamoDb client built on top of RxJS",
+    "description": "Lightweight dynamodb client built on top of RxJS",
     "main": "index.js",
     "scripts": {
         "coverage": "rm -rf coverage; NODE_ENV=test nyc ./node_modules/.bin/_mocha *.spec.js **/*.spec.js --recursive --timeout 5000; rm -rf .nyc_output",

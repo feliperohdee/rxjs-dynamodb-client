@@ -12,7 +12,7 @@ const {
 class DynamoDB {
     constructor(deps = {}) {
         if (!deps.client) {
-            throw new Error('no dynamoDb client provided.');
+            throw new Error('no dynamodb client provided.');
         }
 
         this.client = deps.client;

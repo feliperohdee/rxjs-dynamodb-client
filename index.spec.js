@@ -11,7 +11,7 @@ const {
 	Request
 } = require('./');
 const {
-	dynamoDb
+	dynamodb
 } = require('./testing/');
 
 chai.use(sinonChai);
@@ -21,18 +21,18 @@ const expect = chai.expect;
 describe('index', () => {
 	describe('constructor', () => {
 		it('should throw if not deps.client', () => {
-			expect(() => new DynamoDB()).to.throw('no dynamoDb client provided.');
+			expect(() => new DynamoDB()).to.throw('no dynamodb client provided.');
 		});
 
-		it('client be dynamoDb of AWSDynamoDB', () => {
-			expect(dynamoDb.client).to.be.instanceOf(AWSDynamoDB);
+		it('client be dynamodb of AWSDynamoDB', () => {
+			expect(dynamodb.client).to.be.instanceOf(AWSDynamoDB);
 		});
 	});
 
 	describe('request', () => {
 		it('should request be unique', () => {
-			const request = dynamoDb.request;
-			const request2 = dynamoDb.request;
+			const request = dynamodb.request;
+			const request2 = dynamodb.request;
 
 			expect(request === request2).to.be.false;
 			expect(request).to.be.instanceOf(Request);
@@ -41,8 +41,8 @@ describe('index', () => {
 
 	describe('util', () => {
 		it('should util be unique', () => {
-			const util = dynamoDb.util;
-			const util2 = dynamoDb.util;
+			const util = dynamodb.util;
+			const util2 = dynamodb.util;
 
 			expect(util === util2).to.be.false;
 			expect(util).to.be.instanceOf(Util);
@@ -50,8 +50,8 @@ describe('index', () => {
 	});
 
 	describe('table', () => {
-		it('should return a request dynamoDb', () => {
-			const request = dynamoDb.table('someTable', {
+		it('should return a request dynamodb', () => {
+			const request = dynamodb.table('someTable', {
 				partition: 'partition',
 				sort: 'sort'
 			});
@@ -70,15 +70,15 @@ describe('index', () => {
 		});
 
 		it('should call Request.prototype.routeCall', () => {
-			dynamoDb.call('someMethod', {});
+			dynamodb.call('someMethod', {});
 
 			expect(Request.prototype.routeCall).to.have.been.calledOnce;
 		});
 	});
 
 	describe('S', () => {
-		it('should return Util dynamoDb with S type data', () => {
-			const S = dynamoDb.S('string');
+		it('should return Util dynamodb with S type data', () => {
+			const S = dynamodb.S('string');
 
 			expect(S).to.be.instanceOf(Util);
 			expect(S.data).to.deep.equal({
@@ -88,8 +88,8 @@ describe('index', () => {
 	});
 
 	describe('N', () => {
-		it('should return Util dynamoDb with N type data', () => {
-			const N = dynamoDb.N(9);
+		it('should return Util dynamodb with N type data', () => {
+			const N = dynamodb.N(9);
 
 			expect(N).to.be.instanceOf(Util);
 			expect(N.data).to.deep.equal({
@@ -99,8 +99,8 @@ describe('index', () => {
 	});
 
 	describe('SS', () => {
-		it('should return Util dynamoDb with SS type data', () => {
-			const SS = dynamoDb.SS(['a', 'b', 'c']);
+		it('should return Util dynamodb with SS type data', () => {
+			const SS = dynamodb.SS(['a', 'b', 'c']);
 
 			expect(SS).to.be.instanceOf(Util);
 			expect(SS.data).to.deep.equal({
@@ -110,8 +110,8 @@ describe('index', () => {
 	});
 
 	describe('NS', () => {
-		it('should return Util dynamoDb with NS type data', () => {
-			const NS = dynamoDb.NS([1, 2, 3]);
+		it('should return Util dynamodb with NS type data', () => {
+			const NS = dynamodb.NS([1, 2, 3]);
 
 			expect(NS).to.be.instanceOf(Util);
 			expect(NS.data).to.deep.equal({
@@ -121,8 +121,8 @@ describe('index', () => {
 	});
 
 	describe('L', () => {
-		it('should return Util dynamoDb with L type data', () => {
-			const L = dynamoDb.L(['a', 1, {
+		it('should return Util dynamodb with L type data', () => {
+			const L = dynamodb.L(['a', 1, {
 				key: 'value'
 			}]);
 

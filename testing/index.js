@@ -6,10 +6,10 @@ const {
 	dynamoDbClient: client
 } = require('./AWS');
 
-const dynamoDb = new DynamoDB({
+const dynamodb = new DynamoDB({
 	client
 });
 
 module.exports = {
-	dynamoDb
+	dynamodb
 };
