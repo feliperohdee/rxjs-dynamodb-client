@@ -1,15 +1,17 @@
+const rx = require('./rx');
+
 const {
 	DynamoDB
 } = require('../');
-
 const {
-	dynamoDbClient: client
+	dynamoDbClient
 } = require('./AWS');
 
 const dynamodb = new DynamoDB({
-	client
+	client: dynamoDbClient
 });
 
 module.exports = {
-	dynamodb
+	dynamodb,
+	rx
 };
